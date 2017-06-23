@@ -3,6 +3,7 @@ package feathers.utils
 	import flash.desktop.ClipboardFormats;
 	import flash.desktop.NativeDragActions;
 	import flash.desktop.NativeDragManager;
+	import flash.errors.InvalidSWFError;
 	import flash.filesystem.File;
 	
 	import feathers.dragDrop.DragData;
@@ -11,19 +12,28 @@ package feathers.utils
 	import feathers.events.DragDropEvent;
 	
 	import starling.display.DisplayObject;
-
+	
 	public class FileDropTarget
 	{
 		/** Dispatched from the target when valid files are dropped. <code>Event.data</code> is <code>Vector.&lt;File&gt;</code>. */
 		public static const FILE_DRAG_DROP:String = "fileDragDrop";
 		
-		public function FileDropTarget(target:DisplayObject, allowMultipleFiles:Boolean = true, validFileExtensions:Vector.<String> = null, allFilesMustBeValid:Boolean = false, atLeastOneFileMustBeValid:Boolean = true, dropEventBubbles:Boolean = false)
+		/**
+		 * @param target A DisplayObject that implements IDropTarget that will become the file drop target.
+		 * @param validFileExtensions Determines the file extensions that will be checked against.
+		 * @param allowMultipleFiles Whether to allow multiple files
+		 * @param allowFolders Whether to allow folders
+		 * @param allFilesMustBeValid All files dragged in must be valid. e.g. if allowMultipleFiles is empty and allowFolders = true, then only folders can be dropped onto the target.
+		 *        If this is false and validFileExtensions is null or empty, files of all extensions will pass. If validFileExtensions is populated, at least one file (including folders) must be valid.
+		 * @param dropEventBubbles The target will dipatch <code>FileDropTarget.FILE_DRAG_DROP</code> on a successful drop. Set to true to make it bubble. 
+		 */
+		public function FileDropTarget(target:DisplayObject, validFileExtensions:Vector.<String> = null, allowMultipleFiles:Boolean = false, allowFolders:Boolean = false, allFilesMustBeValid:Boolean = false, dropEventBubbles:Boolean = false)
 		{
 			this.target = target;
-			this.allowMultipleFiles = allowMultipleFiles;
 			this.validFileExtensions = validFileExtensions;
+			this.allowMultipleFiles = allowMultipleFiles;
+			this.allowFolders = allowFolders;
 			this.allFilesMustBeValid = allFilesMustBeValid;
-			this.atLeastOneFileMustBeValid = atLeastOneFileMustBeValid;
 			this.dropEventBubbles = dropEventBubbles;
 		}
 		
@@ -51,10 +61,10 @@ package feathers.utils
 				throw new Error("Property target must implement feathers.dragDrop.IDropTarget.");
 		}
 		
-		public var allowMultipleFiles:Boolean;
 		public var validFileExtensions:Vector.<String>;
+		public var allowMultipleFiles:Boolean;
+		public var allowFolders:Boolean;
 		public var allFilesMustBeValid:Boolean;
-		public var atLeastOneFileMustBeValid:Boolean;
 		public var dropEventBubbles:Boolean;
 		
 		public function checkDroppedFiles(files:Vector.<File>):Boolean
@@ -62,24 +72,32 @@ package feathers.utils
 			if (!allowMultipleFiles && files.length > 1)
 				return false;
 			
-			if (!validFileExtensions)
-				return true;
-			
-			var validFiles:int;
-			var invalidFiles:int;
+			var numValidFiles:int;
+			var numInvalidFiles:int;
 			
 			for each (var file:File in files)
 			{
-				if (validFileExtensions.indexOf(file.extension) >= 0)
+				if (file.isDirectory)
 				{
-					if (!allFilesMustBeValid || atLeastOneFileMustBeValid)
-						return true;
-					validFiles ++;
+					if (!allowFolders)
+						return false;
+					else
+						numValidFiles++;
 				}
 				else
-					invalidFiles ++;
+				{
+					if (validFileExtensions && validFileExtensions.indexOf(file.extension.toLowerCase()) >= 0)
+						numValidFiles++;
+					else
+						numInvalidFiles++;
+				}
+				
+				if (numValidFiles && !allFilesMustBeValid)
+					return true;
+				else if (numInvalidFiles && allFilesMustBeValid)
+					return false;
 			}
-			return validFiles && !invalidFiles;
+			return Boolean(numValidFiles);
 		}
 		
 		private function target_dragEnterHandler(event:DragDropEvent, dragData:DragData):void
