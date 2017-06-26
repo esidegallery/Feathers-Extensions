@@ -1,8 +1,7 @@
-package feathres.controls
+package feathers.controls
 {
 	import flash.geom.Rectangle;
 	
-	import feathers.controls.ImageLoader;
 	import feathers.layout.HorizontalAlign;
 	import feathers.layout.VerticalAlign;
 	
