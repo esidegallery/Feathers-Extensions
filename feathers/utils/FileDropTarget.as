@@ -3,7 +3,6 @@ package feathers.utils
 	import flash.desktop.ClipboardFormats;
 	import flash.desktop.NativeDragActions;
 	import flash.desktop.NativeDragManager;
-	import flash.errors.InvalidSWFError;
 	import flash.filesystem.File;
 	
 	import feathers.dragDrop.DragData;
