@@ -1,5 +1,11 @@
 package feathers.controls
 {
+	import com.esidegallery.enums.ScaleMode;
+	import com.esidegallery.utils.ImageUtils;
+	
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.events.Event;
 	import flash.geom.Rectangle;
 	
 	import feathers.layout.HorizontalAlign;
@@ -15,6 +21,8 @@ package feathers.controls
 		
 		private static const HELPER_RECTANGLE:Rectangle = new Rectangle;
 		private static const HELPER_RECTANGLE2:Rectangle = new Rectangle;
+		
+		public static var maxTextureDimensions:int = 4096;	
 		
 		protected var _textureScaleMultiplierX:Number = 1;
 		protected var _textureScaleMultiplierY:Number = 1;
@@ -91,7 +99,7 @@ package feathers.controls
 			var textureScaleX:Number = textureScale * _textureScaleMultiplierX;
 			var textureScaleY:Number = textureScale * _textureScaleMultiplierY;
 			if(this.scaleContent && this.maintainAspectRatio &&
-				this.scaleMode !== ScaleMode.NONE &&
+				this.scaleMode !== starling.utils.ScaleMode.NONE &&
 				this.scale9Grid === null)
 			{
 				if(!needsHeight)
@@ -257,7 +265,7 @@ package feathers.controls
 				this.image.width = imageWidth;
 				this.image.height = imageHeight;
 			}
-			if((!this.scaleContent || (this.maintainAspectRatio && this.scaleMode !== ScaleMode.SHOW_ALL)) &&
+			if((!this.scaleContent || (this.maintainAspectRatio && this.scaleMode !== starling.utils.ScaleMode.SHOW_ALL)) &&
 				(this.actualWidth != imageWidth || this.actualHeight != imageHeight))
 			{
 				var mask:Quad = this.image.mask as Quad;
@@ -287,6 +295,44 @@ package feathers.controls
 					mask.removeFromParent(true);
 					this.image.mask = null;
 				}
+			}
+		}
+		
+		override protected function loader_completeHandler(event:flash.events.Event):void
+		{
+			var bitmap:Bitmap = Bitmap(this.loader.content);
+			this.cleanupLoaders(false);
+			
+			var bitmapData:BitmapData = bitmap.bitmapData;
+			if (bitmapData.width > maxTextureDimensions || bitmapData.height > maxTextureDimensions)
+				bitmapData = ImageUtils.resize(bitmapData, maxTextureDimensions, maxTextureDimensions, com.esidegallery.enums.ScaleMode.MAINTAIN_RATIO);
+			
+			//if the upload is synchronous, attempt to reuse the existing
+			//texture so that we don't need to create a new one.
+			//when AIR-4198247 is fixed in a stable build, this can be removed
+			//(perhaps with some kind of AIR version detection, though)
+			var canReuseTexture:Boolean =
+				this._texture !== null &&
+				(!this._asyncTextureUpload || this._texture.root.uploadBitmapData.length === 1) &&
+				this._texture.nativeWidth === bitmapData.width &&
+				this._texture.nativeHeight === bitmapData.height &&
+				this._texture.scale === this.scaleFactor &&
+				this._texture.format === this.textureFormat;
+			if(!canReuseTexture)
+			{
+				this.cleanupTexture();
+			}
+			if(this._delayTextureCreation && !this._isRestoringTexture)
+			{
+				this._pendingBitmapDataTexture = bitmapData;
+				if(this._textureQueueDuration < Number.POSITIVE_INFINITY)
+				{
+					this.addToTextureQueue();
+				}
+			}
+			else
+			{
+				this.replaceBitmapDataTexture(bitmapData);
 			}
 		}
 		
