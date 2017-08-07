@@ -4,6 +4,8 @@ package feathers.controls
 	
 	import feathers.core.FeathersControl;
 	
+	import starling.animation.Tween;
+	import starling.core.Starling;
 	import starling.display.graphics.NGon;
 	
 	public class ProgressPie extends FeathersControl
@@ -121,9 +123,14 @@ package feathers.controls
 			}
 		}
 
-
 		protected var incomplete:NGon;
 		protected var complete:NGon;
+		
+		private var autoTween1:Tween;
+		private var autoTween2:Tween;
+		private var tweenTarget:Object = {start: 0, end: 0};
+		private var tweenSwapStartAndEnd:Boolean;
+		private var tweenAngleIsObtuse:Boolean;
 		
 		override protected function initialize():void
 		{
@@ -150,26 +157,79 @@ package feathers.controls
 			}
 			if (isInvalid(INVALIDATION_FLAG_DATA))
 			{
-				if (_minimumValue == _maximumValue)
-					var completeAngle:Number = 360;
-				else
+				if (_maximumValue == Number.MAX_VALUE)
 				{
-					completeAngle = (_currentValue - _minimumValue) / (_maximumValue - _minimumValue) * 360;
-					if (completeAngle < 0.000001)
-						completeAngle = 0.000001;
-					else if (completeAngle > 360)
-						completeAngle = 360;
+					if (!autoTween1)
+					{
+						tweenTarget.start = tweenTarget.end = 0;
+						tweenUpdateHandler();
+						autoTween1 = new Tween(tweenTarget, 1.75 * 2);
+						autoTween1.repeatCount = 0;
+						autoTween1.onUpdate = tweenUpdateHandler;
+						autoTween1.animate("start", 360);
+						
+						autoTween2 = new Tween(tweenTarget, 1 * 2);
+						autoTween2.repeatCount = 0;
+						autoTween2.animate("end", 360);
+						
+						Starling.juggler.add(autoTween1);
+						Starling.juggler.add(autoTween2);
+					}
 				}
-				if (incomplete.startAngle != completeAngle)
+				else if (autoTween1)
+					disposeTweens();
+				
+				if (!autoTween1)
 				{
-					incomplete.startAngle = completeAngle;
-					complete.endAngle = completeAngle;
-					setRequiresRedraw();
+					if (_minimumValue == _maximumValue)
+					{
+						var completeStartAngle:Number = 0;
+						var completeEndAngle:Number = 360;
+					}
+					else
+					{
+						completeStartAngle = 0;
+						completeEndAngle = (_currentValue - _minimumValue) / (_maximumValue - _minimumValue) * 360;
+						if (completeEndAngle < 0.000001)
+							completeEndAngle = 0.000001;
+						else if (completeEndAngle > 360)
+							completeEndAngle = 360;
+					}
+					if (incomplete.startAngle != completeEndAngle || incomplete.endAngle != completeStartAngle)
+					{
+						incomplete.startAngle = completeEndAngle;
+						incomplete.endAngle = completeStartAngle;
+						complete.startAngle = completeStartAngle;
+						complete.endAngle = completeEndAngle;
+						setRequiresRedraw();
+					}
 				}
 			}
 			
 			autoSizeIfNeeded();
 			layoutChildren();
+		}
+		
+		override public function set alpha(value:Number):void
+		{
+			super.alpha = value;
+		}
+		
+		private function tweenUpdateHandler():void
+		{
+			var start:Number = tweenTarget.start;
+			var end:Number = tweenTarget.end;
+			if (end < start)
+				end += 360;
+			var isObtuseNow:Boolean = end - start > 180;
+			if (isObtuseNow != tweenAngleIsObtuse && end - start < 180) // Detects a crossover between start and end.
+				tweenSwapStartAndEnd = !tweenSwapStartAndEnd;
+			complete.startAngle = tweenSwapStartAndEnd ? end : start;
+			complete.endAngle = tweenSwapStartAndEnd ? start : end;
+			incomplete.startAngle = complete.endAngle;
+			incomplete.endAngle = complete.startAngle;
+			tweenAngleIsObtuse = isObtuseNow;
+			setRequiresRedraw();
 		}
 		
 		protected function autoSizeIfNeeded():Boolean
@@ -200,6 +260,28 @@ package feathers.controls
 			incomplete.x = incomplete.y 
 				= complete.x = complete.y
 				= padding + outerRad;
+		}
+		
+		private function disposeTweens():void
+		{
+			Starling.juggler.removeTweens(tweenTarget);
+			if (autoTween1)
+			{
+				autoTween1.onUpdate = null;
+				autoTween1.reset(null, 0);
+			}
+			if (autoTween2)
+			{
+				autoTween2.reset(null, 0);
+			}
+			autoTween1 = null;
+			autoTween2 = null;
+		}
+		
+		override public function dispose():void
+		{
+			disposeTweens();
+			super.dispose();
 		}
 	}
 }

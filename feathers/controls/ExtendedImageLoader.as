@@ -11,6 +11,7 @@ package feathers.controls
 	import feathers.layout.HorizontalAlign;
 	import feathers.layout.VerticalAlign;
 	
+	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.utils.RectangleUtil;
 	import starling.utils.ScaleMode;
@@ -53,6 +54,11 @@ package feathers.controls
 				_texturePreferredHeight = value;
 				invalidate(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);			
 			}
+		}
+		
+		public function get internalImage():Image
+		{
+			return image;
 		}
 
 		protected function calculateTextureScaleMultipliers():void
