@@ -163,12 +163,12 @@ package feathers.controls
 					{
 						tweenTarget.start = tweenTarget.end = 0;
 						tweenUpdateHandler();
-						autoTween1 = new Tween(tweenTarget, 1.75 * 2);
+						autoTween1 = new Tween(tweenTarget, 1.75 * 1.5);
 						autoTween1.repeatCount = 0;
 						autoTween1.onUpdate = tweenUpdateHandler;
 						autoTween1.animate("start", 360);
 						
-						autoTween2 = new Tween(tweenTarget, 1 * 2);
+						autoTween2 = new Tween(tweenTarget, 1 * 1.5);
 						autoTween2.repeatCount = 0;
 						autoTween2.animate("end", 360);
 						
