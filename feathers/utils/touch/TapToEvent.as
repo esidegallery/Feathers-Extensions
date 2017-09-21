@@ -12,7 +12,6 @@ package feathers.utils.touch
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
 	import starling.display.Stage;
-	import starling.events.Event;
 	import starling.events.Touch;
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
@@ -171,7 +170,9 @@ package feathers.utils.touch
 			this._tapCount = value;
 		}
 		
-		public var bubbles:Boolean = false;
+		public var shiftKey:Boolean;
+		public var ctrlKey:Boolean;
+		public var bubbles:Boolean;
 
 		/**
 		 * @private
@@ -240,7 +241,7 @@ package feathers.utils.touch
 							isInBounds = this._target === stage.hitTest(point);
 						}
 						Pool.putPoint(point);
-						if(isInBounds && (this._tapCount === -1 || this._tapCount === touch.tapCount))
+						if(isInBounds && (this._tapCount === -1 || this._tapCount === touch.tapCount) && event.shiftKey == shiftKey && event.ctrlKey == ctrlKey)
 						{
 							this._target.dispatchEventWith(this._eventType, bubbles);
 						}
