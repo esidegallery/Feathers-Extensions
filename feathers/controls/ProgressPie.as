@@ -7,6 +7,7 @@ package feathers.controls
 	import starling.animation.Tween;
 	import starling.core.Starling;
 	import starling.display.graphics.NGon;
+	import starling.utils.Color;
 	
 	public class ProgressPie extends FeathersControl
 	{
@@ -67,7 +68,7 @@ package feathers.controls
 			}
 		}
 		
-		private var _incompleteColor:uint = 0xffffff;
+		private var _incompleteColor:uint = Color.WHITE;
 		public function get incompleteColor():uint
 		{
 			return _incompleteColor;
