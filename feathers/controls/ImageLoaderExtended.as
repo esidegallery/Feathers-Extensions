@@ -16,7 +16,7 @@ package feathers.controls
 	import starling.utils.RectangleUtil;
 	import starling.utils.ScaleMode;
 	
-	public class ExtendedImageLoader extends ImageLoader
+	public class ImageLoaderExtended extends ImageLoader
 	{
 		private static const INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE:String = "texturePreferredSize";
 		
