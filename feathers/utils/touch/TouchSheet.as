@@ -23,7 +23,6 @@ package feathers.utils.touch
         public function TouchSheet(contents:DisplayObject=null)
         {
             addEventListener(TouchEvent.TOUCH, onTouch);
-            useHandCursor = true;
             
             if (contents)
             {
@@ -121,7 +120,7 @@ package feathers.utils.touch
                 }
             }
             //do a multi-touch gesture if we have enough touches
-            if(touchAID !== -1 && touchBID !== -1)
+            if(touchAID !== -1 && touchBID !== -1 && (rotateEnabled || zoomEnabled || moveEnabled))
             {
                 // two fingers touching -> rotate and scale
                 touchA = event.getTouch(this, null, touchAID);
