@@ -23,6 +23,8 @@ package feathers.controls
 			super();
 			layout = new TouchImageContainerLayout;
 			hasElasticEdges = false;
+			decelerationRate = 0.95;
+			scrollBarDisplayMode = ScrollBarDisplayMode.NONE;
 		}
 		
 		private var _texturePreferredWidth:Number;
@@ -32,11 +34,8 @@ package feathers.controls
 		}
 		public function set texturePreferredWidth(value:Number):void
 		{
-			if (_texturePreferredWidth != value)
-			{
-				_texturePreferredWidth = value;
-				invalidate(INVALIDATION_FLAG_DATA);
-			}
+			_texturePreferredWidth = value;
+			image && (image.texturePreferredWidth = value);
 		}
 
 		private var _texturePreferredHeight:Number;
@@ -46,11 +45,8 @@ package feathers.controls
 		}
 		public function set texturePreferredHeight(value:Number):void
 		{
-			if (_texturePreferredHeight != value)
-			{
-				_texturePreferredHeight = value;
-				invalidate(INVALIDATION_FLAG_DATA);
-			}
+			_texturePreferredHeight = value;
+			image && (image.texturePreferredHeight = value);
 		}
 		
 		private var _source:Object;
@@ -60,11 +56,8 @@ package feathers.controls
 		}
 		public function set source(value:Object):void
 		{
-			if (_source != value)
-			{
-				_source = value;
-				invalidate(INVALIDATION_FLAG_DATA);
-			}
+			_source = value;
+			image && (image.source = value);
 		}
 
 		private var _textureCache:TextureCache;
@@ -75,6 +68,22 @@ package feathers.controls
 		public function set textureCache(value:TextureCache):void
 		{
 			_textureCache = value;
+			image && (image.textureCache = value);
+		}
+		
+		public function set zoomEnabled(value:Boolean):void
+		{
+			touchSheet && (touchSheet.zoomEnabled = value);
+		}
+		
+		private var _overscaleToFit:Boolean;
+		public function get overscaleToFit():Boolean
+		{
+			return _overscaleToFit;
+		}
+		public function set overscaleToFit(value:Boolean):void
+		{
+			_overscaleToFit = value;
 		}
 		
 		protected var touchSheet:TouchSheet = null;
@@ -109,6 +118,10 @@ package feathers.controls
 			this.image = new ImageLoaderExtended;
 			this.image.addEventListener(Event.COMPLETE, image_completeHandler);
 			this.image.addEventListener(FeathersEventType.ERROR, image_errorHandler);
+			image.textureCache = _textureCache;
+			image.texturePreferredWidth = _texturePreferredWidth;
+			image.texturePreferredHeight = _texturePreferredHeight;
+			image.source = _source;
 			
 			//this is a custom version of TouchSheet designed to work better
 			//with Feathers scrolling containers
@@ -131,11 +144,6 @@ package feathers.controls
 			var dataInvalid:Boolean = this.isInvalid(INVALIDATION_FLAG_DATA);
 			if (dataInvalid)
 			{
-				image.textureCache = _textureCache;
-				image.texturePreferredWidth = _texturePreferredWidth;
-				image.texturePreferredHeight = _texturePreferredHeight;
-				image.source = _source;
-				
 				//stop any active animations because it's a new image
 				if(this._gestureCompleteTween !== null)
 				{
@@ -162,15 +170,22 @@ package feathers.controls
 		
 		protected function image_completeHandler(event:Event):void
 		{
+			scaleImageNow();
+		}
+		
+		public function scaleImageNow():void
+		{
 			//when an image first loads, we want it to fill the width and height
 			//of the item renderer, without being larger than the item renderer
-			var imageWidth:Number = isNaN(image.texturePreferredWidth) ? image.originalSourceWidth : image.texturePreferredWidth;
-			var imageHeight:Number = isNaN(image.texturePreferredHeight) ? image.originalSourceHeight : image.texturePreferredHeight;
+//			var imageWidth:Number = isNaN(image.texturePreferredWidth) ? image.originalSourceWidth : image.texturePreferredWidth;
+//			var imageHeight:Number = isNaN(image.texturePreferredHeight) ? image.originalSourceHeight : image.texturePreferredHeight;
+			var imageWidth:Number = image.texturePreferredWidth || image.originalSourceWidth || Number(image.source && image.source.width);
+			var imageHeight:Number = image.texturePreferredHeight || image.originalSourceHeight || Number(image.source && image.source.height);
 			
 			this._defaultScale = calculateScaleRatioToFit(
 				imageWidth, imageHeight,
 				this.viewPort.visibleWidth, this.viewPort.visibleHeight);
-			if(this._defaultScale > 1)
+			if(this._defaultScale > 1 && !_overscaleToFit)
 			{
 				//however, we only want to make large images smaller. small
 				//images should not be made larger because they'll get blurry.
@@ -192,7 +207,6 @@ package feathers.controls
 		protected function touchSheet_touchHandler(event:TouchEvent):void
 		{
 			var touch:Touch = event.getTouch(this.touchSheet, TouchPhase.BEGAN);
-			touch && trace(touch.id);
 			//the current gesture is complete on TouchPhase.ENDED
 			touch = event.getTouch(this.touchSheet, TouchPhase.ENDED);
 			if(touch === null)
