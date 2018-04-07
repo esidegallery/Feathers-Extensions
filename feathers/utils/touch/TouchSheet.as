@@ -9,6 +9,7 @@ package feathers.utils.touch
     import starling.events.Touch;
     import starling.events.TouchEvent;
     import starling.events.TouchPhase;
+    import starling.utils.MathUtil;
     import starling.utils.Pool;
 
     /**
@@ -36,6 +37,9 @@ package feathers.utils.touch
         public var rotateEnabled:Boolean = true;
         public var zoomEnabled:Boolean = true;
         public var bringToFrontEnabled:Boolean = true;
+		
+		public var maxScale:Number = Number.MAX_VALUE;
+		
         protected var touchAID:int = -1;
         protected var touchBID:int = -1;
         
@@ -177,13 +181,13 @@ package feathers.utils.touch
                 if (zoomEnabled && sizeDiff !== 1)
                 {
                     var zoomed:Boolean = false;
-                    var newScaleX:Number = scaleX * sizeDiff;
+                    var newScaleX:Number = MathUtil.clamp(scaleX * sizeDiff, 0, maxScale);
                     if(scaleX !== newScaleX)
                     {
                         scaleX = newScaleX;
                         zoomed = true;
                     }
-                    var newScaleY:Number = scaleY * sizeDiff;
+                    var newScaleY:Number = MathUtil.clamp(scaleY * sizeDiff, 0, maxScale);
                     if(scaleY !== newScaleY)
                     {
                         scaleY = newScaleY;

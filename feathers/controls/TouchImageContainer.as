@@ -27,6 +27,8 @@ package feathers.controls
 			scrollBarDisplayMode = ScrollBarDisplayMode.NONE;
 		}
 		
+		public var maxScale:Number = 1;
+		
 		private var _texturePreferredWidth:Number;
 		public function get texturePreferredWidth():Number
 		{
@@ -130,6 +132,7 @@ package feathers.controls
 			this.touchSheet.zoomEnabled = true;
 			this.touchSheet.rotateEnabled = false;
 			this.touchSheet.moveEnabled = false;
+			this.touchSheet.maxScale = 2;
 			//and events are dispatched when any of the gestures are performed
 			this.touchSheet.addEventListener(TouchSheet.MOVE, touchSheet_gestureHandler);
 			this.touchSheet.addEventListener(TouchSheet.ROTATE, touchSheet_gestureHandler);
@@ -177,8 +180,6 @@ package feathers.controls
 		{
 			//when an image first loads, we want it to fill the width and height
 			//of the item renderer, without being larger than the item renderer
-//			var imageWidth:Number = isNaN(image.texturePreferredWidth) ? image.originalSourceWidth : image.texturePreferredWidth;
-//			var imageHeight:Number = isNaN(image.texturePreferredHeight) ? image.originalSourceHeight : image.texturePreferredHeight;
 			var imageWidth:Number = image.texturePreferredWidth || image.originalSourceWidth || Number(image.source && image.source.width);
 			var imageHeight:Number = image.texturePreferredHeight || image.originalSourceHeight || Number(image.source && image.source.height);
 			
