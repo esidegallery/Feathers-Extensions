@@ -65,18 +65,28 @@ package feathers.controls
 		{
 			var newX:Number;
 			if (_texturePreferredWidth > 0 && _currentTextureWidth > 0)
+			{
 				newX = _texturePreferredWidth / _currentTextureWidth;
+			}
 			else
+			{
 				newX = 1;
+			}
 			
 			var newY:Number;
 			if (_texturePreferredHeight > 0 && _currentTextureHeight > 0)
+			{
 				newY = _texturePreferredHeight / _currentTextureHeight;
+			}
 			else
+			{
 				newY = 1;
+			}
 			
 			if (_textureScaleMultiplierX != newX || _textureScaleMultiplierY != newY)
+			{
 				invalidate(INVALIDATION_FLAG_SIZE);
+			}
 			
 			_textureScaleMultiplierX = newX;
 			_textureScaleMultiplierY = newY;

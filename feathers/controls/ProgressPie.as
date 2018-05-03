@@ -7,6 +7,7 @@ package feathers.controls
 	import starling.animation.Tween;
 	import starling.core.Starling;
 	import starling.display.graphics.NGon;
+	import starling.events.Event;
 	import starling.utils.Color;
 	
 	public class ProgressPie extends FeathersControl
@@ -21,7 +22,7 @@ package feathers.controls
 			if (_minimumValue != value)
 			{
 				minimumValue = value;
-				invalidate(INVALIDATION_FLAG_DATA);
+				invalidateData();
 			}
 		}
 
@@ -35,7 +36,7 @@ package feathers.controls
 			if (_maximumValue != value)
 			{
 				_maximumValue = value;
-				invalidate(INVALIDATION_FLAG_DATA);
+				invalidateData();
 			}
 		}
 
@@ -49,7 +50,7 @@ package feathers.controls
 			if (_currentValue != value)
 			{
 				_currentValue = value;
-				invalidate(INVALIDATION_FLAG_DATA);
+				invalidateData();
 			}
 		}
 
@@ -133,6 +134,9 @@ package feathers.controls
 		private var tweenSwapStartAndEnd:Boolean;
 		private var tweenAngleIsObtuse:Boolean;
 		
+		/** In indefinite mode, how many seconds it takes for the ring to loop round. */ 
+		public var loopDuration:Number = 1.75;
+		
 		override protected function initialize():void
 		{
 			super.initialize();
@@ -141,6 +145,8 @@ package feathers.controls
 			addChild(incomplete);
 			complete = new NGon;
 			addChild(complete);
+			
+			addEventListener(Event.REMOVED_FROM_STAGE, disposeTweens);
 		}
 		
 		override protected function draw():void
@@ -150,11 +156,17 @@ package feathers.controls
 			if (isInvalid(INVALIDATION_FLAG_STYLES))
 			{
 				if (incomplete.material.color != incompleteColor)
+				{
 					incomplete.material.color = incompleteColor;
+				}
 				if (complete.material.color != completeColor)
+				{
 					complete.material.color = completeColor;
+				}
 				if (incomplete.numSides != _numSides)
+				{
 					incomplete.numSides = complete.numSides = _numSides;
+				}
 			}
 			if (isInvalid(INVALIDATION_FLAG_DATA))
 			{
@@ -164,12 +176,12 @@ package feathers.controls
 					{
 						tweenTarget.start = tweenTarget.end = 0;
 						tweenUpdateHandler();
-						autoTween1 = new Tween(tweenTarget, 1.75 * 1.5);
+						autoTween1 = new Tween(tweenTarget, loopDuration);
 						autoTween1.repeatCount = 0;
 						autoTween1.onUpdate = tweenUpdateHandler;
 						autoTween1.animate("start", 360);
 						
-						autoTween2 = new Tween(tweenTarget, 1 * 1.5);
+						autoTween2 = new Tween(tweenTarget, loopDuration * 0.57143);
 						autoTween2.repeatCount = 0;
 						autoTween2.animate("end", 360);
 						
@@ -178,7 +190,9 @@ package feathers.controls
 					}
 				}
 				else if (autoTween1)
+				{
 					disposeTweens();
+				}
 				
 				if (!autoTween1)
 				{
@@ -192,9 +206,13 @@ package feathers.controls
 						completeStartAngle = 0;
 						completeEndAngle = (_currentValue - _minimumValue) / (_maximumValue - _minimumValue) * 360;
 						if (completeEndAngle < 0.000001)
+						{
 							completeEndAngle = 0.000001;
+						}
 						else if (completeEndAngle > 360)
+						{
 							completeEndAngle = 360;
+						}
 					}
 					if (incomplete.startAngle != completeEndAngle || incomplete.endAngle != completeStartAngle)
 					{
@@ -221,10 +239,14 @@ package feathers.controls
 			var start:Number = tweenTarget.start;
 			var end:Number = tweenTarget.end;
 			if (end < start)
+			{
 				end += 360;
+			}
 			var isObtuseNow:Boolean = end - start > 180;
 			if (isObtuseNow != tweenAngleIsObtuse && end - start < 180) // Detects a crossover between start and end.
+			{
 				tweenSwapStartAndEnd = !tweenSwapStartAndEnd;
+			}
 			complete.startAngle = tweenSwapStartAndEnd ? end : start;
 			complete.endAngle = tweenSwapStartAndEnd ? start : end;
 			incomplete.startAngle = complete.endAngle;
@@ -240,7 +262,9 @@ package feathers.controls
 			var needsMinWidth:Boolean = _explicitMinWidth !== _explicitMinWidth; //isNaN
 			var needsMinHeight:Boolean = _explicitMinHeight !== _explicitMinHeight; //isNaN
 			if (!needsWidth && !needsHeight && !needsMinWidth && !needsMinHeight)
+			{
 				return false;
+			}
 			
 			var newMinWidth:Number = _explicitMinWidth || 0;
 			var newMinHeight:Number = _explicitMinHeight || 0;
@@ -254,9 +278,13 @@ package feathers.controls
 			var outerRad:Number = Math.max(0, (Math.min(actualWidth, actualHeight) - padding * 2) / 2);
 			var innerRad:Number = MathUtils.minMax(outerRad * innerRadius, 0, outerRad);
 			if (incomplete.radius != outerRad)
+			{
 				incomplete.radius = complete.radius = outerRad;
+			}
 			if (incomplete.innerRadius != innerRad)
+			{
 				incomplete.innerRadius = complete.innerRadius = innerRad;
+			}
 			
 			incomplete.x = incomplete.y 
 				= complete.x = complete.y
@@ -277,6 +305,11 @@ package feathers.controls
 			}
 			autoTween1 = null;
 			autoTween2 = null;
+		}
+		
+		public function invalidateData():void
+		{
+			invalidate(INVALIDATION_FLAG_DATA);
 		}
 		
 		override public function dispose():void
