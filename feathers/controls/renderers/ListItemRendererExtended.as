@@ -2,7 +2,7 @@ package feathers.controls.renderers
 {
 	import starling.display.DisplayObject;
 	
-	public class ExtendedListItemRenderer extends DefaultListItemRenderer
+	public class ListItemRendererExtended extends DefaultListItemRenderer
 	{
 		private var _iconPropertiesFunction:Function;
 		public function get iconPropertiesFunction():Function
