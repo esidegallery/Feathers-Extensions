@@ -321,7 +321,9 @@ package feathers.controls
 			
 			var bitmapData:BitmapData = bitmap.bitmapData;
 			if (bitmapData.width > maxTextureDimensions || bitmapData.height > maxTextureDimensions)
+			{
 				bitmapData = ImageUtils.resize(bitmapData, maxTextureDimensions, maxTextureDimensions, com.esidegallery.enums.ScaleMode.MAINTAIN_RATIO);
+			}
 			
 			//if the upload is synchronous, attempt to reuse the existing
 			//texture so that we don't need to create a new one.
