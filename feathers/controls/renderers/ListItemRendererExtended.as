@@ -27,9 +27,13 @@ package feathers.controls.renderers
 				var properties:Object;
 				
 				if (_iconPropertiesFunction.length == 2)
+				{
 					properties = _iconPropertiesFunction(item, IListItemRenderer(this).index);
+				}
 				else
+				{
 					properties = _iconPropertiesFunction(item);
+				}
 				
 				for (var propertyName:String in properties)
 				{
@@ -40,7 +44,9 @@ package feathers.controls.renderers
 				return iconLoader;
 			}
 			else
+			{
 				return super.itemToIcon(item);
+			}
 		}
 	}
 }

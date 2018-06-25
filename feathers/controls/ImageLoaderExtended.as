@@ -11,6 +11,8 @@ package feathers.controls
 	import feathers.layout.HorizontalAlign;
 	import feathers.layout.VerticalAlign;
 	
+	import org.osflash.signals.Promise;
+	
 	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.utils.RectangleUtil;
@@ -54,6 +56,34 @@ package feathers.controls
 				_texturePreferredHeight = value;
 				invalidate(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);			
 			}
+		}
+		
+		protected var sourcePromise:Promise;
+		
+		override public function set source(value:Object):void
+		{
+			if (value is ImageLoaderExtendedVO)
+			{
+				disposeSourcePromise();
+				var ilevo:ImageLoaderExtendedVO = value as ImageLoaderExtendedVO;
+				super.source = ilevo.source;
+				texturePreferredWidth = ilevo.texturePreferredWidth;
+				texturePreferredHeight = ilevo.texturePreferredHeight;
+			}
+			else if (value is Promise)
+			{
+				disposeSourcePromise();
+				(value as Promise).addOnce(sourcePromiseHandler);
+			}
+			else
+			{
+				super.source = value;
+			}
+		}
+		
+		protected function sourcePromiseHandler(value:Object):void
+		{
+			source = value;
 		}
 		
 		public function get internalImage():Image
@@ -366,6 +396,18 @@ package feathers.controls
 			super.cleanupTexture();
 			
 			calculateTextureScaleMultipliers();
+		}
+		
+		public function disposeSourcePromise():void
+		{
+			sourcePromise && sourcePromise.remove(sourcePromiseHandler);
+			sourcePromise = null;
+		}
+		
+		override public function dispose():void
+		{
+			disposeSourcePromise();
+			super.dispose();
 		}
 	}
 }
