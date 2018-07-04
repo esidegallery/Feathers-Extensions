@@ -73,7 +73,12 @@ package feathers.controls
 			else if (value is Promise)
 			{
 				disposeSourcePromise();
-				(value as Promise).addOnce(sourcePromiseHandler);
+				sourcePromise = value as Promise; 
+				if (!sourcePromise.isDispatched)
+				{
+					super.source = null;
+				}
+				sourcePromise.addOnce(sourcePromiseHandler);
 			}
 			else
 			{
