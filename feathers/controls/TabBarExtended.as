@@ -7,6 +7,8 @@ package feathers.controls
 	
 	public class TabBarExtended extends TabBar
 	{
+		protected static const FIELD_TOOLTIP:String = "toolTip";
+		
 		public var autoSelectFirstTab:Boolean = true;
 		
 		override public function set dataProvider(value:IListCollection):void
@@ -55,6 +57,16 @@ package feathers.controls
 				this.dispatchEventWith(Event.CHANGE);
 			}
 			this.invalidate(INVALIDATION_FLAG_DATA);
+		}
+		
+		override protected function defaultTabInitializer(tab:ToggleButton, item:Object):void
+		{
+			super.defaultTabInitializer(tab, item);
+			
+			if (item.hasOwnProperty(FIELD_TOOLTIP))
+			{
+				tab.toolTip = item.toolTip;
+			}
 		}
 	}
 }

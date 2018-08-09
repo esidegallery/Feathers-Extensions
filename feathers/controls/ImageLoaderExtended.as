@@ -10,6 +10,8 @@ package feathers.controls
 	
 	import feathers.layout.HorizontalAlign;
 	import feathers.layout.VerticalAlign;
+	import feathers.utils.textures.TextureCache;
+	import feathers.utils.textures.TextureCacheExtended;
 	
 	import org.osflash.signals.Promise;
 	
@@ -66,9 +68,9 @@ package feathers.controls
 			{
 				disposeSourcePromise();
 				var ilevo:ImageLoaderExtendedVO = value as ImageLoaderExtendedVO;
-				super.source = ilevo.source;
 				texturePreferredWidth = ilevo.texturePreferredWidth;
 				texturePreferredHeight = ilevo.texturePreferredHeight;
+				super.source = ilevo.source;
 			}
 			else if (value is Promise)
 			{
@@ -83,6 +85,18 @@ package feathers.controls
 			else
 			{
 				super.source = value;
+			}
+		}
+		
+		override public function set textureCache(value:TextureCache):void
+		{
+			if (value is TextureCacheExtended && (value as TextureCacheExtended).isDisposed)
+			{
+				super.textureCache = null;
+			}
+			else
+			{
+				super.textureCache = value;
 			}
 		}
 		
@@ -130,7 +144,9 @@ package feathers.controls
 		override protected function draw():void
 		{
 			if (isInvalid(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE))
+			{
 				calculateTextureScaleMultipliers();
+			}
 			super.draw();
 		}
 		
