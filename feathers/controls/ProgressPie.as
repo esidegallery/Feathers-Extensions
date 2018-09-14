@@ -69,6 +69,20 @@ package feathers.controls
 			}
 		}
 		
+		protected var _showIncomplete:Boolean = true;
+		public function get showIncomplete():Boolean
+		{
+			return _showIncomplete;
+		}
+		public function set showIncomplete(value:Boolean):void
+		{
+			if (_showIncomplete != value)
+			{
+				_showIncomplete = value;
+				invalidate(INVALIDATION_FLAG_STYLES);
+			}
+		}
+		
 		private var _incompleteColor:uint = Color.WHITE;
 		public function get incompleteColor():uint
 		{
@@ -155,6 +169,10 @@ package feathers.controls
 			
 			if (isInvalid(INVALIDATION_FLAG_STYLES))
 			{
+				if (incomplete.visible != showIncomplete)
+				{
+					incomplete.visible = showIncomplete;
+				}
 				if (incomplete.material.color != incompleteColor)
 				{
 					incomplete.material.color = incompleteColor;
