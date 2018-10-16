@@ -15,6 +15,7 @@ package feathers.controls
 	import starling.events.Touch;
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
+	import starling.textures.TextureSmoothing;
 
 	public class TouchImageContainer extends ScrollContainer
 	{
@@ -123,6 +124,7 @@ package feathers.controls
 			image.textureCache = _textureCache;
 			image.texturePreferredWidth = _texturePreferredWidth;
 			image.texturePreferredHeight = _texturePreferredHeight;
+			image.textureSmoothing = TextureSmoothing.TRILINEAR;
 			image.source = _source;
 			
 			//this is a custom version of TouchSheet designed to work better

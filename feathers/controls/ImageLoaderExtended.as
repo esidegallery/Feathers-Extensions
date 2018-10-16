@@ -367,42 +367,13 @@ package feathers.controls
 		
 		override protected function loader_completeHandler(event:flash.events.Event):void
 		{
-			var bitmap:Bitmap = Bitmap(this.loader.content);
-			this.cleanupLoaders(false);
-			
-			var bitmapData:BitmapData = bitmap.bitmapData;
+			var bitmapData:BitmapData = Bitmap(this.loader.content).bitmapData;
 			if (bitmapData.width > maxTextureDimensions || bitmapData.height > maxTextureDimensions)
 			{
-				bitmapData = ImageUtils.resize(bitmapData, maxTextureDimensions, maxTextureDimensions, com.esidegallery.enums.ScaleMode.MAINTAIN_RATIO);
+				Bitmap(this.loader.content).bitmapData = ImageUtils.resize(bitmapData, maxTextureDimensions, maxTextureDimensions, com.esidegallery.enums.ScaleMode.MAINTAIN_RATIO);
 			}
 			
-			//if the upload is synchronous, attempt to reuse the existing
-			//texture so that we don't need to create a new one.
-			//when AIR-4198247 is fixed in a stable build, this can be removed
-			//(perhaps with some kind of AIR version detection, though)
-			var canReuseTexture:Boolean =
-				this._texture !== null &&
-				(!this._asyncTextureUpload || this._texture.root.uploadBitmapData.length === 1) &&
-				this._texture.nativeWidth === bitmapData.width &&
-				this._texture.nativeHeight === bitmapData.height &&
-				this._texture.scale === this.scaleFactor &&
-				this._texture.format === this.textureFormat;
-			if(!canReuseTexture)
-			{
-				this.cleanupTexture();
-			}
-			if(this._delayTextureCreation && !this._isRestoringTexture)
-			{
-				this._pendingBitmapDataTexture = bitmapData;
-				if(this._textureQueueDuration < Number.POSITIVE_INFINITY)
-				{
-					this.addToTextureQueue();
-				}
-			}
-			else
-			{
-				this.replaceBitmapDataTexture(bitmapData);
-			}
+			super.loader_completeHandler(event);
 		}
 		
 		override protected function refreshCurrentTexture():void
