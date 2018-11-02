@@ -2,6 +2,7 @@ package feathers.controls
 {
 	import com.esidegallery.enums.ScaleMode;
 	import com.esidegallery.utils.ImageUtils;
+	import com.esidegallery.utils.substitute;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -17,6 +18,7 @@ package feathers.controls
 	
 	import starling.display.Image;
 	import starling.display.Quad;
+	import starling.textures.Texture;
 	import starling.utils.RectangleUtil;
 	import starling.utils.ScaleMode;
 	
@@ -26,8 +28,6 @@ package feathers.controls
 		
 		private static const HELPER_RECTANGLE:Rectangle = new Rectangle;
 		private static const HELPER_RECTANGLE2:Rectangle = new Rectangle;
-		
-		public static var maxTextureDimensions:int = 4096;	
 		
 		protected var _textureScaleMultiplierX:Number = 1;
 		protected var _textureScaleMultiplierY:Number = 1;
@@ -45,7 +45,7 @@ package feathers.controls
 				invalidate(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);			
 			}
 		}
-
+		
 		private var _texturePreferredHeight:Number = NaN;
 		public function get texturePreferredHeight():Number
 		{
@@ -109,7 +109,7 @@ package feathers.controls
 		{
 			return image;
 		}
-
+		
 		protected function calculateTextureScaleMultipliers():void
 		{
 			var newX:Number;
@@ -368,9 +368,10 @@ package feathers.controls
 		override protected function loader_completeHandler(event:flash.events.Event):void
 		{
 			var bitmapData:BitmapData = Bitmap(this.loader.content).bitmapData;
-			if (bitmapData.width > maxTextureDimensions || bitmapData.height > maxTextureDimensions)
+			if (bitmapData.width > Texture.maxSize || bitmapData.height > Texture.maxSize)
 			{
-				Bitmap(this.loader.content).bitmapData = ImageUtils.resize(bitmapData, maxTextureDimensions, maxTextureDimensions, com.esidegallery.enums.ScaleMode.MAINTAIN_RATIO);
+				trace(substitute("Resizing texture from {0}x{1} to fit inside max texture size of {2}", [bitmapData.width, bitmapData.height]));
+				Bitmap(this.loader.content).bitmapData = ImageUtils.resize(bitmapData, Texture.maxSize, Texture.maxSize, com.esidegallery.enums.ScaleMode.MAINTAIN_RATIO);
 			}
 			
 			super.loader_completeHandler(event);
@@ -385,6 +386,11 @@ package feathers.controls
 		
 		override protected function cleanupTexture():void
 		{
+			if (source is ImageLoaderExtendedVO && (source as ImageLoaderExtendedVO).source is Texture && (source as ImageLoaderExtendedVO).isTextureOwner)
+			{
+				_isTextureOwner = true;
+			}
+			
 			super.cleanupTexture();
 			
 			calculateTextureScaleMultipliers();
