@@ -8,6 +8,7 @@ accordance with the terms of the accompanying license agreement.
 package feathers.utils.touch
 {
 	import flash.geom.Point;
+	import flash.utils.getTimer;
 	
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;
@@ -43,12 +44,12 @@ package feathers.utils.touch
 	 *
 	 * @productversion Feathers 3.4.0
 	 */
-	public class TapToEvent
+	public class TapToEventPlus
 	{
 		/**
 		 * Constructor.
 		 */
-		public function TapToEvent(target:DisplayObject = null, eventType:String = null)
+		public function TapToEventPlus(target:DisplayObject = null, eventType:String = null)
 		{
 			this.target = target;
 			this.eventType = eventType;
@@ -116,7 +117,9 @@ package feathers.utils.touch
 		 * @private
 		 */
 		protected var _touchPointID:int = -1;
-
+		protected var _touchTime:int;
+		protected var _touchLoc:Point;
+		
 		/**
 		 * @private
 		 */
@@ -241,7 +244,11 @@ package feathers.utils.touch
 							isInBounds = this._target === stage.hitTest(point);
 						}
 						Pool.putPoint(point);
-						if(isInBounds && (this._tapCount === -1 || this._tapCount === touch.tapCount) && event.shiftKey == shiftKey && event.ctrlKey == ctrlKey)
+						trace(new Point(touch.globalX, touch.globalY).subtract(_touchLoc), getTimer() - _touchTime);
+						if(isInBounds 
+							&& (this._tapCount === -1 || this._tapCount === touch.tapCount)
+							&& event.shiftKey == shiftKey 
+							&& event.ctrlKey == ctrlKey)
 						{
 							this._target.dispatchEventWith(this._eventType, bubbles);
 						}
@@ -277,6 +284,8 @@ package feathers.utils.touch
 
 				//save the touch ID so that we can track this touch's phases.
 				this._touchPointID = touch.id;
+				this._touchLoc = new Point(touch.globalX, touch.globalY);
+				this._touchTime = event.timestamp;
 			}
 		}
 	}
