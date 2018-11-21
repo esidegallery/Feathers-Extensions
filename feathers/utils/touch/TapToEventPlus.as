@@ -244,7 +244,7 @@ package feathers.utils.touch
 							isInBounds = this._target === stage.hitTest(point);
 						}
 						Pool.putPoint(point);
-						trace(new Point(touch.globalX, touch.globalY).subtract(_touchLoc), getTimer() - _touchTime);
+//						trace(new Point(touch.globalX, touch.globalY).subtract(_touchLoc), getTimer() - _touchTime);
 						if(isInBounds 
 							&& (this._tapCount === -1 || this._tapCount === touch.tapCount)
 							&& event.shiftKey == shiftKey 
