@@ -237,20 +237,24 @@ package feathers.utils.touch
 						touch.getLocation(stage, point);
 						if(this._target is DisplayObjectContainer)
 						{
-							var isInBounds:Boolean = DisplayObjectContainer(this._target).contains(stage.hitTest(point));
+							var hitTest:DisplayObject = stage.hitTest(point);
+							var isInBounds:Boolean = DisplayObjectContainer(this._target).contains(hitTest);
 						}
 						else
 						{
 							isInBounds = this._target === stage.hitTest(point);
 						}
 						Pool.putPoint(point);
-						trace(new Point(touch.globalX, touch.globalY).subtract(_touchLoc), getTimer() - _touchTime);
+						if (!isInBounds)
+						{
+						}
 						if(isInBounds 
 							&& (this._tapCount === -1 || this._tapCount === touch.tapCount)
 							&& event.shiftKey == shiftKey 
 							&& event.ctrlKey == ctrlKey)
 						{
-							this._target.dispatchEventWith(this._eventType, bubbles);
+							// trace(Math.abs(new Point(touch.globalX, touch.globalY).subtract(_touchLoc).length), event.timestamp - _touchTime);
+							this._target.dispatchEventWith(this._eventType, bubbles, touch);
 						}
 					}
 
