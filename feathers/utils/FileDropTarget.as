@@ -57,7 +57,9 @@ package feathers.utils
 				_target.addEventListener(DragDropEvent.DRAG_DROP, target_dragDropHandler);
 			}
 			else
+			{
 				throw new Error("Property target must implement feathers.dragDrop.IDropTarget.");
+			}
 		}
 		
 		public var validFileExtensions:Vector.<String>;
@@ -69,7 +71,9 @@ package feathers.utils
 		public function checkDroppedFiles(files:Vector.<File>):Boolean
 		{
 			if (!allowMultipleFiles && files.length > 1)
+			{
 				return false;
+			}
 			
 			var numValidFiles:int;
 			var numInvalidFiles:int;
@@ -79,22 +83,34 @@ package feathers.utils
 				if (file.isDirectory)
 				{
 					if (!allowFolders)
+					{
 						return false;
+					}
 					else
+					{
 						numValidFiles++;
+					}
 				}
 				else
 				{
-					if (validFileExtensions && validFileExtensions.indexOf(file.extension.toLowerCase()) >= 0)
+					if (validFileExtensions && file.extension && validFileExtensions.indexOf(file.extension.toLowerCase()) >= 0)
+					{
 						numValidFiles++;
+					}
 					else
+					{
 						numInvalidFiles++;
+					}
 				}
 				
 				if (numValidFiles && !allFilesMustBeValid)
+				{
 					return true;
+				}
 				else if (numInvalidFiles && allFilesMustBeValid)
+				{
 					return false;
+				}
 			}
 			return Boolean(numValidFiles);
 		}
