@@ -1,8 +1,7 @@
 package feathers.controls
 {
-	import com.esidegallery.utils.MathUtils;
-	
 	import feathers.core.FeathersControl;
+	import feathers.utils.math.clamp;
 	
 	import starling.animation.Tween;
 	import starling.core.Starling;
@@ -294,7 +293,7 @@ package feathers.controls
 		protected function layoutChildren():void
 		{
 			var outerRad:Number = Math.max(0, (Math.min(actualWidth, actualHeight) - padding * 2) / 2);
-			var innerRad:Number = MathUtils.minMax(outerRad * innerRadius, 0, outerRad);
+			var innerRad:Number = clamp(outerRad * innerRadius, 0, outerRad);
 			if (incomplete.radius != outerRad)
 			{
 				incomplete.radius = complete.radius = outerRad;
