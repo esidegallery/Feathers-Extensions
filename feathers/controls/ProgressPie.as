@@ -5,7 +5,6 @@ package feathers.controls
 	
 	import starling.animation.Tween;
 	import starling.core.Starling;
-	import starling.display.graphics.NGon;
 	import starling.events.Event;
 	import starling.utils.Color;
 	
