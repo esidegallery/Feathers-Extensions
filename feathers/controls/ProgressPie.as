@@ -5,6 +5,7 @@ package feathers.controls
 	
 	import starling.animation.Tween;
 	import starling.core.Starling;
+	import starling.display.BlendMode;
 	import starling.display.graphics.NGon;
 	import starling.events.Event;
 	import starling.utils.Color;
@@ -155,8 +156,10 @@ package feathers.controls
 			super.initialize();
 			
 			incomplete = new NGon;
+			incomplete.blendMode = BlendMode.NORMAL;
 			addChild(incomplete);
 			complete = new NGon;
+			complete.blendMode = BlendMode.NORMAL;
 			addChild(complete);
 			
 			addEventListener(Event.REMOVED_FROM_STAGE, disposeTweens);
@@ -164,8 +167,6 @@ package feathers.controls
 		
 		override protected function draw():void
 		{
-			super.draw();
-			
 			if (isInvalid(INVALIDATION_FLAG_STYLES))
 			{
 				if (incomplete.visible != showIncomplete)
@@ -244,6 +245,8 @@ package feathers.controls
 			
 			autoSizeIfNeeded();
 			layoutChildren();
+			
+			super.draw();
 		}
 		
 		override public function set alpha(value:Number):void
