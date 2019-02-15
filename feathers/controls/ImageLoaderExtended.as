@@ -32,6 +32,12 @@ package feathers.controls
 		protected var _textureScaleMultiplierX:Number = 1;
 		protected var _textureScaleMultiplierY:Number = 1;
 		
+		/** 
+		 * If the source is set to a Promise, by default the previous image is cleared while waiting for promise to dispatch.
+		 * Setting this flag keeps the previous image intil that happens.
+		 */
+		public var keepPreviousSourceUntilPromiseLoaded:Boolean = false;
+		
 		private var _texturePreferredWidth:Number = NaN;
 		public function get texturePreferredWidth():Number
 		{
@@ -76,7 +82,7 @@ package feathers.controls
 			{
 				disposeSourcePromise();
 				sourcePromise = value as Promise; 
-				if (!sourcePromise.isDispatched)
+				if (!sourcePromise.isDispatched && !keepPreviousSourceUntilPromiseLoaded)
 				{
 					super.source = null;
 				}
