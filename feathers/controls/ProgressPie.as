@@ -22,7 +22,7 @@ package feathers.controls
 			if (_minimumValue != value)
 			{
 				minimumValue = value;
-				invalidateData();
+				invalidate(INVALIDATION_FLAG_DATA);
 			}
 		}
 
@@ -36,7 +36,7 @@ package feathers.controls
 			if (_maximumValue != value)
 			{
 				_maximumValue = value;
-				invalidateData();
+				invalidate(INVALIDATION_FLAG_DATA);
 			}
 		}
 
@@ -50,7 +50,7 @@ package feathers.controls
 			if (_currentValue != value)
 			{
 				_currentValue = value;
-				invalidateData();
+				invalidate(INVALIDATION_FLAG_DATA);
 			}
 		}
 
@@ -325,11 +325,6 @@ package feathers.controls
 			}
 			autoTween1 = null;
 			autoTween2 = null;
-		}
-		
-		public function invalidateData():void
-		{
-			invalidate(INVALIDATION_FLAG_DATA);
 		}
 		
 		override public function dispose():void
