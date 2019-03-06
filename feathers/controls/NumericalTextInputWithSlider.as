@@ -11,6 +11,8 @@ package feathers.controls
 
 	public class NumericalTextInputWithSlider extends TextInput
 	{
+		public static const ALTERNATIVE_STYLE_NAME_NARROW:String = "narrow";
+		
 		public static const DEFAULT_CHILD_STYLE_NAME_SLIDER:String = "numericalTextInputWithSlider_slider";
 		
 		private static const INVALIDATION_FLAG_PARAMETERS:String = "parameters";
