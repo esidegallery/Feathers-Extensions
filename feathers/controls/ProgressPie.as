@@ -323,11 +323,6 @@ package feathers.controls
 			autoTween2 = null;
 		}
 		
-		public function invalidateData():void
-		{
-			invalidate(INVALIDATION_FLAG_DATA);
-		}
-		
 		override public function dispose():void
 		{
 			disposeTweens();
