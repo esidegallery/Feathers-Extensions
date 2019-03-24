@@ -8,7 +8,6 @@ accordance with the terms of the accompanying license agreement.
 package feathers.utils.touch
 {
 	import flash.geom.Point;
-	import flash.utils.getTimer;
 	
 	import starling.display.DisplayObject;
 	import starling.display.DisplayObjectContainer;

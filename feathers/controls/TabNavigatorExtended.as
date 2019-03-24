@@ -16,6 +16,28 @@ package feathers.controls
 			}
 		}
 		
+		override protected function createTabBar():void
+		{
+			super.createTabBar();
+			
+			if (tabBar)
+			{
+				tabBar.enabledFunction = getTabEnabled;
+			}
+		}
+		
+		protected function getTabEnabled(id:String):Boolean
+		{
+			var item:TabNavigatorItem = this.getScreen(id);
+			var value:Boolean = item && (item.properties.hasOwnProperty("isEnabled") ? item.properties.isEnabled : true);
+			return value;
+		}
+		
+		public function invalidateTabBarFactory():void
+		{
+			tabBar.invalidate("tabFactory");
+		}
+		
 		override public function addScreenAt(id:String, item:TabNavigatorItem, index:int):void
 		{
 			this.addScreenInternal(id, item);
