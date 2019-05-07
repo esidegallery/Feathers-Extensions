@@ -43,12 +43,12 @@ package feathers.utils.touch
 	 *
 	 * @productversion Feathers 3.4.0
 	 */
-	public class TapToEventPlus
+	public class TapToEventExtended
 	{
 		/**
 		 * Constructor.
 		 */
-		public function TapToEventPlus(target:DisplayObject = null, eventType:String = null)
+		public function TapToEventExtended(target:DisplayObject = null, eventType:String = null)
 		{
 			this.target = target;
 			this.eventType = eventType;
