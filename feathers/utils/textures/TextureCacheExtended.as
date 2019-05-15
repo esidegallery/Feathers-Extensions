@@ -2,7 +2,6 @@ package feathers.utils.textures
 {
 	import robotlegs.bender.framework.impl.UID;
 	
-	import starling.extensions.starlingCallLater.callLater;
 	import starling.textures.Texture;
 
 	public class TextureCacheExtended extends TextureCache
@@ -21,12 +20,11 @@ package feathers.utils.textures
 		{
 			return _isDisposed;
 		}
-		
-		public var debug:Boolean = true;
 
-		public function TextureCacheExtended(maxUnretainedTextures:int = 2147483647, preventDispose:Boolean = false)
+		public function TextureCacheExtended(maxUnretainedTextures:int = 2147483647, preventDispose:Boolean = false, uid:String = null)
 		{
 			this.preventDispose = preventDispose;
+			this._uid = uid;
 			super(maxUnretainedTextures);
 		}
 		
@@ -36,28 +34,8 @@ package feathers.utils.textures
 			{
 				super.addTexture(key, texture, retainTexture);
 			}
-			debug && callLater(traceStats)
 		}
-		
-		override public function removeTexture(key:String, dispose:Boolean = false):void
-		{
-			super.removeTexture(key, dispose);
-			debug && callLater(traceStats)
-		}
-		
-		override public function retainTexture(key:String):Texture
-		{
-			var val:Texture = super.retainTexture(key);
-			debug && callLater(traceStats);
-			return val;
-		}
-		
-		override public function releaseTexture(key:String):void
-		{
-			super.releaseTexture(key);
-			debug && callLater(traceStats)
-		}
-		
+
 		public function getNumRetainedTextures():int
 		{
 			var num:int = 0;
@@ -76,21 +54,12 @@ package feathers.utils.textures
 			return _unretainedKeys ? _unretainedKeys.length : 0;
 		}
 		
-		public function traceStats():void
-		{
-			trace(uid, getNumRetainedTextures(), "retained", getNumUnretainedTextures(), "unretained of", _maxUnretainedTextures);
-		}
-		
 		override public function dispose():void
 		{
 			if (!_isDisposed && !preventDispose)
 			{
 				super.dispose();
 				_isDisposed = true;
-				if (debug)
-				{
-					trace(uid, "disposed");
-				}
 			}
 		}
 	}
