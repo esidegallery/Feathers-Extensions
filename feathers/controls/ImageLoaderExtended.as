@@ -2,7 +2,6 @@ package feathers.controls
 {
 	import com.esidegallery.enums.ScaleMode;
 	import com.esidegallery.utils.ImageUtils;
-	import com.esidegallery.utils.substitute;
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -70,9 +69,9 @@ package feathers.controls
 		
 		override public function set source(value:Object):void
 		{
+			disposeSourcePromise();
 			if (value is ImageLoaderExtendedVO)
 			{
-				disposeSourcePromise();
 				var ilevo:ImageLoaderExtendedVO = value as ImageLoaderExtendedVO;
 				texturePreferredWidth = ilevo.texturePreferredWidth;
 				texturePreferredHeight = ilevo.texturePreferredHeight;
@@ -80,7 +79,6 @@ package feathers.controls
 			}
 			else if (value is Promise)
 			{
-				disposeSourcePromise();
 				sourcePromise = value as Promise; 
 				if (!sourcePromise.isDispatched && !keepPreviousSourceUntilPromiseLoaded)
 				{
@@ -92,6 +90,14 @@ package feathers.controls
 			{
 				super.source = value;
 			}
+		}
+		override public function get source():Object
+		{
+			if (super.source != null)
+			{
+				return super.source;
+			}
+			return sourcePromise;
 		}
 		
 		override public function set textureCache(value:TextureCache):void
@@ -108,7 +114,9 @@ package feathers.controls
 		
 		protected function sourcePromiseHandler(value:Object):void
 		{
+			disposeSourcePromise();
 			source = value;
+			validate();
 		}
 		
 		public function get internalImage():Image
@@ -376,7 +384,6 @@ package feathers.controls
 			var bitmapData:BitmapData = Bitmap(this.loader.content).bitmapData;
 			if (bitmapData.width > Texture.maxSize || bitmapData.height > Texture.maxSize)
 			{
-				trace(substitute("Resizing texture from {0}x{1} to fit inside max texture size of {2}", [bitmapData.width, bitmapData.height]));
 				Bitmap(this.loader.content).bitmapData = ImageUtils.resize(bitmapData, Texture.maxSize, Texture.maxSize, com.esidegallery.enums.ScaleMode.MAINTAIN_RATIO);
 			}
 			
