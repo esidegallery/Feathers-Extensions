@@ -17,25 +17,6 @@ package feathers.utils
 		/** Dispatched from the target when valid files are dropped.<br><code>Event.data</code> is <code>Vector.&lt;File&gt;</code>. */
 		public static const FILE_DRAG_DROP:String = "fileDragDrop";
 		
-		/**
-		 * @param target A DisplayObject that implements IDropTarget that will become the file drop target.
-		 * @param validFileExtensions Determines the file extensions that will be checked against.
-		 * @param allowMultipleFiles Whether to allow multiple files
-		 * @param allowFolders Whether to allow folders
-		 * @param allFilesMustBeValid All files dragged in must be valid. e.g. if allowMultipleFiles is empty and allowFolders = true, then only folders can be dropped onto the target.
-		 *        If this is false and validFileExtensions is null or empty, files of all extensions will pass. If validFileExtensions is populated, at least one file (including folders) must be valid.
-		 * @param dropEventBubbles The target will dipatch <code>FileDropTarget.FILE_DRAG_DROP</code> on a successful drop. Set to true to make it bubble. 
-		 */
-		public function FileDropTarget(target:DisplayObject, validFileExtensions:Vector.<String> = null, allowMultipleFiles:Boolean = false, allowFolders:Boolean = false, allFilesMustBeValid:Boolean = false, dropEventBubbles:Boolean = false)
-		{
-			this.target = target;
-			this.validFileExtensions = validFileExtensions;
-			this.allowMultipleFiles = allowMultipleFiles;
-			this.allowFolders = allowFolders;
-			this.allFilesMustBeValid = allFilesMustBeValid;
-			this.dropEventBubbles = dropEventBubbles;
-		}
-		
 		private var _target:DisplayObject;
 		public function get target():DisplayObject
 		{
@@ -67,6 +48,27 @@ package feathers.utils
 		public var allowFolders:Boolean;
 		public var allFilesMustBeValid:Boolean;
 		public var dropEventBubbles:Boolean;
+		public var customEventType:String;
+		
+		/**
+		 * @param target A DisplayObject that implements IDropTarget that will become the file drop target.
+		 * @param validFileExtensions Determines the file extensions that will be checked against.
+		 * @param allowMultipleFiles Whether to allow multiple files
+		 * @param allowFolders Whether to allow folders
+		 * @param allFilesMustBeValid All files dragged in must be valid. e.g. if allowMultipleFiles is empty and allowFolders = true, then only folders can be dropped onto the target.
+		 *        If this is false and validFileExtensions is null or empty, files of all extensions will pass. If validFileExtensions is populated, at least one file (including folders) must be valid.
+		 * @param dropEventBubbles The target will dipatch <code>FileDropTarget.FILE_DRAG_DROP</code> on a successful drop. Set to true to make it bubble. 
+		 */
+		public function FileDropTarget(target:DisplayObject, validFileExtensions:Vector.<String> = null, allowMultipleFiles:Boolean = false, allowFolders:Boolean = false, allFilesMustBeValid:Boolean = false, dropEventBubbles:Boolean = false, customEventType:String = null)
+		{
+			this.target = target;
+			this.validFileExtensions = validFileExtensions;
+			this.allowMultipleFiles = allowMultipleFiles;
+			this.allowFolders = allowFolders;
+			this.allFilesMustBeValid = allFilesMustBeValid;
+			this.dropEventBubbles = dropEventBubbles;
+			this.customEventType = customEventType;
+		}
 		
 		public function checkDroppedFiles(files:Vector.<File>):Boolean
 		{
@@ -132,7 +134,7 @@ package feathers.utils
 		
 		private function target_dragDropHandler(event:DragDropEvent, dragData:DragData):void
 		{
-			target.dispatchEventWith(FILE_DRAG_DROP, dropEventBubbles, Vector.<File>(dragData.getDataForFormat(ClipboardFormats.FILE_LIST_FORMAT)));
+			target.dispatchEventWith(customEventType || FILE_DRAG_DROP, dropEventBubbles, Vector.<File>(dragData.getDataForFormat(ClipboardFormats.FILE_LIST_FORMAT)));
 		}
 	}
 }
