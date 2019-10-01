@@ -7,9 +7,9 @@ package feathers.controls.text
 	{
 		public static const MEASURE_TEXT_RESULT:String = "measureTextResult";
 		
-		override protected function refreshTextLines(textLines:Vector.<TextLine>, textLineParent:DisplayObjectContainer, width:Number, height:Number, result:MeasureTextResult=null):MeasureTextResult
+		override protected function refreshTextLines(textLines:Vector.<TextLine>, textLineParent:DisplayObjectContainer, width:Number, height:Number, result:MeasureTextResult = null):MeasureTextResult
 		{
-			var result:MeasureTextResult = super.refreshTextLines(textLines, textLineParent, width, height, result);
+			result = super.refreshTextLines(textLines, textLineParent, width, height, result);
 			dispatchEventWith(MEASURE_TEXT_RESULT, false, result);
 			return result;
 		}
