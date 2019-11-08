@@ -14,7 +14,7 @@ package feathers.utils
 	
 	public class FileDropTarget
 	{
-		/** Dispatched from the target when valid files are dropped.<br><code>Event.data</code> is <code>Vector.&lt;File&gt;</code>. */
+		/** Dispatched from the target when valid files are dropped.<br/><code>Event.data</code> is <code>Vector.&lt;File&gt;</code>. */
 		public static const EVENT_FILE_DRAG_DROP:String = "fileDragDrop";
 		
 		private var _target:DisplayObject;
