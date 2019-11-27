@@ -11,7 +11,10 @@ package feathers.controls
 
 	public class NumericalTextInputWithSlider extends TextInput
 	{
+		/** Intended for 2-digit inputs. */
 		public static const ALTERNATIVE_STYLE_NAME_NARROW:String = "narrow";
+		/** Intended for 4-digit inputs. */
+		public static const ALTERNATIVE_STYLE_NAME_WIDE:String = "wide";
 		
 		public static const DEFAULT_CHILD_STYLE_NAME_SLIDER:String = "numericalTextInputWithSlider_slider";
 		

@@ -572,6 +572,8 @@ package feathers.skins
 			stateTweener.setDefaultProperty(WHITE_ALPHA, filterTweenTarget[WHITE_ALPHA]);
 			stateTweener.setDefaultProperty(BLACK_ALPHA, filterTweenTarget[BLACK_ALPHA]);
 			stateTweener.onUpdate = applyFilterValues;
+
+			applyFilterValues();
         }
 
 		public function validate():void
