@@ -221,7 +221,7 @@ package feathers.skins
 
         override public function set color(value:uint):void
 		{
-			if(this.restrictColor)
+			if (this.restrictColor)
 			{
 				throw new IllegalOperationError("To set the color of an ImageSkin, use defaultColor or setColorForState().");
 			}
@@ -291,7 +291,7 @@ package feathers.skins
 			}
 			else
 			{
-				stateTweener.setPropertyForState(WHITE_COLOR, state, color);
+				stateTweener.setPropertyForState(WHITE_COLOR, state, value);
 			}
 		}
 		public function getWhiteColorForState(state:String):uint
@@ -363,7 +363,7 @@ package feathers.skins
 			}
 			else
 			{
-				stateTweener.setPropertyForState(BLACK_COLOR, state, color);
+				stateTweener.setPropertyForState(BLACK_COLOR, state, value);
 			}
 		}
 		public function getBlackColorForState(state:String):uint
@@ -380,7 +380,7 @@ package feathers.skins
         }
         public function set defaultWhiteAlpha(value:Number):void
         {
-			if (value != value)
+			if (value !== value) // isNaN
 			{
 				stateTweener.clearDefaultProperty(WHITE_ALPHA);
 			}
@@ -398,7 +398,7 @@ package feathers.skins
         }
         public function set selectedWhiteAlpha(value:Number):void
         {
-			if (value != value)
+			if (value !== value) // isNaN
 			{
 				stateTweener.clearSelectedProperty(WHITE_ALPHA);
 			}
@@ -416,7 +416,7 @@ package feathers.skins
         }
         public function set disabledWhiteAlpha(value:Number):void
         {
-			if (value != value)
+			if (value !== value) // isNaN
 			{
 				stateTweener.clearDisabledProperty(WHITE_ALPHA);
 			}
@@ -427,15 +427,15 @@ package feathers.skins
         }
 
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
-        public function setWhiteAlphaForState(state:String, value:uint):void
+        public function setWhiteAlphaForState(state:String, value:Number):void
 		{
-			if (value != value)
+			if (value !== value) // isNaN
 			{
 				stateTweener.clearPropertyForState(WHITE_ALPHA, state);
 			}
 			else
 			{
-				stateTweener.setPropertyForState(WHITE_ALPHA, state, color);
+				stateTweener.setPropertyForState(WHITE_ALPHA, state, value);
 			}
 		}
 		public function getWhiteAlphaForState(state:String):uint
@@ -452,7 +452,7 @@ package feathers.skins
         }
         public function set defaultBlackAlpha(value:Number):void
         {
-			if (value != value)
+			if (value !== value) // isNaN
 			{
 				stateTweener.clearDefaultProperty(BLACK_ALPHA);
 			}
@@ -470,7 +470,7 @@ package feathers.skins
         }
         public function set selectedBlackAlpha(value:Number):void
         {
-			if (value != value)
+			if (value !== value) // isNaN
 			{
 				stateTweener.clearSelectedProperty(BLACK_ALPHA);
 			}
@@ -488,7 +488,7 @@ package feathers.skins
         }
         public function set disabledBlackAlpha(value:Number):void
         {
-			if (value != value)
+			if (value !== value) // isNaN
 			{
 				stateTweener.clearDisabledProperty(BLACK_ALPHA);
 			}
@@ -499,15 +499,15 @@ package feathers.skins
         }
 
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
-        public function setBlackAlphaForState(state:String, value:uint):void
+        public function setBlackAlphaForState(state:String, value:Number):void
 		{
-			if (value != value)
+			if (value !== value) // isNaN
 			{
 				stateTweener.clearPropertyForState(BLACK_ALPHA, state);
 			}
 			else
 			{
-				stateTweener.setPropertyForState(BLACK_ALPHA, state, color);
+				stateTweener.setPropertyForState(BLACK_ALPHA, state, value);
 			}
 		}
 		public function getBlackAlphaForState(state:String):uint
