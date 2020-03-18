@@ -1,13 +1,15 @@
 package feathers.controls
 {
-	import feathers.controls.renderers.IListItemRenderer;
-	import feathers.events.FeathersEventType;
-	import feathers.utils.touch.TapToEventExtended;
+	import com.esidegallery.utils.substitute;
 
-	import flash.utils.Dictionary;
+	import feathers.controls.renderers.IListItemRenderer;
+	import feathers.controls.supportClasses.ListExtendedDataViewPort;
+	import feathers.events.DragDropEvent;
+	import feathers.events.FeathersEventType;
 
 	import starling.display.DisplayObject;
 	import starling.events.Event;
+	import starling.events.Touch;
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
 
@@ -19,152 +21,148 @@ package feathers.controls
 		private static const EVENT_CTRL_TAP:String = "listExtended_ctrlTap";
 		private static const EVENT_SHIFT_TAP:String = "listExtended_shiftTap";
 
-		public var touchWhitespaceToDeselect:Boolean;
-
-		private var _internalAllowMultipleSelection:Boolean;
-		
-		private var ctrlTappedItem:Object;
-		private var shiftTappedItem:Object;
-		private var lastSelectedItem:Object;
-
-		// private var renderers:Dictionary = new Dictionary(true);
-		private var rendererToCtrlTap:Dictionary;
-		private var rendererToShiftTap:Dictionary;
+		public var touchWhitespaceToDeselect:Boolean = true;
 
 		override public function set allowMultipleSelection(value:Boolean):void
 		{
-			if (_internalAllowMultipleSelection != value)
+			if (!value)
 			{
-				_internalAllowMultipleSelection = value;
-				super.allowMultipleSelection = _internalAllowMultipleSelection;
+				throw new Error("ListExtended.allowMultipleSelection cannot be disabled.")
 			}
 		}
-		override public function get allowMultipleSelection():Boolean
-		{
-			return _internalAllowMultipleSelection;
-		}
+
+		private var lastSelectedIndex:int = -1;
+		private var touchedSelectedIndex:int = -1;
+
+		private var ctrlActive:Boolean;
+		private var shiftActive:Boolean;
 
 		override protected function initialize():void
 		{
-			rendererToCtrlTap = new Dictionary(true);
-			rendererToShiftTap = new Dictionary(true);
+			_allowMultipleSelection = true;
 
-			addEventListener(TouchEvent.TOUCH, touchHandler);
+			dataViewPort = new ListExtendedDataViewPort;
+			dataViewPort.owner = this;
+			viewPort = dataViewPort;
+
 			addEventListener(FeathersEventType.RENDERER_ADD, rendererAddHandler);
-			addEventListener(FeathersEventType.RENDERER_REMOVE, rendererRemoveHandler);
+			addEventListener(TouchEvent.TOUCH, touchHandler);
+			addEventListener(DragDropEvent.DRAG_START, clearLastTouch);
+			addEventListener(FeathersEventType.SCROLL_START, clearLastTouch);
 
 			super.initialize();
 		}
 
+		public function rendererAddHandler(event:Event, renderer:IListItemRenderer):void
+		{
+			if (!renderer)
+			{
+				return;
+			}
+
+			renderer.addEventListener(TouchEvent.TOUCH, renderer_touchHandler);
+		}
+
 		protected function touchHandler(event:TouchEvent):void
 		{
-			// Deselect if touching whitespace (and not in selection mode):
-			if (touchWhitespaceToDeselect && event.target == this && !isScrolling && event.getTouch(this, TouchPhase.ENDED))
+			var touch:Touch = event.getTouch(this);
+			if (touch === null)
 			{
-				selectedIndex = -1;
+				return;
 			}
-			if (event.getTouch(this, TouchPhase.BEGAN))
+			if (touch.phase == TouchPhase.BEGAN)
 			{
-				trace("brah;");
+				ctrlActive = event.ctrlKey;
+				shiftActive = event.shiftKey;
+			}
+			else if (touch.phase === TouchPhase.ENDED)
+			{
+				if (touchWhitespaceToDeselect && 
+					event.target == this &&
+					!ctrlActive &&
+					!shiftActive &&
+					!isScrolling)
+				{
+					selectedIndex = -1
+				}
+				else if (touchedSelectedIndex != -1 &&
+					!isScrolling)
+				{
+					_selectedIndices.removeEventListener(Event.CHANGE, selectedIndices_changeHandler);
+
+					if (shiftActive)
+					{
+						var changed:Boolean = selectIndices(lastSelectedIndex, touchedSelectedIndex);
+						lastSelectedIndex = touchedSelectedIndex;
+					}
+					else if (ctrlActive && _selectedIndices.contains(touchedSelectedIndex))
+					{
+						_selectedIndices.removeItem(touchedSelectedIndex);
+						lastSelectedIndex = -1;
+						changed = true;
+					}
+					else if (_selectedIndices.length > 1 || _selectedIndex != touchedSelectedIndex)
+					{
+						selectedIndex = touchedSelectedIndex;
+						lastSelectedIndex = touchedSelectedIndex;
+						changed = true;
+					}
+
+					_selectedIndices.addEventListener(Event.CHANGE, selectedIndices_changeHandler);
+				}
+
+				clearLastTouch();
+				
+				if (changed)
+				{
+					getSelectedItems(_selectedItems); // Necessary to commit selected indices. 
+					invalidate(INVALIDATION_FLAG_SELECTED);
+					dispatchEventWith(Event.CHANGE);
+				}
 			}
 		}
 
-		protected function rendererAddHandler(event:Event, renderer:IListItemRenderer):void
-		{
-			rendererToCtrlTap[renderer] = new TapToEventExtended(renderer as DisplayObject, EVENT_CTRL_TAP, false, true);
-			rendererToShiftTap[renderer] = new TapToEventExtended(renderer as DisplayObject, EVENT_SHIFT_TAP, false, false, true);
-			renderer.addEventListener(EVENT_CTRL_TAP, renderer_ctrlTapHandler);
-			renderer.addEventListener(EVENT_SHIFT_TAP, renderer_shiftTapHandler);
-		}
-
-		protected function rendererRemoveHandler(event:Event, renderer:IListItemRenderer):void
-		{
-			var tte:TapToEventExtended = rendererToCtrlTap[renderer] as TapToEventExtended;
-			if (tte !== null)
-			{
-				tte.target = null;
-				delete rendererToCtrlTap[renderer];
-			}
-			tte = rendererToShiftTap[renderer] as TapToEventExtended;
-			if (tte !== null)
-			{
-				tte.target = null;
-				delete rendererToShiftTap[renderer];
-			}
-			renderer.removeEventListener(EVENT_CTRL_TAP, renderer_ctrlTapHandler);
-			renderer.removeEventListener(EVENT_SHIFT_TAP, renderer_shiftTapHandler);
-		}
-
-		protected function renderer_ctrlTapHandler(event:Event):void
+		protected function renderer_touchHandler(event:TouchEvent):void
 		{
 			var renderer:IListItemRenderer = event.currentTarget as IListItemRenderer;
-			if (renderer)
+			var touch:Touch = event.getTouch(renderer as DisplayObject, TouchPhase.BEGAN);
+			if (touch !== null && 
+				renderer.isSelected)
 			{
-				ctrlTappedItem = renderer.data;
+				// Record renderer so we can apply changes manually if necessary:
+				touchedSelectedIndex = renderer.index;
+				trace("touchedSelectedIndex =", touchedSelectedIndex);
 			}
 		}
-		
-		protected function renderer_shiftTapHandler(event:Event):void
-		{
-			var renderer:IListItemRenderer = event.currentTarget as IListItemRenderer;
-			if (renderer)
-			{
-				shiftTappedItem = renderer.data;
-			}
-		}
-		
+
 		override protected function selectedIndices_changeHandler(event:Event):void
 		{
-			var currentShiftTappedItem:Object = shiftTappedItem;
-			shiftTappedItem = null;
-			var currentCtrlTappedItem:Object = ctrlTappedItem;
-			ctrlTappedItem = null;
-			
+			trace("selectedIndices_changeHandler()");
 			getSelectedItems(_selectedItems);
 			
-			if (this._selectedIndices.length > 0)
+			if (_selectedIndices.length > 0)
 			{
 				_selectedIndices.removeEventListener(Event.CHANGE, selectedIndices_changeHandler); // Prevent nested calling of this method.
-				this._selectedIndex = _selectedIndices.getItemAt(0) as int;
+
+				var currentSelectedIndex:int = _selectedIndices.getItemAt(_selectedIndices.length - 1) as int;
+				_selectedIndex = currentSelectedIndex;
 				
-				// shift-tapped trumps ctrl-tapped.
-				if (_internalAllowMultipleSelection && currentShiftTappedItem && lastSelectedItem)
+				if (shiftActive)
 				{
-					var lastSelectedIndex:int = _dataProvider.getItemIndex(lastSelectedItem);
-					var tappedIndex:int = _dataProvider.getItemIndex(currentShiftTappedItem);
-					if (lastSelectedIndex > tappedIndex)
-					{
-						for (var i:int = lastSelectedIndex; i >= tappedIndex; i--)
-						{
-							if (_selectedIndices.getItemIndex(i) == -1)
-							{
-								_selectedIndices.addItemAt(i, _selectedIndices.length - 1);
-							}
-						}
-					}
-					else if (lastSelectedIndex < tappedIndex)
-					{
-						for (i = lastSelectedIndex; i <= tappedIndex; i++)
-						{
-							if (_selectedIndices.getItemIndex(i) == -1)
-							{
-								_selectedIndices.addItemAt(i, _selectedIndices.length - 1);
-							}
-						}
-					}
-					getSelectedItems(_selectedItems); // Necessary to commit any added selected indices (with shift key). 
-					invalidate(INVALIDATION_FLAG_SELECTED);
+					selectIndices(lastSelectedIndex, currentSelectedIndex);
 				}
-				else if (currentCtrlTappedItem && lastSelectedItem && _selectedItems.indexOf(lastSelectedItem) == -1) // Add last selected item to beginning of selectedItems if not already there:
+				else if (!ctrlActive)
 				{
-					_selectedItems.unshift(lastSelectedItem);
+					_selectedIndices.data = new <int>[currentSelectedIndex];
 				}
-				lastSelectedItem = selectedItems[selectedItems.length - 1];
+				
+				lastSelectedIndex = currentSelectedIndex;
+
 				_selectedIndices.addEventListener(Event.CHANGE, selectedIndices_changeHandler);
 			}
 			else
 			{
-				lastSelectedItem = null;
+				lastSelectedIndex = -1;
 				if (_selectedIndex < 0)
 				{
 					return;
@@ -172,7 +170,59 @@ package feathers.controls
 				this._selectedIndex = -1;
 			}
 
+			getSelectedItems(_selectedItems); // Necessary to commit selected indices. 
+			invalidate(INVALIDATION_FLAG_SELECTED);
 			dispatchEventWith(Event.CHANGE);
+		}
+
+		/**
+		 * @param fromIndex 
+		 * @param toIndex 
+		 * @return Whether any selected indices were changed
+		 */
+		protected function selectIndices(fromIndex:int, toIndex:int):Boolean
+		{
+			if (fromIndex == -1 || toIndex == -1)
+			{
+				return false;
+			}
+
+			trace(substitute("selectIndices({0}, {1})", [fromIndex, toIndex]));
+
+			var changed:Boolean;
+
+			if (fromIndex > toIndex)
+			{
+				for (var i:int = fromIndex; i >= toIndex; i--)
+				{
+					if (!_selectedIndices.contains(i))
+					{
+						_selectedIndices.push(i);
+						changed = true;
+					}
+				}
+			}
+			else if (fromIndex < toIndex)
+			{
+				for (i = fromIndex; i <= toIndex; i++)
+				{
+					if (!_selectedIndices.contains(i))
+					{
+						_selectedIndices.push(i);
+						changed = true;
+					}
+				}
+			}
+
+			return changed;
+		}
+
+		protected function clearLastTouch():void
+		{
+			trace("clearLastTouch()");
+			ctrlActive = false;
+			shiftActive = false;
+			touchedSelectedIndex = -1;
 		}
 	}
 }
