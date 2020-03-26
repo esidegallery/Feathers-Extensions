@@ -131,13 +131,11 @@ package feathers.controls
 			{
 				// Record renderer so we can apply changes manually if necessary:
 				touchedSelectedIndex = renderer.index;
-				trace("touchedSelectedIndex =", touchedSelectedIndex);
 			}
 		}
 
 		override protected function selectedIndices_changeHandler(event:Event):void
 		{
-			trace("selectedIndices_changeHandler()");
 			getSelectedItems(_selectedItems);
 			
 			if (_selectedIndices.length > 0)
@@ -187,8 +185,6 @@ package feathers.controls
 				return false;
 			}
 
-			trace(substitute("selectIndices({0}, {1})", [fromIndex, toIndex]));
-
 			var changed:Boolean;
 
 			if (fromIndex > toIndex)
@@ -219,7 +215,6 @@ package feathers.controls
 
 		protected function clearLastTouch():void
 		{
-			trace("clearLastTouch()");
 			ctrlActive = false;
 			shiftActive = false;
 			touchedSelectedIndex = -1;
