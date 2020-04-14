@@ -2,11 +2,9 @@ package feathers.controls.supportClasses
 {
 	import feathers.controls.renderers.IDragAndDropItemRenderer;
 	import feathers.controls.renderers.IListItemRenderer;
-	import feathers.data.ListCollection;
 	import feathers.display.RenderDelegate;
 	import feathers.dragDrop.DragData;
 	import feathers.dragDrop.DragDropManager;
-	import feathers.events.DragDropEvent;
 	import feathers.events.ExclusiveTouch;
 	import feathers.system.DeviceCapabilities;
 
@@ -14,13 +12,10 @@ package feathers.controls.supportClasses
 
 	import starling.core.Starling;
 	import starling.display.DisplayObject;
-	import starling.events.Event;
 	import starling.events.Touch;
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
 	import starling.utils.Pool;
-	import feathers.layout.IDragDropLayout;
-	import feathers.layout.TiledRowsLayout;
 
 	public class ListExtendedDataViewPort extends ListDataViewPort
 	{
@@ -149,7 +144,7 @@ package feathers.controls.supportClasses
 					{
 						// if (owner.selectedIndices.indexOf(itemRenderer.index) == -1)
 						// {
-							owner.selectedIndex = itemRenderer.index;
+							owner.selectedIndices = new <int>[itemRenderer.index];
 						// }
 
 						var dragData:DragData = new DragData();
