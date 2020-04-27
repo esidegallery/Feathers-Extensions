@@ -481,7 +481,7 @@ package feathers.controls
 			var bitmapData:BitmapData = Bitmap(this.loader.content).bitmapData;
 			if (bitmapData.width > Texture.maxSize || bitmapData.height > Texture.maxSize)
 			{
-				Bitmap(this.loader.content).bitmapData = ImageUtils.resize(bitmapData, Texture.maxSize, Texture.maxSize, com.esidegallery.enums.ScaleMode.MAINTAIN_RATIO);
+				Bitmap(this.loader.content).bitmapData = ImageUtils.resize(bitmapData, Texture.maxSize, Texture.maxSize, com.esidegallery.enums.ScaleMode.FIT);
 			}
 			
 			super.loader_completeHandler(event);
