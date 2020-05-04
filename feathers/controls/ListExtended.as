@@ -1,7 +1,5 @@
 package feathers.controls
 {
-	import com.esidegallery.utils.substitute;
-
 	import feathers.controls.renderers.IListItemRenderer;
 	import feathers.controls.supportClasses.ListExtendedDataViewPort;
 	import feathers.events.DragDropEvent;

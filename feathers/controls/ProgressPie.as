@@ -2,7 +2,7 @@ package feathers.controls
 {
 	import feathers.core.FeathersControl;
 	import feathers.utils.math.clamp;
-	
+
 	import starling.animation.Tween;
 	import starling.core.Starling;
 	import starling.display.BlendMode;

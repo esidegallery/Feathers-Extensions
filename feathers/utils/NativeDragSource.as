@@ -1,16 +1,16 @@
 package feathers.utils
 {
+	import feathers.dragDrop.DragData;
+	import feathers.dragDrop.DragDropManager;
+	import feathers.dragDrop.IDragSource;
+
 	import flash.desktop.Clipboard;
 	import flash.desktop.NativeDragActions;
 	import flash.desktop.NativeDragManager;
 	import flash.display.Sprite;
 	import flash.events.NativeDragEvent;
 	import flash.geom.Point;
-	
-	import feathers.dragDrop.DragData;
-	import feathers.dragDrop.DragDropManager;
-	import feathers.dragDrop.IDragSource;
-	
+
 	import starling.core.Starling;
 	import starling.display.DisplayObject;
 	import starling.display.Stage;

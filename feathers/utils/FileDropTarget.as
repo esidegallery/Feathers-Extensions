@@ -1,15 +1,15 @@
 package feathers.utils
 {
-	import flash.desktop.ClipboardFormats;
-	import flash.desktop.NativeDragActions;
-	import flash.desktop.NativeDragManager;
-	import flash.filesystem.File;
-	
 	import feathers.dragDrop.DragData;
 	import feathers.dragDrop.DragDropManager;
 	import feathers.dragDrop.IDropTarget;
 	import feathers.events.DragDropEvent;
-	
+
+	import flash.desktop.ClipboardFormats;
+	import flash.desktop.NativeDragActions;
+	import flash.desktop.NativeDragManager;
+	import flash.filesystem.File;
+
 	import starling.display.DisplayObject;
 	
 	public class FileDropTarget

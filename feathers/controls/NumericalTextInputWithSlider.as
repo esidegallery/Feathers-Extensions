@@ -1,11 +1,11 @@
 package feathers.controls
 {
 	import app.manager.view.theme.ManagerTheme;
-	
+
 	import feathers.events.FeathersEventType;
 	import feathers.layout.RelativePosition;
 	import feathers.skins.IStyleProvider;
-	
+
 	import starling.events.Event;
 	import starling.utils.StringUtil;
 

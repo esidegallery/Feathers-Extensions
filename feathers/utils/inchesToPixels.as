@@ -1,7 +1,7 @@
 package feathers.utils
 {
 	import feathers.system.DeviceCapabilities;
-	
+
 	import starling.core.Starling;
 	
 	/** 

@@ -1,7 +1,7 @@
 package feathers.utils.textures
 {
 	import robotlegs.bender.framework.impl.UID;
-	
+
 	import starling.textures.Texture;
 
 	public class TextureCacheExtended extends TextureCache

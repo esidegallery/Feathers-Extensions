@@ -2,7 +2,7 @@ package feathers.controls
 {
 	import feathers.data.IListCollection;
 	import feathers.events.CollectionEventType;
-	
+
 	import starling.events.Event;
 	
 	public class TabBarExtended extends TabBar

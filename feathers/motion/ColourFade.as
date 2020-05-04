@@ -2,7 +2,7 @@ package feathers.motion
 {
 	import feathers.motion.effectClasses.IEffectContext;
 	import feathers.motion.effectClasses.TweenEffectContext;
-	
+
 	import starling.animation.Transitions;
 	import starling.core.Starling;
 	import starling.display.DisplayObject;
