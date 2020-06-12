@@ -20,7 +20,7 @@ package feathers.controls
 		{
 			super.createTabBar();
 			
-			if (tabBar)
+			if (tabBar !== null)
 			{
 				tabBar.enabledFunction = getTabEnabled;
 			}
@@ -35,7 +35,10 @@ package feathers.controls
 		
 		public function invalidateTabBarFactory():void
 		{
-			tabBar.invalidate("tabFactory");
+			if (tabBar !== null)
+			{
+				tabBar.invalidate("tabFactory");
+			}
 		}
 		
 		override public function addScreenAt(id:String, item:TabNavigatorItem, index:int):void
