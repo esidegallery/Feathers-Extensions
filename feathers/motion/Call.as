@@ -8,7 +8,8 @@ package feathers.motion
 	import starling.utils.execute;
 
 	/**
-	 * Calls a function as an effect action.
+	 * Calls a function as an effect action. 
+	 * The function can accept an optional <code>target:DisplayObject</code> argument.
 	 */
 	public class Call
 	{
@@ -23,7 +24,7 @@ package feathers.motion
 				{
 					if (!called)
 					{
-						execute(functionToCall);
+						execute(functionToCall, target);
 						called = true;
 					}
 				}
