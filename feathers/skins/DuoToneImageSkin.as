@@ -35,16 +35,16 @@ package feathers.skins
 			{
 				return;
 			}
-			if(value !== value && this._explicitWidth !== this._explicitWidth) //isNaN
+			if(value != value && this._explicitWidth != this._explicitWidth) //isNaN
 			{
 				return;
 			}
 			this._explicitWidth = value;
-			if(value === value) //!isNaN
+			if(value == value) //!isNaN
 			{
 				super.width = value;
 			}
-			else if(this.texture !== null)
+			else if(this.texture != null)
 			{
 				//return to the original width of the texture
 				this.scaleX = 1;
@@ -68,16 +68,16 @@ package feathers.skins
 			{
 				return;
 			}
-			if(value !== value && this._explicitHeight !== this._explicitHeight) //isNaN
+			if(value != value && this._explicitHeight != this._explicitHeight) //isNaN
 			{
 				return;
 			}
 			this._explicitHeight = value;
-			if(value === value) //!isNaN
+			if(value == value) //!isNaN
 			{
 				super.height = value;
 			}
-			else if(this.texture !== null)
+			else if(this.texture != null)
 			{
 				//return to the original height of the texture
 				this.scaleY = 1;
@@ -97,7 +97,7 @@ package feathers.skins
 		}
 		public function get minWidth():Number
 		{
-			if(this._explicitMinWidth === this._explicitMinWidth) //!isNaN
+			if(this._explicitMinWidth == this._explicitMinWidth) //!isNaN
 			{
 				return this._explicitMinWidth;
 			}
@@ -109,7 +109,7 @@ package feathers.skins
 			{
 				return;
 			}
-			if(value !== value && this._explicitMinWidth !== this._explicitMinWidth) //isNaN
+			if(value != value && this._explicitMinWidth != this._explicitMinWidth) //isNaN
 			{
 				return;
 			}
@@ -132,7 +132,7 @@ package feathers.skins
 			{
 				return;
 			}
-			if(value !== value && this._explicitMaxWidth !== this._explicitMaxWidth) //isNaN
+			if(value != value && this._explicitMaxWidth != this._explicitMaxWidth) //isNaN
 			{
 				return;
 			}
@@ -147,7 +147,7 @@ package feathers.skins
 		}
 		public function get minHeight():Number
 		{
-			if(this._explicitMinHeight === this._explicitMinHeight) //!isNaN
+			if(this._explicitMinHeight == this._explicitMinHeight) //!isNaN
 			{
 				return this._explicitMinHeight;
 			}
@@ -159,7 +159,7 @@ package feathers.skins
 			{
 				return;
 			}
-			if(value !== value && this._explicitMinHeight !== this._explicitMinHeight) //isNaN
+			if(value != value && this._explicitMinHeight != this._explicitMinHeight) //isNaN
 			{
 				return;
 			}
@@ -182,7 +182,7 @@ package feathers.skins
 			{
 				return;
 			}
-			if(value !== value && this._explicitMaxHeight !== this._explicitMaxHeight) //isNaN
+			if(value != value && this._explicitMaxHeight != this._explicitMaxHeight) //isNaN
 			{
 				return;
 			}
@@ -380,7 +380,7 @@ package feathers.skins
         }
         public function set defaultWhiteAlpha(value:Number):void
         {
-			if (value !== value) // isNaN
+			if (value != value) // isNaN
 			{
 				stateTweener.clearDefaultProperty(WHITE_ALPHA);
 			}
@@ -398,7 +398,7 @@ package feathers.skins
         }
         public function set selectedWhiteAlpha(value:Number):void
         {
-			if (value !== value) // isNaN
+			if (value != value) // isNaN
 			{
 				stateTweener.clearSelectedProperty(WHITE_ALPHA);
 			}
@@ -416,7 +416,7 @@ package feathers.skins
         }
         public function set disabledWhiteAlpha(value:Number):void
         {
-			if (value !== value) // isNaN
+			if (value != value) // isNaN
 			{
 				stateTweener.clearDisabledProperty(WHITE_ALPHA);
 			}
@@ -429,7 +429,7 @@ package feathers.skins
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
         public function setWhiteAlphaForState(state:String, value:Number):void
 		{
-			if (value !== value) // isNaN
+			if (value != value) // isNaN
 			{
 				stateTweener.clearPropertyForState(WHITE_ALPHA, state);
 			}
@@ -452,7 +452,7 @@ package feathers.skins
         }
         public function set defaultBlackAlpha(value:Number):void
         {
-			if (value !== value) // isNaN
+			if (value != value) // isNaN
 			{
 				stateTweener.clearDefaultProperty(BLACK_ALPHA);
 			}
@@ -470,7 +470,7 @@ package feathers.skins
         }
         public function set selectedBlackAlpha(value:Number):void
         {
-			if (value !== value) // isNaN
+			if (value != value) // isNaN
 			{
 				stateTweener.clearSelectedProperty(BLACK_ALPHA);
 			}
@@ -488,7 +488,7 @@ package feathers.skins
         }
         public function set disabledBlackAlpha(value:Number):void
         {
-			if (value !== value) // isNaN
+			if (value != value) // isNaN
 			{
 				stateTweener.clearDisabledProperty(BLACK_ALPHA);
 			}
@@ -501,7 +501,7 @@ package feathers.skins
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
         public function setBlackAlphaForState(state:String, value:Number):void
 		{
-			if (value !== value) // isNaN
+			if (value != value) // isNaN
 			{
 				stateTweener.clearPropertyForState(BLACK_ALPHA, state);
 			}
@@ -584,11 +584,11 @@ package feathers.skins
         override public function readjustSize(width:Number=-1, height:Number=-1):void
 		{
 			super.readjustSize(width, height);
-			if(this._explicitWidth === this._explicitWidth) //!isNaN
+			if(this._explicitWidth == this._explicitWidth) //!isNaN
 			{
 				super.width = this._explicitWidth;
 			}
-			if(this._explicitHeight === this._explicitHeight) //!isNaN
+			if(this._explicitHeight == this._explicitHeight) //!isNaN
 			{
 				super.height = this._explicitHeight;
 			}
