@@ -34,9 +34,6 @@ package feathers.controls
 		private static const HELPER_RECTANGLE:Rectangle = new Rectangle;
 		private static const HELPER_RECTANGLE2:Rectangle = new Rectangle;
 		
-		protected var _textureScaleMultiplierX:Number = 1;
-		protected var _textureScaleMultiplierY:Number = 1;
-		
 		/** 
 		 * If the source is set to a Promise, by default the previous image is cleared while waiting for promise to dispatch.
 		 * Setting this flag keeps the previous image intil that happens.
@@ -71,8 +68,25 @@ package feathers.controls
 			}
 		}
 		
-		protected var sourcePromise:Promise;
+		protected var _textureScaleMultiplierX:Number = 1;
+		protected var _textureScaleMultiplierY:Number = 1;
 		
+		protected var _sourcePromise:Promise;
+		
+		/**
+		 * If set as an <code>ImageLoaderExtendedVO</code>, its properties are instantly resolved to those of 
+		 * <code>ImageLoaderExtended</code> with the same name.<br/>
+		 * If set as a <code>Promise</code>, the promise is kept as the source until it is dispatched, 
+		 * upon which the source is set to its payload.
+		 */
+		override public function get source():Object
+		{
+			if (super.source != null)
+			{
+				return super.source;
+			}
+			return _sourcePromise;
+		}
 		override public function set source(value:Object):void
 		{
 			disposeSourcePromise();
@@ -85,25 +99,17 @@ package feathers.controls
 			}
 			else if (value is Promise)
 			{
-				sourcePromise = value as Promise; 
-				if (!sourcePromise.isDispatched && !keepPreviousSourceUntilPromiseLoaded)
+				_sourcePromise = value as Promise; 
+				if (!_sourcePromise.isDispatched && !keepPreviousSourceUntilPromiseLoaded)
 				{
 					super.source = null;
 				}
-				sourcePromise.addOnce(sourcePromiseHandler);
+				_sourcePromise.addOnce(sourcePromiseHandler);
 			}
 			else
 			{
 				super.source = value;
 			}
-		}
-		override public function get source():Object
-		{
-			if (super.source != null)
-			{
-				return super.source;
-			}
-			return sourcePromise;
 		}
 		
 		override public function set textureCache(value:TextureCache):void
@@ -120,7 +126,7 @@ package feathers.controls
 		
 		protected function sourcePromiseHandler(value:Object):void
 		{
-			disposeSourcePromise();
+			_sourcePromise = null;
 			source = value;
 			validate();
 		}
@@ -163,7 +169,8 @@ package feathers.controls
 		
 		override protected function draw():void
 		{
-			if (isInvalid(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE))
+			var texturePreserredSizeInvalid:Boolean = isInvalid(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);
+			if (texturePreserredSizeInvalid)
 			{
 				calculateTextureScaleMultipliers();
 			}
@@ -483,28 +490,29 @@ package feathers.controls
 			{
 				Bitmap(this.loader.content).bitmapData = ImageUtils.resize(bitmapData, Texture.maxSize, Texture.maxSize, com.esidegallery.enums.ScaleMode.FIT);
 			}
-			
 			super.loader_completeHandler(event);
 		}
 		
 		override protected function refreshCurrentTexture():void
 		{
 			super.refreshCurrentTexture();
-			
 			calculateTextureScaleMultipliers();
 		}
 		
 		override protected function cleanupTexture():void
 		{
 			super.cleanupTexture();
-			
 			calculateTextureScaleMultipliers();
 		}
 		
 		public function disposeSourcePromise():void
 		{
-			sourcePromise && sourcePromise.remove(sourcePromiseHandler);
-			sourcePromise = null;
+			if (_sourcePromise == null)
+			{
+				return;
+			}
+			_sourcePromise.remove(sourcePromiseHandler);
+			_sourcePromise = null;
 		}
 		
 		override public function dispose():void
