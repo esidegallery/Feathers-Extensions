@@ -29,7 +29,7 @@ package feathers.controls
 	
 	public class ImageLoaderExtended extends ImageLoader
 	{
-		private static const INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE:String = "texturePreferredSize";
+		protected static const INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE:String = "texturePreferredSize";
 		
 		private static const HELPER_RECTANGLE:Rectangle = new Rectangle;
 		private static const HELPER_RECTANGLE2:Rectangle = new Rectangle;
@@ -40,32 +40,34 @@ package feathers.controls
 		 */
 		public var keepPreviousSourceUntilPromiseLoaded:Boolean = false;
 		
-		private var _texturePreferredWidth:Number = NaN;
+		protected var _texturePreferredWidth:Number = NaN;
 		public function get texturePreferredWidth():Number
 		{
 			return _texturePreferredWidth;
 		}
 		public function set texturePreferredWidth(value:Number):void
 		{
-			if (_texturePreferredWidth != value)
+			if (_texturePreferredWidth == value)
 			{
-				_texturePreferredWidth = value;
-				invalidate(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);			
+				return;
 			}
+			_texturePreferredWidth = value;
+			invalidate(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);			
 		}
 		
-		private var _texturePreferredHeight:Number = NaN;
+		protected var _texturePreferredHeight:Number = NaN;
 		public function get texturePreferredHeight():Number
 		{
 			return _texturePreferredHeight;
 		}
 		public function set texturePreferredHeight(value:Number):void
 		{
-			if (_texturePreferredHeight != value)
+			if (_texturePreferredHeight == value)
 			{
-				_texturePreferredHeight = value;
-				invalidate(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);			
+				return;
 			}
+			_texturePreferredHeight = value;
+			invalidate(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);			
 		}
 		
 		protected var _textureScaleMultiplierX:Number = 1;
