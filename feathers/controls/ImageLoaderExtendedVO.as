@@ -1,5 +1,7 @@
 package feathers.controls
 {
+	import com.esidegallery.utils.substitute;
+
 	public class ImageLoaderExtendedVO
 	{
 		public var source:Object;
@@ -11,6 +13,11 @@ package feathers.controls
 			this.source = source;
 			this.texturePreferredWidth = texturePreferredWidth;
 			this.texturePreferredHeight = texturePreferredHeight;
+		}
+
+		public function toString():String
+		{
+			return substitute("[ImageLoaderExtendedVO('{0}',{1}×{2}", [source, texturePreferredWidth, texturePreferredHeight]);
 		}
 	}
 }
