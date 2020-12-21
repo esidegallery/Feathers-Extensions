@@ -153,6 +153,7 @@ package feathers.controls
 				_textureScaleMultiplierY = _videoDisplayHeight / newSource.height;
 			}
 
+			setInvalidationFlag(INVALIDATION_FLAG_DATA);
 			super.source = newSource;
 		}
 
