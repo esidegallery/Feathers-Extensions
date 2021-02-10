@@ -1,16 +1,20 @@
 package feathers.utils.textures
 {
-	import robotlegs.bender.framework.impl.UID;
+	import com.esidegallery.utils.IHasUID;
+	import com.esidegallery.utils.UIDUtils;
 
 	import starling.textures.Texture;
 
-	public class TextureCacheExtended extends TextureCache
+	public class TextureCacheExtended extends TextureCache implements IHasUID
 	{
-		protected var _uid:String;
+		private var _uid:String;
 		public function get uid():String
 		{
-			_uid ||= UID.create(this);
-			return _uid;
+			return _uid ||= UIDUtils.generateUID(this);
+		}
+		public function set uid(value:String):void
+		{
+			_uid = value;
 		}
 		
 		public var preventDispose:Boolean;
