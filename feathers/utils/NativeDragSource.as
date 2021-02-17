@@ -66,14 +66,18 @@ package feathers.utils
 		 */
 		public function NativeDragSource(stage:Stage, useNativeOverlay:Boolean = false)
 		{
-			if (!stage)
+			if (stage == null)
+			{
 				throw new ArgumentError("Stage must not be null.");
+			}
 			
 			this._stage = stage;
 			this.useNativeOverlay = useNativeOverlay;
 			
 			if (useNativeOverlay)
+			{
 				overlay = starling.nativeOverlay;
+			}
 			else
 			{
 				overlay = new Sprite;
@@ -81,7 +85,7 @@ package feathers.utils
 			}
 			drawOverlayGraphics();
 			
-			touchID = nextTouchID ++;
+			touchID = nextTouchID++;
 			
 			stage.addEventListener(Event.RESIZE, stage_resizeHandler);
 			overlay.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, nativeDragHandler);
@@ -89,8 +93,10 @@ package feathers.utils
 		
 		override public function dispose():void
 		{
-			if (!_stage)
+			if (_stage == null)
+			{
 				return;
+			}
 			
 			endDrag();
 			
@@ -100,7 +106,9 @@ package feathers.utils
 			
 			overlay.graphics.clear();
 			if (!useNativeOverlay)
+			{
 				starling.nativeStage.removeChild(overlay);
+			}
 			
 			overlay = null;
 			dragData = null;
@@ -136,22 +144,32 @@ package feathers.utils
 				initiateDrag();
 			}
 			else if (event.type == NativeDragEvent.NATIVE_DRAG_OVER)
+			{
 				updateDrag();
+			}
 			else if (event.type == NativeDragEvent.NATIVE_DRAG_EXIT)
+			{
 				cancelDrag();
+			}
 			else
+			{
 				endDrag();
+			}
 		}
 		
 		protected function hasValidFormat(clipboard:Clipboard):Boolean
 		{
 			if (!validClipboardFormats)
+			{
 				return true;
+			}
 			
 			for each (var format:String in validClipboardFormats)
 			{
 				if (clipboard.hasFormat(format))
+				{
 					return true;
+				}
 			}
 			
 			return false;
@@ -208,7 +226,7 @@ package feathers.utils
 		private function stage_touchHandler(event:TouchEvent):void
 		{
 			var touch:Touch = event.getTouch(_stage, TouchPhase.BEGAN, touchID);
-			if (touch && dragData)
+			if (touch != null && dragData != null)
 			{
 				_stage.removeEventListener(TouchEvent.TOUCH, stage_touchHandler);
 				DragDropManager.startDrag(this, touch, dragData);
