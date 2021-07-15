@@ -17,7 +17,7 @@ package feathers.controls
 
 		public function toString():String
 		{
-			return substitute("[ImageLoaderExtendedVO('{0}',{1}×{2}", [source, texturePreferredWidth, texturePreferredHeight]);
+			return substitute("[ImageLoaderExtendedVO('{0}',{1}×{2})]", [source, texturePreferredWidth, texturePreferredHeight]);
 		}
 	}
 }
