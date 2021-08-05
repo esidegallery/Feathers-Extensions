@@ -9,7 +9,7 @@ package feathers.skins
 
     import starling.display.Image;
     import starling.events.Event;
-    import starling.filters.ColorMatrixFilterExtended;
+    import starling.filters.ColorMatrixFilterPatched;
     import starling.textures.Texture;
     import starling.utils.Color;
 
@@ -545,7 +545,7 @@ package feathers.skins
 
 		/** Prevents <code>color</code> being set directly (once instantiated). */
         protected var restrictColor:Boolean = false;
-        protected var colorMatrixFilter:ColorMatrixFilterExtended;
+        protected var colorMatrixFilter:ColorMatrixFilterPatched;
 		/** Holds the color values to be tweened. */
 		protected var filterTweenTarget:Object;
 		protected var stateTweener:StateTweener;
@@ -557,7 +557,7 @@ package feathers.skins
             // After construction, color may only be set via state-specific members:
             restrictColor = true;
 
-            colorMatrixFilter = new ColorMatrixFilterExtended;
+            colorMatrixFilter = new ColorMatrixFilterPatched;
             filter = colorMatrixFilter;
 	
 			filterTweenTarget = new Object;
