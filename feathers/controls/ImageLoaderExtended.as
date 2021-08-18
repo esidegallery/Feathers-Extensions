@@ -1,7 +1,9 @@
 package feathers.controls
 {
 	import com.esidegallery.enums.ScaleMode;
+	import com.esidegallery.utils.IHasUID;
 	import com.esidegallery.utils.ImageUtils;
+	import com.esidegallery.utils.UIDUtils;
 
 	import feathers.layout.HorizontalAlign;
 	import feathers.layout.VerticalAlign;
@@ -27,12 +29,22 @@ package feathers.controls
 	import starling.utils.RectangleUtil;
 	import starling.utils.ScaleMode;
 	
-	public class ImageLoaderExtended extends ImageLoader
+	public class ImageLoaderExtended extends ImageLoader implements IHasUID
 	{
 		protected static const INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE:String = "texturePreferredSize";
 		
 		private static const HELPER_RECTANGLE:Rectangle = new Rectangle;
 		private static const HELPER_RECTANGLE2:Rectangle = new Rectangle;
+
+		private var _uid:String;
+		public function get uid():String
+		{
+			return _uid ||= UIDUtils.generateUID(this);
+		}
+		public function set uid(value:String):void
+		{
+			_uid = value;
+		}
 		
 		/** 
 		 * If the source is set to a Promise, by default the previous image is cleared while waiting for promise to dispatch.
