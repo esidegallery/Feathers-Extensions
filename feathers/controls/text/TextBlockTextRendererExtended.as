@@ -87,15 +87,15 @@ package feathers.controls.text
 		{
 			//clamp the width and height values to a valid range so that it
 			//doesn't break the measurement
-			if(width < 0)
+			if (width < 0)
 			{
 				width = 0;
 			}
-			else if(width > MAX_TEXT_LINE_WIDTH)
+			else if (width > MAX_TEXT_LINE_WIDTH)
 			{
 				width = MAX_TEXT_LINE_WIDTH;
 			}
-			if(height < 0)
+			if (height < 0)
 			{
 				height = 0;
 			}
@@ -104,7 +104,7 @@ package feathers.controls.text
 			//copy the invalid text lines over to the helper vector so that we
 			//can reuse them
 			HELPER_TEXT_LINES.length = 0;
-			for(var i:int = 0; i < lineCount; i++)
+			for (var i:int = 0; i < lineCount; i++)
 			{
 				HELPER_TEXT_LINES[i] = textLines[i];
 			}
@@ -115,28 +115,28 @@ package feathers.controls.text
 			var wasTruncated:Boolean = false;
 			var maxLineWidth:Number = 0;
 			var yPosition:Number = 0;
-			if(width >= 0)
+			if (width >= 0)
 			{
 				var line:TextLine = null;
 				var lineStartIndex:int = 0;
 				var pushIndex:int = textLines.length;
 				var inactiveTextLineCount:int = HELPER_TEXT_LINES.length;
-				while(true)
+				while (true)
 				{
 					this._truncationOffset = 0;
 					var lastLine:Boolean = !this._wordWrap || _maxLines > 0 && pushIndex == _maxLines - 1;
 					var canTruncate:Boolean = this._truncateToFit && this._textElement && lastLine;
 					var previousLine:TextLine = line;
 					var lineWidth:Number = width;
-					if(lastLine)
+					if (lastLine)
 					{
 						lineWidth = MAX_TEXT_LINE_WIDTH;
 					}
-					if(inactiveTextLineCount > 0)
+					if (inactiveTextLineCount > 0)
 					{
 						var inactiveLine:TextLine = HELPER_TEXT_LINES[0];
 						line = this.textBlock.recreateTextLine(inactiveLine, previousLine, lineWidth, 0, true);
-						if(line)
+						if (line)
 						{
 							HELPER_TEXT_LINES.shift();
 							inactiveTextLineCount--;
@@ -145,12 +145,12 @@ package feathers.controls.text
 					else
 					{
 						line = this.textBlock.createTextLine(previousLine, lineWidth, 0, true);
-						if(line)
+						if (line)
 						{
 							textLineParent.addChild(line);
 						}
 					}
-					if(!line)
+					if (!line)
 					{
 						//end of text
 						break;
@@ -158,10 +158,10 @@ package feathers.controls.text
 					var lineLength:int = line.rawTextLength;
 					var isTruncated:Boolean = false;
 					var difference:Number = 0;
-					while(canTruncate && (difference = line.width - width) > FUZZY_TRUNCATION_DIFFERENCE)
+					while (canTruncate && (difference = line.width - width) > FUZZY_TRUNCATION_DIFFERENCE)
 					{
 						isTruncated = true;
-						if(this._truncationOffset == 0)
+						if (this._truncationOffset == 0)
 						{
 							//this will quickly skip all of the characters after
 							//the maximum width of the line, instead of going
@@ -178,27 +178,27 @@ package feathers.controls.text
 						//lines don't become invalid.
 						var truncatedText:String =  this._text.substr(lineStartIndex, truncatedTextLength) + this._truncationText;
 						var lineBreakIndex:int = this._text.indexOf(LINE_FEED, lineStartIndex);
-						if(lineBreakIndex < 0)
+						if (lineBreakIndex < 0)
 						{
 							lineBreakIndex = this._text.indexOf(CARRIAGE_RETURN, lineStartIndex);
 						}
-						if(lineBreakIndex >= 0)
+						if (lineBreakIndex >= 0)
 						{
 							truncatedText += this._text.substr(lineBreakIndex);
 						}
 						this._textElement.text = truncatedText;
 						line = this.textBlock.recreateTextLine(line, null, lineWidth, 0, true);
-						if(truncatedTextLength <= 0)
+						if (truncatedTextLength <= 0)
 						{
 							break;
 						}
 					}
-					if(pushIndex > 0)
+					if (pushIndex > 0)
 					{
 						yPosition += this._currentLeading;
 					}
 
-					if(line.width > maxLineWidth)
+					if (line.width > maxLineWidth)
 					{
 						maxLineWidth = line.width;
 					}
@@ -211,29 +211,29 @@ package feathers.controls.text
 					wasTruncated ||= isTruncated;
 				}
 			}
-			if(textLines !== this._measurementTextLines)
+			if (textLines !== this._measurementTextLines)
 			{
 				//no need to align the measurement text lines because they won't
 				//be rendered
 				this.alignTextLines(textLines, width, this._currentHorizontalAlign);
 			}
-			if(this._currentHorizontalAlign === Align.RIGHT)
+			if (this._currentHorizontalAlign === Align.RIGHT)
 			{
 				maxLineWidth = width;
 			}
-			else if(this._currentHorizontalAlign === Align.CENTER)
+			else if (this._currentHorizontalAlign === Align.CENTER)
 			{
 				maxLineWidth = (width + maxLineWidth) / 2;
 			}
 
 			inactiveTextLineCount = HELPER_TEXT_LINES.length;
-			for(i = 0; i < inactiveTextLineCount; i++)
+			for (i = 0; i < inactiveTextLineCount; i++)
 			{
 				line = HELPER_TEXT_LINES[i];
 				textLineParent.removeChild(line);
 			}
 			HELPER_TEXT_LINES.length = 0;
-			if(result === null)
+			if (result === null)
 			{
 				result = new MeasureTextResult(maxLineWidth, yPosition, wasTruncated);
 			}
@@ -244,9 +244,9 @@ package feathers.controls.text
 				result.isTruncated = wasTruncated;
 			}
 
-			if(textLines !== this._measurementTextLines)
+			if (textLines !== this._measurementTextLines)
 			{
-				if(result.width >= 1 && result.height >= 1 &&
+				if (result.width >= 1 && result.height >= 1 &&
 					this._nativeFilters !== null && this._nativeFilters.length > 0)
 				{
 					var starling:Starling = this.stage !== null ? this.stage.starling : Starling.current;
