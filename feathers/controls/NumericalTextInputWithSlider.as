@@ -110,7 +110,7 @@ package feathers.controls
 			// Same as super, without dispatching a change:
 			if (!value)
 			{
-				//don't allow null or undefined
+				// Don't allow null
 				value = "";
 			}
 			if (this._text == value)
@@ -129,6 +129,7 @@ package feathers.controls
 			addEventListener(FeathersEventType.ENTER, commitInputText);
 			
 			slider = new Slider; // Instantiating slider now, so it can be used immediately.
+			slider.isFocusEnabled = false;
 			slider.styleNameList.add(DEFAULT_CHILD_STYLE_NAME_SLIDER);
 			slider.isFocusEnabled = false;
 			slider.addEventListener(Event.CHANGE, slider_changeHandler);
@@ -154,6 +155,10 @@ package feathers.controls
 		{
 			super.focusOutHandler(event);
 			commitInputText();
+			if (focusManager.focus != null && sliderCallout != null)
+			{
+				sliderCallout.close();
+			}
 		}
 		
 		private function slider_changeHandler():void
@@ -202,15 +207,29 @@ package feathers.controls
 			slider.value = value;
 			commitSliderValue();
 		}
+
+		override public function setFocus():void
+		{
+			super.setFocus();
+			if (!visible || _touchPointID >= 0)
+			{
+				return;
+			}
+			if (_isEditable || _isSelectable)
+			{
+				selectRange(0, _text.length);
+			}
+		}
 		
 		override public function dispose():void
 		{
-			if (sliderCallout)
+			if (sliderCallout != null)
 			{
 				sliderCallout.disposeContent = true;
-				sliderCallout.dispose();
+				sliderCallout.removeFromParent(true);
+				sliderCallout = null;
+				slider = null;
 			}
-			sliderCallout = null;
 			
 			super.dispose();
 		}
