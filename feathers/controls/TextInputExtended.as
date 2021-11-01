@@ -4,11 +4,6 @@ package feathers.controls
 	{
 		public var showErrorCallout:Boolean = true;
 		
-		public function TextInputExtended()
-		{
-			super();
-		}
-		
 		override protected function createErrorCallout():void
 		{
 			if (showErrorCallout)
