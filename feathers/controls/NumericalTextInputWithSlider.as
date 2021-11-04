@@ -5,7 +5,12 @@ package feathers.controls
 	import feathers.events.FeathersEventType;
 	import feathers.layout.RelativePosition;
 	import feathers.skins.IStyleProvider;
+	import feathers.utils.display.getPopUpIndex;
 
+	import flash.events.KeyboardEvent;
+	import flash.ui.Keyboard;
+
+	import starling.core.Starling;
 	import starling.events.Event;
 	import starling.utils.StringUtil;
 
@@ -139,45 +144,25 @@ package feathers.controls
 		{
 			if (isInvalid(INVALIDATION_FLAG_PARAMETERS))
 			{
-				// Re-set slider's value (via setSliderValue) to force an adjustment of the range:
+				// Reset slider's value (via setSliderValue) to force an adjustment of the range:
 				setSliderValue(value);
 			}
 			super.draw();
-		}
-		
-		override protected function focusInHandler(event:Event):void
-		{
-			super.focusInHandler(event);
-			showSliderCallout();
-		}
-		
-		override protected function focusOutHandler(event:Event):void
-		{
-			super.focusOutHandler(event);
-			commitInputText();
-			if (focusManager.focus != null && sliderCallout != null)
-			{
-				sliderCallout.close();
-			}
-		}
-		
-		private function slider_changeHandler():void
-		{
-			commitSliderValue();
-			dispatchEventWith(Event.CHANGE, false, slider.value);
 		}
 		
 		private function showSliderCallout():void
 		{
 			setSliderValue(value); // To force the parameters to rescale:
 			sliderCallout = Callout.show(slider, this, new <String>[RelativePosition.BOTTOM], false);
-			sliderCallout.paddingLeft
-				= sliderCallout.paddingRight 
-				= sliderCallout.paddingTop
-				= sliderCallout.paddingBottom
-				= ManagerTheme.SIZE_CONTROL_GUTTER;
+			sliderCallout.padding = ManagerTheme.SIZE_CONTROL_GUTTER;
 			sliderCallout.disposeContent = false;
+
+			var starling:Starling = stage != null ? stage.starling : Starling.current;
+			var priority:int = getPopUpIndex(sliderCallout);
+			trace("NumericalTextInputWithSlider", priority);
+			starling.nativeStage.addEventListener(KeyboardEvent.KEY_DOWN, nativeStage_keyDownHandler, false, priority, true);
 			sliderCallout.addEventListener(Event.CLOSE, commitSliderValue);
+			sliderCallout.addEventListener(Event.REMOVED_FROM_STAGE, sliderCallout_removedFromStageHandler);
 		}
 		
 		private function commitSliderValue():void
@@ -220,14 +205,62 @@ package feathers.controls
 				selectRange(0, _text.length);
 			}
 		}
+
+		override protected function focusInHandler(event:Event):void
+		{
+			super.focusInHandler(event);
+			showSliderCallout();
+		}
 		
+		override protected function focusOutHandler(event:Event):void
+		{
+			super.focusOutHandler(event);
+			commitInputText();
+			if (focusManager.focus != null && sliderCallout != null)
+			{
+				sliderCallout.close();
+			}
+		}
+		
+		private function slider_changeHandler():void
+		{
+			commitSliderValue();
+			dispatchEventWith(Event.CHANGE, false, slider.value);
+		}
+
+		private function sliderCallout_removedFromStageHandler():void
+		{
+			var starling:Starling = stage != null ? stage.starling : Starling.current;
+			starling.nativeStage.removeEventListener(KeyboardEvent.KEY_DOWN, nativeStage_keyDownHandler);
+			sliderCallout = null;
+		}
+
+		private function nativeStage_keyDownHandler(event:KeyboardEvent):void
+		{
+			if (event.isDefaultPrevented() || sliderCallout == null)
+			{
+				return;
+			}
+			switch (event.keyCode)
+			{
+				case Keyboard.ESCAPE:
+				{
+					event.preventDefault();
+					sliderCallout.close();
+					break;
+				}
+			}
+		}
+
 		override public function dispose():void
 		{
 			if (sliderCallout != null)
 			{
-				sliderCallout.disposeContent = true;
 				sliderCallout.removeFromParent(true);
-				sliderCallout = null;
+			}
+			if (slider != null)
+			{
+				slider.dispose();
 				slider = null;
 			}
 			
