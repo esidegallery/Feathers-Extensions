@@ -12,6 +12,7 @@ package feathers.controls
 
 	import starling.core.Starling;
 	import starling.events.Event;
+	import starling.events.KeyboardEvent;
 	import starling.utils.StringUtil;
 
 	public class NumericalTextInputWithSlider extends TextInput
@@ -118,12 +119,12 @@ package feathers.controls
 				// Don't allow null
 				value = "";
 			}
-			if (this._text == value)
+			if (_text == value)
 			{
 				return;
 			}
-			this._text = value;
-			this.invalidate(INVALIDATION_FLAG_DATA);
+			_text = value;
+			invalidate(INVALIDATION_FLAG_DATA);
 		}
 		
 		public function NumericalTextInputWithSlider()
@@ -138,6 +139,7 @@ package feathers.controls
 			slider.styleNameList.add(DEFAULT_CHILD_STYLE_NAME_SLIDER);
 			slider.isFocusEnabled = false;
 			slider.addEventListener(Event.CHANGE, slider_changeHandler);
+			slider.addEventListener(FeathersEventType.END_INTERACTION, slider_endInteractionHandler);
 		}
 		
 		override protected function draw():void
@@ -153,15 +155,18 @@ package feathers.controls
 		private function showSliderCallout():void
 		{
 			setSliderValue(value); // To force the parameters to rescale:
+			if (sliderCallout != null)
+			{
+				return;
+			}
+
 			sliderCallout = Callout.show(slider, this, new <String>[RelativePosition.BOTTOM], false);
 			sliderCallout.padding = ManagerTheme.SIZE_CONTROL_GUTTER;
 			sliderCallout.disposeContent = false;
 
 			var starling:Starling = stage != null ? stage.starling : Starling.current;
 			var priority:int = getPopUpIndex(sliderCallout);
-			trace("NumericalTextInputWithSlider", priority);
-			starling.nativeStage.addEventListener(KeyboardEvent.KEY_DOWN, nativeStage_keyDownHandler, false, priority, true);
-			sliderCallout.addEventListener(Event.CLOSE, commitSliderValue);
+			starling.nativeStage.addEventListener(flash.events.KeyboardEvent.KEY_DOWN, sliderCallout_nativeStage_keyDownHandler, false, priority, true);
 			sliderCallout.addEventListener(Event.REMOVED_FROM_STAGE, sliderCallout_removedFromStageHandler);
 		}
 		
@@ -206,15 +211,31 @@ package feathers.controls
 			}
 		}
 
+		override protected function feathersControl_addedToStageHandler(event:Event):void
+		{
+			super.feathersControl_addedToStageHandler(event);
+			
+			stage.addEventListener(starling.events.KeyboardEvent.KEY_DOWN, stage_keyDownHandler);
+		}
+		
+		override protected function feathersControl_removedFromStageHandler(event:Event):void
+		{
+			super.feathersControl_removedFromStageHandler(event);
+
+			stage.removeEventListener(starling.events.KeyboardEvent.KEY_DOWN, stage_keyDownHandler);
+		}
+
 		override protected function focusInHandler(event:Event):void
 		{
 			super.focusInHandler(event);
+
 			showSliderCallout();
 		}
 		
 		override protected function focusOutHandler(event:Event):void
 		{
 			super.focusOutHandler(event);
+
 			commitInputText();
 			if (focusManager.focus != null && sliderCallout != null)
 			{
@@ -227,29 +248,63 @@ package feathers.controls
 			commitSliderValue();
 			dispatchEventWith(Event.CHANGE, false, slider.value);
 		}
-
-		private function sliderCallout_removedFromStageHandler():void
+		
+		private function slider_endInteractionHandler():void
 		{
-			var starling:Starling = stage != null ? stage.starling : Starling.current;
-			starling.nativeStage.removeEventListener(KeyboardEvent.KEY_DOWN, nativeStage_keyDownHandler);
-			sliderCallout = null;
+			focusManager.focus = this;
 		}
 
-		private function nativeStage_keyDownHandler(event:KeyboardEvent):void
+		protected function stage_keyDownHandler(event:starling.events.KeyboardEvent):void
+		{
+			if (!hasFocus && sliderCallout == null)
+			{
+				return;
+			}
+			
+			if (event.keyCode == Keyboard.PAGE_UP)
+			{
+				event.preventDefault();
+				slider.value += slider.step * 10;
+			}
+			else if (event.keyCode == Keyboard.PAGE_DOWN)
+			{
+				event.preventDefault();
+				slider.value -= slider.step * 10;
+			}
+			else if (event.keyCode == Keyboard.UP)
+			{
+				event.preventDefault();
+				slider.value += slider.step * (event.shiftKey ? 10 : 1);
+			}
+			else if (event.keyCode == Keyboard.DOWN)
+			{
+				event.preventDefault();
+				slider.value -= slider.step * (event.shiftKey ? 10 : 1);
+			}
+			
+			focusManager.focus = this;
+			showSliderCallout();
+		}
+
+		private function sliderCallout_nativeStage_keyDownHandler(event:flash.events.KeyboardEvent):void
 		{
 			if (event.isDefaultPrevented() || sliderCallout == null)
 			{
 				return;
 			}
-			switch (event.keyCode)
+			if (event.keyCode == Keyboard.ESCAPE)
 			{
-				case Keyboard.ESCAPE:
-				{
-					event.preventDefault();
-					sliderCallout.close();
-					break;
-				}
+				event.preventDefault();
+				sliderCallout.removeFromParent(true);
 			}
+		}
+
+		private function sliderCallout_removedFromStageHandler():void
+		{
+			commitSliderValue();
+			var starling:Starling = stage != null ? stage.starling : Starling.current;
+			starling.nativeStage.removeEventListener(flash.events.KeyboardEvent.KEY_DOWN, sliderCallout_nativeStage_keyDownHandler);
+			sliderCallout = null;
 		}
 
 		override public function dispose():void
