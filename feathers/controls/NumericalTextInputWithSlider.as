@@ -215,14 +215,16 @@ package feathers.controls
 		{
 			super.feathersControl_addedToStageHandler(event);
 			
-			stage.addEventListener(starling.events.KeyboardEvent.KEY_DOWN, stage_keyDownHandler);
+			var starling:Starling = stage != null ? stage.starling : Starling.current;
+			starling.stage.addEventListener(starling.events.KeyboardEvent.KEY_DOWN, stage_keyDownHandler);
 		}
 		
 		override protected function feathersControl_removedFromStageHandler(event:Event):void
 		{
 			super.feathersControl_removedFromStageHandler(event);
 
-			stage.removeEventListener(starling.events.KeyboardEvent.KEY_DOWN, stage_keyDownHandler);
+			var starling:Starling = stage != null ? stage.starling : Starling.current;
+			starling.stage.removeEventListener(starling.events.KeyboardEvent.KEY_DOWN, stage_keyDownHandler);
 		}
 
 		override protected function focusInHandler(event:Event):void
