@@ -30,7 +30,7 @@ package feathers.core
 		override public function set focus(value:IFocusDisplayObject):void
 		{
 			super.focus = value;
-			trace("FM", focus);
+			// trace("FM", focus);
 		}
 	}
 }
