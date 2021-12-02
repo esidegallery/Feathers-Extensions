@@ -132,7 +132,7 @@ package feathers.controls
 			super();
 			
 			restrict = "0-9.";
-			addEventListener(FeathersEventType.ENTER, commitInputText);
+			addEventListener(FeathersEventType.ENTER, enterHandler);
 			
 			slider = new Slider; // Instantiating slider now, so it can be used immediately.
 			slider.isFocusEnabled = false;
@@ -154,11 +154,12 @@ package feathers.controls
 		
 		private function showSliderCallout():void
 		{
-			setSliderValue(value); // To force the parameters to rescale:
 			if (sliderCallout != null)
 			{
 				return;
 			}
+
+			setSliderValue(value); // To force the parameters to rescale:
 
 			sliderCallout = Callout.show(slider, this, new <String>[RelativePosition.BOTTOM], false);
 			sliderCallout.padding = ManagerTheme.SIZE_CONTROL_GUTTER;
@@ -183,9 +184,11 @@ package feathers.controls
 			{
 				newValue = Number(trimmed);
 			}
-			if (!isNaN(newValue))
+			if (newValue == newValue)
 			{
+				slider.removeEventListener(Event.CHANGE, slider_changeHandler);
 				setSliderValue(newValue);
+				slider.addEventListener(Event.CHANGE, slider_changeHandler);
 			}
 		}
 		
@@ -209,6 +212,12 @@ package feathers.controls
 			{
 				selectRange(0, _text.length);
 			}
+		}
+
+		protected function enterHandler():void
+		{
+			commitInputText();
+			showSliderCallout();
 		}
 
 		override protected function feathersControl_addedToStageHandler(event:Event):void
@@ -285,7 +294,6 @@ package feathers.controls
 			}
 			
 			focusManager.focus = this;
-			showSliderCallout();
 		}
 
 		private function sliderCallout_nativeStage_keyDownHandler(event:flash.events.KeyboardEvent):void
