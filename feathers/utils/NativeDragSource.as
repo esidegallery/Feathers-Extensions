@@ -8,6 +8,7 @@ package feathers.utils
 	import flash.desktop.NativeDragActions;
 	import flash.desktop.NativeDragManager;
 	import flash.display.Sprite;
+	import flash.events.FocusEvent;
 	import flash.events.NativeDragEvent;
 	import flash.geom.Point;
 
@@ -18,7 +19,6 @@ package feathers.utils
 	import starling.events.Touch;
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
-	import starling.extensions.starlingCallLater.callLater;
 	
 	/**
 	 * Converts NativeDragEvents to Feathers drag actions!
@@ -58,11 +58,11 @@ package feathers.utils
 		}
 		
 		/**
-		 * @param stage				The Starling stage instance.
-		 * @param useNativeOverlay	Whether the starling's nativeOverlay will be used to listen
-		 * 							for NativeDragEvents. If false, then a new flash.display.Sprite will
-		 * 							be created and added to the native stage. This Sprite's graphics object
-		 * 							will be used to draw a transparent rect covering the stage.
+		 * @param stage            The Starling stage instance.
+		 * @param useNativeOverlay Whether the starling's nativeOverlay will be used to listen
+		 *                         for NativeDragEvents. If false, then a new flash.display.Sprite will
+		 *                         be created and added to the native stage. This Sprite's graphics object
+		 *                         will be used to draw a transparent rect covering the stage.
 		 */
 		public function NativeDragSource(stage:Stage, useNativeOverlay:Boolean = false)
 		{
@@ -81,13 +81,14 @@ package feathers.utils
 			else
 			{
 				overlay = new Sprite;
-				starling.nativeStage.addChild(overlay);
+				starling.nativeStage.addChildAt(overlay, 0);
 			}
 			drawOverlayGraphics();
 			
 			touchID = nextTouchID++;
 			
-			stage.addEventListener(Event.RESIZE, stage_resizeHandler);
+			starling.nativeStage.addEventListener(FocusEvent.MOUSE_FOCUS_CHANGE, nativeStage_mouseFocusChangeHandler, false, int.MAX_VALUE, true);
+			_stage.addEventListener(Event.RESIZE, stage_resizeHandler);
 			overlay.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, nativeDragHandler);
 		}
 		
@@ -105,10 +106,11 @@ package feathers.utils
 			overlay.removeEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, nativeDragHandler);
 			
 			overlay.graphics.clear();
-			if (!useNativeOverlay)
+			if (useNativeOverlay)
 			{
 				starling.nativeStage.removeChild(overlay);
 			}
+			starling.nativeStage.removeEventListener(FocusEvent.MOUSE_FOCUS_CHANGE, nativeStage_mouseFocusChangeHandler);
 			
 			overlay = null;
 			dragData = null;
@@ -118,6 +120,16 @@ package feathers.utils
 			super.dispose();
 		}
 		
+		protected function nativeStage_mouseFocusChangeHandler(event:FocusEvent):void
+		{
+			if (event.relatedObject == overlay)
+			{
+				// We don't want overlay to interfere with Feathers' focus system:
+				event.preventDefault();
+				event.stopImmediatePropagation();
+			}
+		}
+
 		protected function nativeDragHandler(event:NativeDragEvent):void
 		{
 			if (!hasValidFormat(event.clipboard))
@@ -159,7 +171,7 @@ package feathers.utils
 		
 		protected function hasValidFormat(clipboard:Clipboard):Boolean
 		{
-			if (!validClipboardFormats)
+			if (validClipboardFormats == null)
 			{
 				return true;
 			}
@@ -198,21 +210,21 @@ package feathers.utils
 			removeOverlayListeners();
 		}
 		
-		private function cancelDrag():void
+		protected function cancelDrag():void
 		{
 			DragDropManager.cancelDrag();
 			dragData = null;
 			removeOverlayListeners();
 		}
 		
-		private function addOverlayListeners():void
+		protected function addOverlayListeners():void
 		{
 			overlay.addEventListener(NativeDragEvent.NATIVE_DRAG_OVER, nativeDragHandler);
 			overlay.addEventListener(NativeDragEvent.NATIVE_DRAG_EXIT, nativeDragHandler);
 			overlay.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, nativeDragHandler);
 		}
 		
-		private function removeOverlayListeners():void
+		protected function removeOverlayListeners():void
 		{
 			overlay.removeEventListener(NativeDragEvent.NATIVE_DRAG_OVER, nativeDragHandler);
 			overlay.removeEventListener(NativeDragEvent.NATIVE_DRAG_EXIT, nativeDragHandler);
@@ -223,7 +235,7 @@ package feathers.utils
 		 * Listens for the initial event that was enqueued in initiateDrag(),
 		 * so that the event's touch instance can be passed to DragDropManager.startDrag().
 		 */
-		private function stage_touchHandler(event:TouchEvent):void
+		protected function stage_touchHandler(event:TouchEvent):void
 		{
 			var touch:Touch = event.getTouch(_stage, TouchPhase.BEGAN, touchID);
 			if (touch != null && dragData != null)
@@ -245,7 +257,7 @@ package feathers.utils
 		
 		protected function stage_resizeHandler(event:Event):void
 		{
-			callLater(drawOverlayGraphics);
+			drawOverlayGraphics();
 		}
 	}
 }
