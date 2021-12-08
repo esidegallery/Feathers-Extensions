@@ -106,7 +106,7 @@ package feathers.utils
 			overlay.removeEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, nativeDragHandler);
 			
 			overlay.graphics.clear();
-			if (useNativeOverlay)
+			if (!useNativeOverlay && starling.nativeStage.contains(overlay))
 			{
 				starling.nativeStage.removeChild(overlay);
 			}

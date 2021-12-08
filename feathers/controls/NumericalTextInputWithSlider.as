@@ -184,11 +184,12 @@ package feathers.controls
 			{
 				newValue = Number(trimmed);
 			}
-			if (newValue == newValue)
+			if (newValue == newValue && newValue != slider.value)
 			{
 				slider.removeEventListener(Event.CHANGE, slider_changeHandler);
 				setSliderValue(newValue);
 				slider.addEventListener(Event.CHANGE, slider_changeHandler);
+				dispatchEventWith(Event.CHANGE, false, slider.value);
 			}
 		}
 		
