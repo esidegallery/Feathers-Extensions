@@ -75,10 +75,73 @@ package feathers.controls.text
 			invalidate(INVALIDATION_FLAG_DATA);
 		}
 
+		private var _minSnapshotPaddingTop:Number;
+		public function get minSnapshotPaddingTop():Number
+		{
+			return _minSnapshotPaddingTop;
+		}
+		public function set minSnapshotPaddingTop(value:Number):void
+		{
+			if (_minSnapshotPaddingTop == value)
+			{
+				return;
+			}
+			_minSnapshotPaddingTop = value;
+		}
+
+		private var _minSnapshotPaddingRight:Number;
+		public function get minSnapshotPaddingRight():Number
+		{
+			return _minSnapshotPaddingRight;
+		}
+		public function set minSnapshotPaddingRight(value:Number):void
+		{
+			if (_minSnapshotPaddingRight == value)
+			{
+				return;
+			}
+			_minSnapshotPaddingRight = value;
+		}
+
+		private var _minSnapshotPaddingBottom:Number;
+		public function get minSnapshotPaddingBottom():Number
+		{
+			return _minSnapshotPaddingBottom;
+		}
+		public function set minSnapshotPaddingBottom(value:Number):void
+		{
+			if (_minSnapshotPaddingBottom == value)
+			{
+				return;
+			}
+			_minSnapshotPaddingBottom = value;
+		}
+
+		private var _minSnapshotPaddingLeft:Number;
+		public function get minSnapshotPaddingLeft():Number
+		{
+			return _minSnapshotPaddingLeft;
+		}
+		public function set minSnapshotPaddingLeft(value:Number):void
+		{
+			if (_minSnapshotPaddingLeft == value)
+			{
+				return;
+			}
+			_minSnapshotPaddingLeft = value;
+		}
+
 		public function TextBlockTextRendererExtended()
 		{
 			super();
 			_truncationText = "…";
+		}
+
+		override protected function commit():void
+		{
+			super.commit();
+
+			// trace("COMMIT_fontStylesElementFormat
 		}
 
 		override protected function refreshTextLines(textLines:Vector.<TextLine>,
@@ -282,6 +345,13 @@ package feathers.controls.text
 				super.toolTip = _customToolTip;
 			}
 			return result;
+		}
+
+		override protected function measureNativeFilters(bitmapData:BitmapData, result:Rectangle = null):Rectangle
+		{
+			var out:Rectangle = super.measureNativeFilters(bitmapData, result);
+			trace("measureNativeFilters", out);
+			return out;
 		}
 	}
 }
