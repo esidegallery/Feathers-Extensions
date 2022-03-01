@@ -34,10 +34,11 @@ package feathers.utils.textures
 		
 		override public function addTexture(key:String, texture:Texture, retainTexture:Boolean = true):void
 		{
-			if (!isDisposed)
+			if (isDisposed)
 			{
-				super.addTexture(key, texture, retainTexture);
+				return;
 			}
+			super.addTexture(key, texture, retainTexture);
 		}
 
 		public function getNumRetainedTextures():int
@@ -55,16 +56,36 @@ package feathers.utils.textures
 		
 		public function getNumUnretainedTextures():int
 		{
-			return _unretainedKeys ? _unretainedKeys.length : 0;
+			return _unretainedKeys != null ? _unretainedKeys.length : 0;
+		}
+
+		/**
+		 *  Disposes all retained and unretained textures.
+		 */
+		public function flush():void
+		{
+			for each(var texture:Texture in _unretainedTextures)
+			{
+				texture.dispose();
+			}
+			for each(texture in _retainedTextures)
+			{
+				texture.dispose();
+			}
+			_unretainedKeys = new Vector.<String>;
+			_unretainedTextures = {};
+			_retainedTextures = {};
+			_retainCounts = {};
 		}
 		
 		override public function dispose():void
 		{
-			if (!_isDisposed && !preventDispose)
+			if (_isDisposed || preventDispose)
 			{
-				super.dispose();
-				_isDisposed = true;
+				return;
 			}
+			super.dispose();
+			_isDisposed = true;
 		}
 	}
 }
