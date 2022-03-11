@@ -293,6 +293,10 @@ package feathers.controls.popups
 
 		protected function stage_enterFrameHandler():void
 		{
+			if (source == null)
+			{
+				return;
+			}
 			source.getBounds(PopUpManager.root, HELPER_RECT);
 			if (HELPER_RECT.x != lastOriginX || 
 				HELPER_RECT.y != lastOriginY ||
