@@ -10,15 +10,15 @@ package feathers.skins
     import flash.geom.Point;
     import flash.geom.Rectangle;
 
+    import starling.core.Starling;
     import starling.display.Image;
+    import starling.display.Stage;
     import starling.events.Event;
     import starling.filters.ColorMatrixFilterPatched;
     import starling.rendering.Painter;
     import starling.textures.Texture;
     import starling.utils.Color;
     import starling.utils.Pool;
-    import starling.core.Starling;
-    import starling.display.Stage;
 
     public class DuoToneImageSkin extends Image implements IMeasureDisplayObject, IStateObserver
     {
