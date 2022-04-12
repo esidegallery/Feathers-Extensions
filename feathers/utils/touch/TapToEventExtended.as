@@ -35,81 +35,82 @@ package feathers.utils.touch
 			this.bubbles = bubbles;
 			this.ctrlKey = ctrlKey;
 			this.shiftKey = shiftKey;
+			this.tapCount = tapCount;
 		}
 
 		override protected function target_touchHandler(event:TouchEvent):void
 		{
-			if(!this._isEnabled)
+			if (!_isEnabled)
 			{
-				this._touchPointID = -1;
+				_touchPointID = -1;
 				return;
 			}
 
-			if(this._touchPointID >= 0)
+			if (_touchPointID >= 0)
 			{
-				//a touch has begun, so we'll ignore all other touches.
-				var touch:Touch = event.getTouch(this._target, null, this._touchPointID);
-				if(!touch)
+				// a touch has begun, so we'll ignore all other touches.
+				var touch:Touch = event.getTouch(_target, null, _touchPointID);
+				if (!touch)
 				{
-					//this should not happen.
+					// this should not happen.
 					return;
 				}
 
-				if(touch.phase == TouchPhase.ENDED)
+				if (touch.phase == TouchPhase.ENDED)
 				{
-					var stage:Stage = this._target.stage;
-					if(stage !== null)
+					var stage:Stage = _target.stage;
+					if (stage !== null)
 					{
 						var point:Point = Pool.getPoint();
 						touch.getLocation(stage, point);
-						if(this._target is DisplayObjectContainer)
+						if (_target is DisplayObjectContainer)
 						{
-							var isInBounds:Boolean = DisplayObjectContainer(this._target).contains(stage.hitTest(point));
+							var isInBounds:Boolean = DisplayObjectContainer(_target).contains(stage.hitTest(point));
 						}
 						else
 						{
-							isInBounds = this._target === stage.hitTest(point);
+							isInBounds = _target === stage.hitTest(point);
 						}
 						Pool.putPoint(point);
-						if(isInBounds &&
-							(this._tapCount == -1 || this._tapCount == touch.tapCount) &&
+						if (isInBounds &&
+							(_tapCount == -1 || _tapCount == touch.tapCount) &&
 							event.shiftKey == shiftKey &&
 							event.ctrlKey == ctrlKey)
 						{
-							this._target.dispatchEventWith(this._eventType, bubbles);
+							_target.dispatchEventWith(_eventType, bubbles);
 						}
 					}
 
-					//the touch has ended, so now we can start watching for a
-					//new one.
-					this._touchPointID = -1;
+					// the touch has ended, so now we can start watching for a
+					// new one.
+					_touchPointID = -1;
 				}
 				return;
 			}
 			else
 			{
-				//we aren't tracking another touch, so let's look for a new one.
-				touch = event.getTouch(DisplayObject(this._target), TouchPhase.BEGAN);
-				if(!touch)
+				// we aren't tracking another touch, so let's look for a new one.
+				touch = event.getTouch(DisplayObject(_target), TouchPhase.BEGAN);
+				if (!touch)
 				{
-					//we only care about the began phase. ignore all other
-					//phases when we don't have a saved touch ID.
+					// we only care about the began phase. ignore all other
+					// phases when we don't have a saved touch ID.
 					return;
 				}
-				if(this._customHitTest !== null)
+				if (_customHitTest !== null)
 				{
 					point = Pool.getPoint();
-					touch.getLocation(DisplayObject(this._target), point);
-					isInBounds = this._customHitTest(point);
+					touch.getLocation(DisplayObject(_target), point);
+					isInBounds = _customHitTest(point);
 					Pool.putPoint(point);
-					if(!isInBounds)
+					if (!isInBounds)
 					{
 						return;
 					}
 				}
 
-				//save the touch ID so that we can track this touch's phases.
-				this._touchPointID = touch.id;
+				// save the touch ID so that we can track this touch's phases.
+				_touchPointID = touch.id;
 			}
 		}
 	}
