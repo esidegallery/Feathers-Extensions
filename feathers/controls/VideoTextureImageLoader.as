@@ -9,9 +9,11 @@ package feathers.controls
 	import flash.geom.Rectangle;
 
 	import starling.core.Starling;
+	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.display.Stage;
 	import starling.rendering.Painter;
+	import starling.textures.RenderTexture;
 	import starling.textures.Texture;
 	import starling.utils.Color;
 	import starling.utils.Pool;
@@ -19,7 +21,7 @@ package feathers.controls
 
 	public class VideoTextureImageLoader extends ImageLoader
 	{
-		private static const INVALIDATION_FLAG_VIDEO_SOURCE:String = "videoSource";
+		private static const INVALIDATION_FLAG_SOURCE:String = "source";
 
 		private static const HELPER_RECTANGLE:Rectangle = new Rectangle;
 		private static const HELPER_RECTANGLE2:Rectangle = new Rectangle;
@@ -40,16 +42,19 @@ package feathers.controls
 			{
 				return;
 			}
+
+			disposeRenderTexture();
+			
 			if (value != null && value is Texture && (value as Texture).base is VideoTexture)
 			{
 				_videoSource = value as Texture;
-				invalidate(INVALIDATION_FLAG_VIDEO_SOURCE);
-				return;
+			}
+			else
+			{
+				super.source = value;
 			}
 
-			_textureScaleMultiplierX = 1;
-			_textureScaleMultiplierY = 1;
-			super.source = value;
+			invalidate(INVALIDATION_FLAG_SOURCE);
 		}
 
 		private var _videoDisplayWidth:int;
@@ -68,7 +73,7 @@ package feathers.controls
 			{
 				return;
 			}
-			invalidate(INVALIDATION_FLAG_VIDEO_SOURCE);
+			invalidate(INVALIDATION_FLAG_SOURCE);
 		}
 
 		private var _videoDisplayHeight:int;
@@ -87,7 +92,7 @@ package feathers.controls
 			{
 				return;
 			}
-			invalidate(INVALIDATION_FLAG_VIDEO_SOURCE);
+			invalidate(INVALIDATION_FLAG_SOURCE);
 		}
 		
 		private var _videoCodedHeight:int;
@@ -106,15 +111,32 @@ package feathers.controls
 			{
 				return;
 			}
-			invalidate(INVALIDATION_FLAG_VIDEO_SOURCE);
+			invalidate(INVALIDATION_FLAG_SOURCE);
 		}
 
+		protected var _renderTexture:RenderTexture;
 		protected var _textureScaleMultiplierX:Number = 1;
 		protected var _textureScaleMultiplierY:Number = 1;
 
+		public function freezeFrame():void
+		{
+			disposeRenderTexture();
+			if (_videoSource == null)
+			{
+				return;
+			}
+			var image:Image = new Image(_videoSource);
+			_renderTexture = new RenderTexture(image.width, image.height);
+			_renderTexture.draw(image);
+			image.dispose();
+			
+			super.source = _renderTexture;
+			invalidate(INVALIDATION_FLAG_SOURCE);
+		}
+
 		override protected function draw():void
 		{
-			var videoTextureInvalid:Boolean = isInvalid(INVALIDATION_FLAG_VIDEO_SOURCE);
+			var videoTextureInvalid:Boolean = isInvalid(INVALIDATION_FLAG_SOURCE);
 			if (videoTextureInvalid)
 			{
 				commitVideoTexture();
@@ -159,11 +181,11 @@ package feathers.controls
 
 		override protected function autoSizeIfNeeded():Boolean
 		{
-			var needsWidth:Boolean = this._explicitWidth !== this._explicitWidth; //isNaN
-			var needsHeight:Boolean = this._explicitHeight !== this._explicitHeight; //isNaN
-			var needsMinWidth:Boolean = this._explicitMinWidth !== this._explicitMinWidth; //isNaN
-			var needsMinHeight:Boolean = this._explicitMinHeight !== this._explicitMinHeight; //isNaN
-			if(!needsWidth && !needsHeight && !needsMinWidth && !needsMinHeight)
+			var needsWidth:Boolean = _explicitWidth !== _explicitWidth; //isNaN
+			var needsHeight:Boolean = _explicitHeight !== _explicitHeight; //isNaN
+			var needsMinWidth:Boolean = _explicitMinWidth !== _explicitMinWidth; //isNaN
+			var needsMinHeight:Boolean = _explicitMinHeight !== _explicitMinHeight; //isNaN
+			if (!needsWidth && !needsHeight && !needsMinWidth && !needsMinHeight)
 			{
 				return false;
 			}
@@ -172,202 +194,202 @@ package feathers.controls
 			var widthScale:Number = 1;
 			var textureScaleX:Number = textureScale * _textureScaleMultiplierX;
 			var textureScaleY:Number = textureScale * _textureScaleMultiplierY;
-			if(this.scaleContent && this.maintainAspectRatio &&
-				this.scaleMode !== starling.utils.ScaleMode.NONE &&
-				this.scale9Grid === null)
+			if (scaleContent && maintainAspectRatio &&
+				scaleMode !== starling.utils.ScaleMode.NONE &&
+				scale9Grid === null)
 			{
-				if(!needsHeight)
+				if (!needsHeight)
 				{
-					heightScale = this._explicitHeight / (this._currentTextureHeight * textureScaleY);
+					heightScale = _explicitHeight / (_currentTextureHeight * textureScaleY);
 				}
-				else if(this._explicitMaxHeight < this._currentTextureHeight)
+				else if (_explicitMaxHeight < _currentTextureHeight)
 				{
-					heightScale = this._explicitMaxHeight / (this._currentTextureHeight * textureScaleY);
+					heightScale = _explicitMaxHeight / (_currentTextureHeight * textureScaleY);
 				}
-				else if(this._explicitMinHeight > this._currentTextureHeight)
+				else if (_explicitMinHeight > _currentTextureHeight)
 				{
-					heightScale = this._explicitMinHeight / (this._currentTextureHeight * textureScaleY);
+					heightScale = _explicitMinHeight / (_currentTextureHeight * textureScaleY);
 				}
-				if(!needsWidth)
+				if (!needsWidth)
 				{
-					widthScale = this._explicitWidth / (this._currentTextureWidth * textureScaleX);
+					widthScale = _explicitWidth / (_currentTextureWidth * textureScaleX);
 				}
-				else if(this._explicitMaxWidth < this._currentTextureWidth)
+				else if (_explicitMaxWidth < _currentTextureWidth)
 				{
-					widthScale = this._explicitMaxWidth / (this._currentTextureWidth * textureScaleX);
+					widthScale = _explicitMaxWidth / (_currentTextureWidth * textureScaleX);
 				}
-				else if(this._explicitMinWidth > this._currentTextureWidth)
+				else if (_explicitMinWidth > _currentTextureWidth)
 				{
-					widthScale = this._explicitMinWidth / (this._currentTextureWidth * textureScaleX);
+					widthScale = _explicitMinWidth / (_currentTextureWidth * textureScaleX);
 				}
 			}
 			
-			var newWidth:Number = this._explicitWidth;
-			if(needsWidth)
+			var newWidth:Number = _explicitWidth;
+			if (needsWidth)
 			{
-				if(this._currentTextureWidth === this._currentTextureWidth) //!isNaN
+				if (_currentTextureWidth === _currentTextureWidth) //!isNaN
 				{
-					newWidth = this._currentTextureWidth * textureScaleX * heightScale;
+					newWidth = _currentTextureWidth * textureScaleX * heightScale;
 				}
 				else
 				{
 					newWidth = 0;
 				}
-				newWidth += this._paddingLeft + this._paddingRight;
+				newWidth += _paddingLeft + _paddingRight;
 			}
 			
-			var newHeight:Number = this._explicitHeight;
-			if(needsHeight)
+			var newHeight:Number = _explicitHeight;
+			if (needsHeight)
 			{
-				if(this._currentTextureHeight === this._currentTextureHeight) //!isNaN
+				if (_currentTextureHeight === _currentTextureHeight) //!isNaN
 				{
-					newHeight = this._currentTextureHeight * textureScaleY * widthScale;
+					newHeight = _currentTextureHeight * textureScaleY * widthScale;
 				}
 				else
 				{
 					newHeight = 0;
 				}
-				newHeight += this._paddingTop + this._paddingBottom;
+				newHeight += _paddingTop + _paddingBottom;
 			}
 			
-			//this ensures that an ImageLoader can recover from width or height
-			//being set to 0 by percentWidth or percentHeight
-			if(needsHeight && needsMinHeight)
+			// This ensures that an ImageLoader can recover from width or height
+			// being set to 0 by percentWidth or percentHeight
+			if (needsHeight && needsMinHeight)
 			{
-				//if no height values are set, use the original texture width
-				//for the minWidth
+				// If no height values are set, use the original texture width
+				// for the minWidth
 				heightScale = 1;
 			}
-			if(needsWidth && needsMinWidth)
+			if (needsWidth && needsMinWidth)
 			{
-				//if no width values are set, use the original texture height
-				//for the minHeight
+				// If no width values are set, use the original texture height
+				// for the minHeight
 				widthScale = 1;
 			}
 			
-			var newMinWidth:Number = this._explicitMinWidth;
-			if(needsMinWidth)
+			var newMinWidth:Number = _explicitMinWidth;
+			if (needsMinWidth)
 			{
-				if(this._currentTextureWidth === this._currentTextureWidth) //!isNaN
+				if (_currentTextureWidth === _currentTextureWidth) //!isNaN
 				{
-					newMinWidth = this._currentTextureWidth * textureScaleX * heightScale;
+					newMinWidth = _currentTextureWidth * textureScaleX * heightScale;
 				}
 				else
 				{
 					newMinWidth = 0;
 				}
-				newMinWidth += this._paddingLeft + this._paddingRight;
+				newMinWidth += _paddingLeft + _paddingRight;
 			}
 			
-			var newMinHeight:Number = this._explicitMinHeight;
-			if(needsMinHeight)
+			var newMinHeight:Number = _explicitMinHeight;
+			if (needsMinHeight)
 			{
-				if(this._currentTextureHeight === this._currentTextureHeight) //!isNaN
+				if (_currentTextureHeight === _currentTextureHeight) // !isNaN
 				{
-					newMinHeight = this._currentTextureHeight * textureScaleY * widthScale;
+					newMinHeight = _currentTextureHeight * textureScaleY * widthScale;
 				}
 				else
 				{
 					newMinHeight = 0;
 				}
-				newMinHeight += this._paddingTop + this._paddingBottom;
+				newMinHeight += _paddingTop + _paddingBottom;
 			}
 			
-			return this.saveMeasurements(newWidth, newHeight, newMinWidth, newMinHeight);
+			return saveMeasurements(newWidth, newHeight, newMinWidth, newMinHeight);
 		}
 
 		override protected function layout():void
 		{
-			if(!this.image || !this._currentTexture)
+			if (!image || !_currentTexture)
 			{
 				return;
 			}
-			if(this.scaleContent)
+			if (scaleContent)
 			{
-				if(this.maintainAspectRatio && this.scale9Grid === null)
+				if (maintainAspectRatio && scale9Grid === null)
 				{
 					HELPER_RECTANGLE.x = 0;
 					HELPER_RECTANGLE.y = 0;
-					HELPER_RECTANGLE.width = this._currentTextureWidth * this.textureScale * this._textureScaleMultiplierX;
-					HELPER_RECTANGLE.height = this._currentTextureHeight * this.textureScale * this._textureScaleMultiplierY;
+					HELPER_RECTANGLE.width = _currentTextureWidth * textureScale * _textureScaleMultiplierX;
+					HELPER_RECTANGLE.height = _currentTextureHeight * textureScale * _textureScaleMultiplierY;
 					HELPER_RECTANGLE2.x = 0;
 					HELPER_RECTANGLE2.y = 0;
-					HELPER_RECTANGLE2.width = this.actualWidth - this._paddingLeft - this._paddingRight;
-					HELPER_RECTANGLE2.height = this.actualHeight - this._paddingTop - this._paddingBottom;
-					RectangleUtil.fit(HELPER_RECTANGLE, HELPER_RECTANGLE2, this.scaleMode, false, HELPER_RECTANGLE);
-					this.image.x = HELPER_RECTANGLE.x + this._paddingLeft;
-					this.image.y = HELPER_RECTANGLE.y + this._paddingTop;
-					this.image.width = HELPER_RECTANGLE.width;
-					this.image.height = HELPER_RECTANGLE.height;
+					HELPER_RECTANGLE2.width = actualWidth - _paddingLeft - _paddingRight;
+					HELPER_RECTANGLE2.height = actualHeight - _paddingTop - _paddingBottom;
+					RectangleUtil.fit(HELPER_RECTANGLE, HELPER_RECTANGLE2, scaleMode, false, HELPER_RECTANGLE);
+					image.x = HELPER_RECTANGLE.x + _paddingLeft;
+					image.y = HELPER_RECTANGLE.y + _paddingTop;
+					image.width = HELPER_RECTANGLE.width;
+					image.height = HELPER_RECTANGLE.height;
 				}
 				else
 				{
-					this.image.x = this._paddingLeft;
-					this.image.y = this._paddingTop;
-					this.image.width = this.actualWidth - this._paddingLeft - this._paddingRight;
-					this.image.height = this.actualHeight - this._paddingTop - this._paddingBottom;
+					image.x = _paddingLeft;
+					image.y = _paddingTop;
+					image.width = actualWidth - _paddingLeft - _paddingRight;
+					image.height = actualHeight - _paddingTop - _paddingBottom;
 				}
 			}
 			else
 			{
-				var imageWidth:Number = this._currentTextureWidth * this.textureScale * this._textureScaleMultiplierX;
-				var imageHeight:Number = this._currentTextureHeight * this.textureScale * this._textureScaleMultiplierY;
-				if(this._horizontalAlign === HorizontalAlign.RIGHT)
+				var imageWidth:Number = _currentTextureWidth * textureScale * _textureScaleMultiplierX;
+				var imageHeight:Number = _currentTextureHeight * textureScale * _textureScaleMultiplierY;
+				if (_horizontalAlign === HorizontalAlign.RIGHT)
 				{
-					this.image.x = this.actualWidth - this._paddingRight - imageWidth;
+					image.x = actualWidth - _paddingRight - imageWidth;
 				}
-				else if(this._horizontalAlign === HorizontalAlign.CENTER)
+				else if (_horizontalAlign === HorizontalAlign.CENTER)
 				{
-					this.image.x = this._paddingLeft + ((this.actualWidth - this._paddingLeft - this._paddingRight) - imageWidth) / 2;
+					image.x = _paddingLeft + ((actualWidth - _paddingLeft - _paddingRight) - imageWidth) / 2;
 				}
-				else //left
+				else // left
 				{
-					this.image.x = this._paddingLeft;
+					image.x = _paddingLeft;
 				}
-				if(this._verticalAlign === VerticalAlign.BOTTOM)
+				if (_verticalAlign === VerticalAlign.BOTTOM)
 				{
-					this.image.y = this.actualHeight - this._paddingBottom - imageHeight;
+					image.y = actualHeight - _paddingBottom - imageHeight;
 				}
-				else if(this._verticalAlign === VerticalAlign.MIDDLE)
+				else if (_verticalAlign === VerticalAlign.MIDDLE)
 				{
-					this.image.y = this._paddingTop + ((this.actualHeight - this._paddingTop - this._paddingBottom) - imageHeight) / 2;
+					image.y = _paddingTop + ((actualHeight - _paddingTop - _paddingBottom) - imageHeight) / 2;
 				}
-				else //top
+				else // top
 				{
-					this.image.y = this._paddingTop;
+					image.y = _paddingTop;
 				}
-				this.image.width = imageWidth;
-				this.image.height = imageHeight;
+				image.width = imageWidth;
+				image.height = imageHeight;
 			}
-			if((!this.scaleContent || (this.maintainAspectRatio && this.scaleMode !== starling.utils.ScaleMode.SHOW_ALL)) &&
-				(this.actualWidth != imageWidth || this.actualHeight != imageHeight))
+			if ((!scaleContent || (maintainAspectRatio && scaleMode !== starling.utils.ScaleMode.SHOW_ALL)) &&
+				(actualWidth != imageWidth || actualHeight != imageHeight))
 			{
-				var mask:Quad = this.image.mask as Quad;
-				if(mask !== null)
+				var mask:Quad = image.mask as Quad;
+				if (mask !== null)
 				{
 					mask.x = 0;
 					mask.y = 0;
-					mask.width = this.actualWidth;
-					mask.height = this.actualHeight;
+					mask.width = actualWidth;
+					mask.height = actualHeight;
 				}
 				else
 				{
 					mask = new Quad(1, 1, 0xff00ff);
-					//the initial dimensions cannot be 0 or there's a runtime error,
-					//and these values might be 0
-					mask.width = this.actualWidth;
-					mask.height = this.actualHeight;
-					this.image.mask = mask;
-					this.addChild(mask);
+					// The initial dimensions cannot be 0 or there's a runtime error,
+					// and these values might be 0
+					mask.width = actualWidth;
+					mask.height = actualHeight;
+					image.mask = mask;
+					addChild(mask);
 				}
 			}
 			else
 			{
-				mask = this.image.mask as Quad;
-				if(mask !== null)
+				mask = image.mask as Quad;
+				if (mask !== null)
 				{
 					mask.removeFromParent(true);
-					this.image.mask = null;
+					image.mask = null;
 				}
 			}
 		}
@@ -443,7 +465,7 @@ package feathers.controls
                     if (mask)   painter.eraseMask(mask, this);
 
                     painter.finishMeshBatch();
-                    //line 478 - for some reason the bitmapdata is distorted depending the size of the stageHeight and stageWidth on windows. Throwing in an additional bitmapdata and using copyPixels method fixes it.
+                    // For some reason the bitmapdata is distorted depending the size of the stageHeight and stageWidth on windows. Throwing in an additional bitmapdata and using copyPixels method fixes it.
 					var bmd:BitmapData = new BitmapData(stepWidth, stepHeight, true, 0x00ffffff);
 					painter.context.drawToBitmapData(bmd, boundsInBuffer);
 					out.copyPixels(bmd, boundsInBuffer,positionInBitmap);
@@ -461,6 +483,22 @@ package feathers.controls
             Pool.putPoint(positionInBitmap);
 
             return out;
+		}
+
+		protected function disposeRenderTexture():void
+		{
+			if (_renderTexture == null)
+			{
+				return;
+			}
+			_renderTexture.dispose();
+			_renderTexture = null;
+		}
+
+		override public function dispose():void
+		{
+			disposeRenderTexture();
+			super.dispose();
 		}
 	}
 }
