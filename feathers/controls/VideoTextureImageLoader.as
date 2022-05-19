@@ -19,6 +19,11 @@ package feathers.controls
 	import starling.utils.Pool;
 	import starling.utils.RectangleUtil;
 
+	/** 
+	 * ImageLoader designed for displaying VideoPlayer textures.
+	 * Supports setting of video display dimensions and coded height for aspect correcttion,
+	 * plus the ability to freeze frame (via a RenderTexture) to facilitate seamless looping.
+	 */
 	public class VideoTextureImageLoader extends ImageLoader
 	{
 		private static const INVALIDATION_FLAG_VIDEO_SOURCE:String = "videoSource";
@@ -38,9 +43,12 @@ package feathers.controls
 		}
 		override public function set source(value:Object):void
 		{
-			disposeRenderTexture();
-
-			if (_videoSource == value)
+			if (_renderTexture != null)
+			{
+				// If renderTexture exists, then it takes precedence over videoSource:
+				disposeRenderTexture();
+			}
+			else if (_videoSource == value)
 			{
 				return;
 			}
@@ -133,6 +141,7 @@ package feathers.controls
 			image.dispose();
 
 			invalidate(INVALIDATION_FLAG_VIDEO_SOURCE);
+			validate();
 		}
 
 		override protected function draw():void
@@ -175,6 +184,8 @@ package feathers.controls
 			}
 
 			setInvalidationFlag(INVALIDATION_FLAG_DATA);
+			// Note that newSource may be a cropped subtexture of videoSource or renderTexture,
+			// not necessarily the textures themselves:
 			super.source = newSource;
 		}
 
