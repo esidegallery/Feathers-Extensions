@@ -15,8 +15,8 @@ package feathers.controls
 				return;
 			}
 			stop();
-			play();
 			videoTexture_onRestore();
+			play();
 		}
 	}
 }

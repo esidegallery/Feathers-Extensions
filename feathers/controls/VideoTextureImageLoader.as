@@ -19,9 +19,9 @@ package feathers.controls
 	import starling.utils.Pool;
 	import starling.utils.RectangleUtil;
 
-	/** 
+	/**
 	 * ImageLoader designed for displaying VideoPlayer textures.
-	 * Supports setting of video display dimensions and coded height for aspect correcttion,
+	 * Supports setting of video display dimensions and coded height for aspect correction,
 	 * plus the ability to freeze frame (via a RenderTexture) to facilitate seamless looping.
 	 */
 	public class VideoTextureImageLoader extends ImageLoader
@@ -126,11 +126,15 @@ package feathers.controls
 		protected var _textureScaleMultiplierX:Number = 1;
 		protected var _textureScaleMultiplierY:Number = 1;
 
+		/**
+		 * Draws the current frame to a RenderTexture,
+		 * which will be automatically disposed of.
+		 */
 		public function freezeFrame():void
 		{
 			disposeRenderTexture();
 
-			if (_videoSource == null)
+			if (_videoSource == null || _videoSource.width == 0 || _videoSource.height == 0)
 			{
 				return;
 			}
