@@ -187,7 +187,7 @@ package feathers.controls
 
 			if (_videoDisplayHeight > 0 && _videoCodedHeight > 0 && _videoDisplayHeight != _videoCodedHeight)
 			{
-				var cropRect:Rectangle = Pool.getRectangle(0, 0, _videoSource.width, _videoSource.height - (_videoCodedHeight - _videoDisplayHeight));
+				var cropRect:Rectangle = Pool.getRectangle(0, 0, newSource.width, newSource.height - (_videoCodedHeight - _videoDisplayHeight));
 				newSource = Texture.fromTexture(newSource, cropRect);
 				Pool.putRectangle(cropRect);
 			}
