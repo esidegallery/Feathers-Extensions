@@ -126,6 +126,20 @@ package feathers.controls
 		protected var _textureScaleMultiplierX:Number = 1;
 		protected var _textureScaleMultiplierY:Number = 1;
 
+		/** 
+		 * To be called on VideoPlayer's clear event, to ensure the no-longer-valid
+		 * video texture will no longer be displayed. Will not clear the RenderTexture if being shown.
+		 */
+		public function clear():void
+		{
+			if (_videoSource == null)
+			{
+				return;
+			}
+			_videoSource = null;
+			invalidate(INVALIDATION_FLAG_VIDEO_SOURCE);
+		}
+
 		/**
 		 * Draws the current frame to a RenderTexture,
 		 * which will be automatically disposed of.
