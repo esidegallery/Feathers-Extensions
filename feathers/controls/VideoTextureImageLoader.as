@@ -138,6 +138,7 @@ package feathers.controls
 			}
 			_videoSource = null;
 			invalidate(INVALIDATION_FLAG_VIDEO_SOURCE);
+			validate();
 		}
 
 		/**
