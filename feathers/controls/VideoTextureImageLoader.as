@@ -435,27 +435,11 @@ package feathers.controls
 			var backBufferScale:Number = painter.backBufferScaleFactor;
 			var totalScaleX:Number = scaleX * backBufferScale;
 			var totalScaleY:Number = scaleY * backBufferScale;
-			var projectionX:Number, projectionY:Number;
-			var bounds:Rectangle;
+			var bounds:Rectangle = getBounds(parent, HELPER_RECTANGLE);
+			var projectionX:Number = bounds.x;
+			var projectionY:Number = bounds.y;
 
-			if (this is Stage)
-			{
-				projectionX = viewPort.x < 0 ? -viewPort.x / scaleX : 0.0;
-				projectionY = viewPort.y < 0 ? -viewPort.y / scaleY : 0.0;
-
-				out ||= new BitmapData(painter.backBufferWidth * backBufferScale,
-					painter.backBufferHeight * backBufferScale);
-			}
-			else
-			{
-				bounds = getBounds(parent, HELPER_RECTANGLE);
-				projectionX = bounds.x;
-				projectionY = bounds.y;
-
-				out ||= new BitmapData(Math.ceil(bounds.width * totalScaleX),
-					Math.ceil(bounds.height * totalScaleY));
-			}
-
+			out ||= new BitmapData(Math.ceil(bounds.width * totalScaleX), Math.ceil(bounds.height * totalScaleY));
 			color = Color.multiply(color, alpha); // premultiply alpha
 
 			painter.pushState();

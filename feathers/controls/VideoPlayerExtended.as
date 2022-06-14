@@ -5,7 +5,6 @@ package feathers.controls
 
 	import feathers.media.VideoPlayer;
 
-	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 
@@ -40,14 +39,14 @@ package feathers.controls
 		{
 			_netConnectionFactory = function():NetConnection
 			{
-				trace(uid, "netConnectionFactory");
+				// trace(uid, "netConnectionFactory");
 				var connection:NetConnection = new NetConnection();
 				connection.connect(null);
 				return connection;
 			};
 			_netStreamFactory = function(netConnection:NetConnection):NetStream
 			{
-				trace(uid, "netStreamFactory");
+				// trace(uid, "netStreamFactory");
 				return new NetStream(netConnection);
 			}
 		}
@@ -58,7 +57,7 @@ package feathers.controls
 			{
 				return;
 			}
-			trace(uid, "disposeNetConnection()");
+			// trace(uid, "disposeNetConnection()");
 			super.disposeNetConnection();
 		}
 
@@ -68,20 +67,20 @@ package feathers.controls
 			{
 				return;
 			}
-			trace(uid, "disposeNetStream()");
+			// trace(uid, "disposeNetStream()");
 			super.disposeNetStream();
 		}
 
-		override protected function netConnection_netStatusHandler(event:NetStatusEvent):void
-		{
-			trace(uid, "netConnection_netStatusHandler", event.info.code);
-			super.netConnection_netStatusHandler(event);
-		}
+		// override protected function netConnection_netStatusHandler(event:NetStatusEvent):void
+		// {
+		// 	trace(uid, "netConnection_netStatusHandler", event.info.code);
+		// 	super.netConnection_netStatusHandler(event);
+		// }
 
-		override protected function netStream_netStatusHandler(event:NetStatusEvent):void
-		{
-			trace(uid, "netStream_netStatusHandler", event.info.code);
-			super.netStream_netStatusHandler(event);
-		}
+		// override protected function netStream_netStatusHandler(event:NetStatusEvent):void
+		// {
+		// 	trace(uid, "netStream_netStatusHandler", event.info.code);
+		// 	super.netStream_netStatusHandler(event);
+		// }
 	}
 }

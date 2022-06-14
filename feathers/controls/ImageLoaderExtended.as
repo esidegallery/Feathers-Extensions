@@ -28,11 +28,11 @@ package feathers.controls
 	import starling.utils.Pool;
 	import starling.utils.RectangleUtil;
 	import starling.utils.ScaleMode;
-	
+
 	public class ImageLoaderExtended extends ImageLoader implements IHasUID
 	{
 		protected static const INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE:String = "texturePreferredSize";
-		
+
 		private static const HELPER_RECTANGLE:Rectangle = new Rectangle;
 		private static const HELPER_RECTANGLE2:Rectangle = new Rectangle;
 
@@ -45,13 +45,13 @@ package feathers.controls
 		{
 			_uid = value;
 		}
-		
-		/** 
+
+		/**
 		 * If the source is set to a Promise, by default the previous image is cleared while waiting for promise to dispatch.
 		 * Setting this flag keeps the previous image intil that happens.
 		 */
 		public var keepPreviousSourceUntilPromiseLoaded:Boolean = false;
-		
+
 		protected var _texturePreferredWidth:Number = NaN;
 		public function get texturePreferredWidth():Number
 		{
@@ -64,9 +64,9 @@ package feathers.controls
 				return;
 			}
 			_texturePreferredWidth = value;
-			invalidate(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);			
+			invalidate(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);
 		}
-		
+
 		protected var _texturePreferredHeight:Number = NaN;
 		public function get texturePreferredHeight():Number
 		{
@@ -79,18 +79,21 @@ package feathers.controls
 				return;
 			}
 			_texturePreferredHeight = value;
-			invalidate(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);			
+			invalidate(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);
 		}
-		
+
+		/** Set to automatically downscale the loaded image to this size. */
+		public var maxDisplaySize:int = Texture.maxSize;
+
 		protected var _textureScaleMultiplierX:Number = 1;
 		protected var _textureScaleMultiplierY:Number = 1;
-		
+
 		protected var _sourcePromise:Promise;
-		
+
 		/**
-		 * If set as an <code>ImageLoaderExtendedVO</code>, its properties are instantly resolved to those of 
+		 * If set as an <code>ImageLoaderExtendedVO</code>, its properties are instantly resolved to those of
 		 * <code>ImageLoaderExtended</code> with the same name.<br/>
-		 * If set as a <code>Promise</code>, the promise is kept as the source until it is dispatched, 
+		 * If set as a <code>Promise</code>, the promise is kept as the source until it is dispatched,
 		 * upon which the source is set to its payload.
 		 */
 		override public function get source():Object
@@ -113,7 +116,7 @@ package feathers.controls
 			}
 			else if (value is Promise)
 			{
-				_sourcePromise = value as Promise; 
+				_sourcePromise = value as Promise;
 				if (!_sourcePromise.isDispatched && !keepPreviousSourceUntilPromiseLoaded)
 				{
 					super.source = null;
@@ -125,7 +128,7 @@ package feathers.controls
 				super.source = value;
 			}
 		}
-		
+
 		override public function set textureCache(value:TextureCache):void
 		{
 			if (value is TextureCacheExtended && (value as TextureCacheExtended).isDisposed)
@@ -137,19 +140,19 @@ package feathers.controls
 				super.textureCache = value;
 			}
 		}
-		
+
 		protected function sourcePromiseHandler(value:Object):void
 		{
 			_sourcePromise = null;
 			source = value;
 			validate();
 		}
-		
+
 		public function get internalImage():Image
 		{
 			return image;
 		}
-		
+
 		protected function calculateTextureScaleMultipliers():void
 		{
 			var newX:Number;
@@ -161,7 +164,7 @@ package feathers.controls
 			{
 				newX = 1;
 			}
-			
+
 			var newY:Number;
 			if (_texturePreferredHeight > 0 && _currentTextureHeight > 0)
 			{
@@ -171,16 +174,16 @@ package feathers.controls
 			{
 				newY = 1;
 			}
-			
+
 			if (_textureScaleMultiplierX != newX || _textureScaleMultiplierY != newY)
 			{
 				invalidate(INVALIDATION_FLAG_SIZE);
 			}
-			
+
 			_textureScaleMultiplierX = newX;
 			_textureScaleMultiplierY = newY;
 		}
-		
+
 		override protected function draw():void
 		{
 			var texturePreserredSizeInvalid:Boolean = isInvalid(INVALIDATION_FLAG_TEXTURE_PREFERRED_SIZE);
@@ -190,56 +193,56 @@ package feathers.controls
 			}
 			super.draw();
 		}
-		
+
 		override protected function autoSizeIfNeeded():Boolean
 		{
-			var needsWidth:Boolean = this._explicitWidth !== this._explicitWidth; //isNaN
-			var needsHeight:Boolean = this._explicitHeight !== this._explicitHeight; //isNaN
-			var needsMinWidth:Boolean = this._explicitMinWidth !== this._explicitMinWidth; //isNaN
-			var needsMinHeight:Boolean = this._explicitMinHeight !== this._explicitMinHeight; //isNaN
-			if(!needsWidth && !needsHeight && !needsMinWidth && !needsMinHeight)
+			var needsWidth:Boolean = this._explicitWidth !== this._explicitWidth; // isNaN
+			var needsHeight:Boolean = this._explicitHeight !== this._explicitHeight; // isNaN
+			var needsMinWidth:Boolean = this._explicitMinWidth !== this._explicitMinWidth; // isNaN
+			var needsMinHeight:Boolean = this._explicitMinHeight !== this._explicitMinHeight; // isNaN
+			if (!needsWidth && !needsHeight && !needsMinWidth && !needsMinHeight)
 			{
 				return false;
 			}
-			
+
 			var heightScale:Number = 1;
 			var widthScale:Number = 1;
 			var textureScaleX:Number = textureScale * _textureScaleMultiplierX;
 			var textureScaleY:Number = textureScale * _textureScaleMultiplierY;
-			if(this.scaleContent && this.maintainAspectRatio &&
+			if (this.scaleContent && this.maintainAspectRatio &&
 				this.scaleMode !== starling.utils.ScaleMode.NONE &&
 				this.scale9Grid === null)
 			{
-				if(!needsHeight)
+				if (!needsHeight)
 				{
 					heightScale = this._explicitHeight / (this._currentTextureHeight * textureScaleY);
 				}
-				else if(this._explicitMaxHeight < this._currentTextureHeight)
+				else if (this._explicitMaxHeight < this._currentTextureHeight)
 				{
 					heightScale = this._explicitMaxHeight / (this._currentTextureHeight * textureScaleY);
 				}
-				else if(this._explicitMinHeight > this._currentTextureHeight)
+				else if (this._explicitMinHeight > this._currentTextureHeight)
 				{
 					heightScale = this._explicitMinHeight / (this._currentTextureHeight * textureScaleY);
 				}
-				if(!needsWidth)
+				if (!needsWidth)
 				{
 					widthScale = this._explicitWidth / (this._currentTextureWidth * textureScaleX);
 				}
-				else if(this._explicitMaxWidth < this._currentTextureWidth)
+				else if (this._explicitMaxWidth < this._currentTextureWidth)
 				{
 					widthScale = this._explicitMaxWidth / (this._currentTextureWidth * textureScaleX);
 				}
-				else if(this._explicitMinWidth > this._currentTextureWidth)
+				else if (this._explicitMinWidth > this._currentTextureWidth)
 				{
 					widthScale = this._explicitMinWidth / (this._currentTextureWidth * textureScaleX);
 				}
 			}
-			
+
 			var newWidth:Number = this._explicitWidth;
-			if(needsWidth)
+			if (needsWidth)
 			{
-				if(this._currentTextureWidth === this._currentTextureWidth) //!isNaN
+				if (this._currentTextureWidth === this._currentTextureWidth) // !isNaN
 				{
 					newWidth = this._currentTextureWidth * textureScaleX * heightScale;
 				}
@@ -249,11 +252,11 @@ package feathers.controls
 				}
 				newWidth += this._paddingLeft + this._paddingRight;
 			}
-			
+
 			var newHeight:Number = this._explicitHeight;
-			if(needsHeight)
+			if (needsHeight)
 			{
-				if(this._currentTextureHeight === this._currentTextureHeight) //!isNaN
+				if (this._currentTextureHeight === this._currentTextureHeight) // !isNaN
 				{
 					newHeight = this._currentTextureHeight * textureScaleY * widthScale;
 				}
@@ -263,26 +266,26 @@ package feathers.controls
 				}
 				newHeight += this._paddingTop + this._paddingBottom;
 			}
-			
-			//this ensures that an ImageLoader can recover from width or height
-			//being set to 0 by percentWidth or percentHeight
-			if(needsHeight && needsMinHeight)
+
+			// this ensures that an ImageLoader can recover from width or height
+			// being set to 0 by percentWidth or percentHeight
+			if (needsHeight && needsMinHeight)
 			{
-				//if no height values are set, use the original texture width
-				//for the minWidth
+				// if no height values are set, use the original texture width
+				// for the minWidth
 				heightScale = 1;
 			}
-			if(needsWidth && needsMinWidth)
+			if (needsWidth && needsMinWidth)
 			{
-				//if no width values are set, use the original texture height
-				//for the minHeight
+				// if no width values are set, use the original texture height
+				// for the minHeight
 				widthScale = 1;
 			}
-			
+
 			var newMinWidth:Number = this._explicitMinWidth;
-			if(needsMinWidth)
+			if (needsMinWidth)
 			{
-				if(this._currentTextureWidth === this._currentTextureWidth) //!isNaN
+				if (this._currentTextureWidth === this._currentTextureWidth) // !isNaN
 				{
 					newMinWidth = this._currentTextureWidth * textureScaleX * heightScale;
 				}
@@ -292,11 +295,11 @@ package feathers.controls
 				}
 				newMinWidth += this._paddingLeft + this._paddingRight;
 			}
-			
+
 			var newMinHeight:Number = this._explicitMinHeight;
-			if(needsMinHeight)
+			if (needsMinHeight)
 			{
-				if(this._currentTextureHeight === this._currentTextureHeight) //!isNaN
+				if (this._currentTextureHeight === this._currentTextureHeight) // !isNaN
 				{
 					newMinHeight = this._currentTextureHeight * textureScaleY * widthScale;
 				}
@@ -306,19 +309,19 @@ package feathers.controls
 				}
 				newMinHeight += this._paddingTop + this._paddingBottom;
 			}
-			
+
 			return this.saveMeasurements(newWidth, newHeight, newMinWidth, newMinHeight);
 		}
-		
+
 		override protected function layout():void
 		{
-			if(!this.image || !this._currentTexture)
+			if (!this.image || !this._currentTexture)
 			{
 				return;
 			}
-			if(this.scaleContent)
+			if (this.scaleContent)
 			{
-				if(this.maintainAspectRatio && this.scale9Grid === null)
+				if (this.maintainAspectRatio && this.scale9Grid === null)
 				{
 					HELPER_RECTANGLE.x = 0;
 					HELPER_RECTANGLE.y = 0;
@@ -346,38 +349,38 @@ package feathers.controls
 			{
 				var imageWidth:Number = this._currentTextureWidth * this.textureScale * this._textureScaleMultiplierX;
 				var imageHeight:Number = this._currentTextureHeight * this.textureScale * this._textureScaleMultiplierY;
-				if(this._horizontalAlign === HorizontalAlign.RIGHT)
+				if (this._horizontalAlign === HorizontalAlign.RIGHT)
 				{
 					this.image.x = this.actualWidth - this._paddingRight - imageWidth;
 				}
-				else if(this._horizontalAlign === HorizontalAlign.CENTER)
+				else if (this._horizontalAlign === HorizontalAlign.CENTER)
 				{
 					this.image.x = this._paddingLeft + ((this.actualWidth - this._paddingLeft - this._paddingRight) - imageWidth) / 2;
 				}
-				else //left
+				else // left
 				{
 					this.image.x = this._paddingLeft;
 				}
-				if(this._verticalAlign === VerticalAlign.BOTTOM)
+				if (this._verticalAlign === VerticalAlign.BOTTOM)
 				{
 					this.image.y = this.actualHeight - this._paddingBottom - imageHeight;
 				}
-				else if(this._verticalAlign === VerticalAlign.MIDDLE)
+				else if (this._verticalAlign === VerticalAlign.MIDDLE)
 				{
 					this.image.y = this._paddingTop + ((this.actualHeight - this._paddingTop - this._paddingBottom) - imageHeight) / 2;
 				}
-				else //top
+				else // top
 				{
 					this.image.y = this._paddingTop;
 				}
 				this.image.width = imageWidth;
 				this.image.height = imageHeight;
 			}
-			if((!this.scaleContent || (this.maintainAspectRatio && this.scaleMode !== starling.utils.ScaleMode.SHOW_ALL)) &&
+			if ((!this.scaleContent || (this.maintainAspectRatio && this.scaleMode !== starling.utils.ScaleMode.SHOW_ALL)) &&
 				(this.actualWidth != imageWidth || this.actualHeight != imageHeight))
 			{
 				var mask:Quad = this.image.mask as Quad;
-				if(mask !== null)
+				if (mask !== null)
 				{
 					mask.x = 0;
 					mask.y = 0;
@@ -387,8 +390,8 @@ package feathers.controls
 				else
 				{
 					mask = new Quad(1, 1, 0xff00ff);
-					//the initial dimensions cannot be 0 or there's a runtime error,
-					//and these values might be 0
+					// the initial dimensions cannot be 0 or there's a runtime error,
+					// and these values might be 0
 					mask.width = this.actualWidth;
 					mask.height = this.actualHeight;
 					this.image.mask = mask;
@@ -398,7 +401,7 @@ package feathers.controls
 			else
 			{
 				mask = this.image.mask as Quad;
-				if(mask !== null)
+				if (mask !== null)
 				{
 					mask.removeFromParent(true);
 					this.image.mask = null;
@@ -409,116 +412,126 @@ package feathers.controls
 		override public function drawToBitmapData(out:flash.display.BitmapData = null, color:uint = 0, alpha:Number = 0.0):flash.display.BitmapData
 		{
 			var painter:Painter = Starling.painter;
-            var stage:Stage = Starling.current.stage;
-            var viewPort:Rectangle = Starling.current.viewPort;
-            var stageWidth:Number  = stage.stageWidth;
-            var stageHeight:Number = stage.stageHeight;
-            var scaleX:Number = viewPort.width  / stageWidth;
-            var scaleY:Number = viewPort.height / stageHeight;
-            var backBufferScale:Number = painter.backBufferScaleFactor;
-            var totalScaleX:Number = scaleX * backBufferScale;
-            var totalScaleY:Number = scaleY * backBufferScale;
-            var projectionX:Number, projectionY:Number;
-            var bounds:Rectangle;
+			var stage:Stage = Starling.current.stage;
+			var viewPort:Rectangle = Starling.current.viewPort;
+			var stageWidth:Number = stage.stageWidth;
+			var stageHeight:Number = stage.stageHeight;
+			var scaleX:Number = viewPort.width / stageWidth;
+			var scaleY:Number = viewPort.height / stageHeight;
+			var backBufferScale:Number = painter.backBufferScaleFactor;
+			var totalScaleX:Number = scaleX * backBufferScale;
+			var totalScaleY:Number = scaleY * backBufferScale;
+			var projectionX:Number, projectionY:Number;
+			var bounds:Rectangle;
 
-            if (this is Stage)
-            {
-                projectionX = viewPort.x < 0 ? -viewPort.x / scaleX : 0.0;
-                projectionY = viewPort.y < 0 ? -viewPort.y / scaleY : 0.0;
+			if (this is Stage)
+			{
+				projectionX = viewPort.x < 0 ? -viewPort.x / scaleX : 0.0;
+				projectionY = viewPort.y < 0 ? -viewPort.y / scaleY : 0.0;
 
-                out ||= new BitmapData(painter.backBufferWidth  * backBufferScale,
-                                       painter.backBufferHeight * backBufferScale);
-            }
-            else
-            {
-                bounds = getBounds(parent, HELPER_RECTANGLE);
-                projectionX = bounds.x;
-                projectionY = bounds.y;
+				out ||= new BitmapData(painter.backBufferWidth * backBufferScale,
+					painter.backBufferHeight * backBufferScale);
+			}
+			else
+			{
+				bounds = getBounds(parent, HELPER_RECTANGLE);
+				projectionX = bounds.x;
+				projectionY = bounds.y;
 
-                out ||= new BitmapData(Math.ceil(bounds.width  * totalScaleX),
-                                       Math.ceil(bounds.height * totalScaleY));
-            }
+				out ||= new BitmapData(Math.ceil(bounds.width * totalScaleX),
+					Math.ceil(bounds.height * totalScaleY));
+			}
 
-            color = Color.multiply(color, alpha); // premultiply alpha
+			color = Color.multiply(color, alpha); // premultiply alpha
 
-            painter.pushState();
-            painter.setupContextDefaults();
-            painter.state.renderTarget = null;
-            painter.state.setModelviewMatricesToIdentity();
-            painter.setStateTo(transformationMatrix);
+			painter.pushState();
+			painter.setupContextDefaults();
+			painter.state.renderTarget = null;
+			painter.state.setModelviewMatricesToIdentity();
+			painter.setStateTo(transformationMatrix);
 
 			// Images that are bigger than the current back buffer are drawn in multiple steps.
 
-            var stepX:Number;
-            var stepY:Number = projectionY;
-            var stepWidth:Number  = painter.backBufferWidth  / scaleX;
-            var stepHeight:Number = painter.backBufferHeight / scaleY;
-            var positionInBitmap:Point = Pool.getPoint(0, 0);
-            var boundsInBuffer:Rectangle = Pool.getRectangle(0, 0,
-                    painter.backBufferWidth  * backBufferScale,
-                    painter.backBufferHeight * backBufferScale);
+			var stepX:Number;
+			var stepY:Number = projectionY;
+			var stepWidth:Number = painter.backBufferWidth / scaleX;
+			var stepHeight:Number = painter.backBufferHeight / scaleY;
+			var positionInBitmap:Point = Pool.getPoint(0, 0);
+			var boundsInBuffer:Rectangle = Pool.getRectangle(0, 0,
+				painter.backBufferWidth * backBufferScale,
+				painter.backBufferHeight * backBufferScale);
 
-            while (positionInBitmap.y < out.height)
-            {
-                stepX = projectionX;
-                positionInBitmap.x = 0;
-				
-                while (positionInBitmap.x < out.width)
-                {					
-                    painter.clear(color, alpha);
-                    painter.state.setProjectionMatrix(stepX, stepY, stepWidth, stepHeight,
-                        stageWidth, stageHeight, stage.cameraPosition);
+			while (positionInBitmap.y < out.height)
+			{
+				stepX = projectionX;
+				positionInBitmap.x = 0;
 
-                    if (mask)   painter.drawMask(mask, this);
+				while (positionInBitmap.x < out.width)
+				{
+					painter.clear(color, alpha);
+					painter.state.setProjectionMatrix(stepX, stepY, stepWidth, stepHeight,
+						stageWidth, stageHeight, stage.cameraPosition);
 
-                    if (filter) filter.render(painter);
-                    else         render(painter);
+					if (mask)
+						painter.drawMask(mask, this);
 
-                    if (mask)   painter.eraseMask(mask, this);
+					if (filter)
+						filter.render(painter);
+					else
+						render(painter);
 
-                    painter.finishMeshBatch();
-                    //line 478 - for some reason the bitmapdata is distorted depending the size of the stageHeight and stageWidth on windows. Throwing in an additional bitmapdata and using copyPixels method fixes it.
+					if (mask)
+						painter.eraseMask(mask, this);
+
+					painter.finishMeshBatch();
+					// line 478 - for some reason the bitmapdata is distorted depending the size of the stageHeight and stageWidth on windows. Throwing in an additional bitmapdata and using copyPixels method fixes it.
 					var bmd:BitmapData = new BitmapData(stepWidth, stepHeight, true, 0x00ffffff);
 					painter.context.drawToBitmapData(bmd, boundsInBuffer);
-					out.copyPixels(bmd, boundsInBuffer,positionInBitmap);
+					out.copyPixels(bmd, boundsInBuffer, positionInBitmap);
 
-                    stepX += stepWidth;
-                    positionInBitmap.x += stepWidth * totalScaleX;
-                }
-                stepY += stepHeight;
-                positionInBitmap.y += stepHeight * totalScaleY;
-            }
+					stepX += stepWidth;
+					positionInBitmap.x += stepWidth * totalScaleX;
+				}
+				stepY += stepHeight;
+				positionInBitmap.y += stepHeight * totalScaleY;
+			}
 
-            painter.popState();
+			painter.popState();
 
-            Pool.putRectangle(boundsInBuffer);
-            Pool.putPoint(positionInBitmap);
+			Pool.putRectangle(boundsInBuffer);
+			Pool.putPoint(positionInBitmap);
 
-            return out;
+			return out;
 		}
-		
+
 		override protected function loader_completeHandler(event:flash.events.Event):void
 		{
 			var bitmapData:BitmapData = Bitmap(this.loader.content).bitmapData;
-			if (bitmapData.width > Texture.maxSize || bitmapData.height > Texture.maxSize)
+			if (bitmapData.width > maxDisplaySize || bitmapData.height > maxDisplaySize)
 			{
-				Bitmap(this.loader.content).bitmapData = ImageUtils.resize(bitmapData, Texture.maxSize, Texture.maxSize, com.esidegallery.enums.ScaleMode.FIT);
+				Bitmap(this.loader.content).bitmapData = ImageUtils.resize(
+					bitmapData,
+					maxDisplaySize, maxDisplaySize,
+					com.esidegallery.enums.ScaleMode.FIT,
+					0, false, false, 0,
+					HorizontalAlign.CENTER, VerticalAlign.MIDDLE,
+					true);
 			}
 			super.loader_completeHandler(event);
 		}
-		
+
 		override protected function refreshCurrentTexture():void
 		{
 			super.refreshCurrentTexture();
 			calculateTextureScaleMultipliers();
 		}
-		
+
 		override protected function cleanupTexture():void
 		{
 			super.cleanupTexture();
 			calculateTextureScaleMultipliers();
 		}
-		
+
 		public function disposeSourcePromise():void
 		{
 			if (_sourcePromise == null)
@@ -528,7 +541,7 @@ package feathers.controls
 			_sourcePromise.remove(sourcePromiseHandler);
 			_sourcePromise = null;
 		}
-		
+
 		override public function dispose():void
 		{
 			disposeSourcePromise();
