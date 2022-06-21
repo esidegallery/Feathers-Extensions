@@ -46,6 +46,8 @@ package feathers.controls
 			_uid = value;
 		}
 
+		public var debug:Boolean;
+
 		/**
 		 * If the source is set to a Promise, by default the previous image is cleared while waiting for promise to dispatch.
 		 * Setting this flag keeps the previous image intil that happens.
@@ -126,6 +128,10 @@ package feathers.controls
 			else
 			{
 				super.source = value;
+			}
+			if (debug)
+			{
+				trace(uid, "source =", super.source);
 			}
 		}
 
