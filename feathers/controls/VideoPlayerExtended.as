@@ -39,48 +39,14 @@ package feathers.controls
 		{
 			_netConnectionFactory = function():NetConnection
 			{
-				// trace(uid, "netConnectionFactory");
 				var connection:NetConnection = new NetConnection();
 				connection.connect(null);
 				return connection;
 			};
 			_netStreamFactory = function(netConnection:NetConnection):NetStream
 			{
-				// trace(uid, "netStreamFactory");
 				return new NetStream(netConnection);
 			}
 		}
-
-		override protected function disposeNetConnection():void
-		{
-			if (_netConnection == null)
-			{
-				return;
-			}
-			// trace(uid, "disposeNetConnection()");
-			super.disposeNetConnection();
-		}
-
-		override protected function disposeNetStream():void
-		{
-			if (_netStream == null)
-			{
-				return;
-			}
-			// trace(uid, "disposeNetStream()");
-			super.disposeNetStream();
-		}
-
-		// override protected function netConnection_netStatusHandler(event:NetStatusEvent):void
-		// {
-		// 	trace(uid, "netConnection_netStatusHandler", event.info.code);
-		// 	super.netConnection_netStatusHandler(event);
-		// }
-
-		// override protected function netStream_netStatusHandler(event:NetStatusEvent):void
-		// {
-		// 	trace(uid, "netStream_netStatusHandler", event.info.code);
-		// 	super.netStream_netStatusHandler(event);
-		// }
 	}
 }
