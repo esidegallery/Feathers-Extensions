@@ -138,7 +138,7 @@ package feathers.controls.popups
 			// Make sure the content is scaled the same as the source:
 			var matrix:Matrix = Pool.getMatrix();
 			source.getTransformationMatrix(PopUpManager.root, matrix);
-			content.scaleX = matrixToScaleX(matrix)
+			content.scaleX = matrixToScaleX(matrix);
 			content.scaleY = matrixToScaleY(matrix);
 			Pool.putMatrix(matrix);
 
@@ -169,7 +169,7 @@ package feathers.controls.popups
 
 			var stage:Stage = content.stage;
 			stage.removeEventListener(Event.ENTER_FRAME, stage_enterFrameHandler);
-			if(content is IFeathersControl)
+			if (content is IFeathersControl)
 			{
 				content.removeEventListener(FeathersEventType.RESIZE, content_resizeHandler);
 			}
@@ -194,7 +194,7 @@ package feathers.controls.popups
 
 			var paddingH:Number = _padding * source.scaleX;
 			var paddingV:Number = _padding * source.scaleY;
-			
+
 			if (originBoundsInParent == null)
 			{
 				originBoundsInParent = source.getBounds(PopUpManager.root, HELPER_RECT);
@@ -225,7 +225,7 @@ package feathers.controls.popups
 			}
 
 			var stage:Stage = source.stage;
-			
+
 			// We need to be sure that the source is properly positioned before
 			// positioning the content relative to it.
 			var validationQueue:ValidationQueue = ValidationQueue.forStarling(stage.starling);
@@ -247,41 +247,29 @@ package feathers.controls.popups
 			switch (_horizontalAlign)
 			{
 				case Align.RIGHT:
-				{
 					var hMultiplier:Number = 1;
 					break;
-				}
 				case Align.CENTER:
-				{
 					hMultiplier = 0.5;
 					break;
-				}
 				default:
-				{
 					hMultiplier = 0;
 					break;
-				}
 			}
 			switch (_verticalAlign)
 			{
 				case Align.BOTTOM:
-				{
 					var vMultiplier:Number = 1;
 					break;
-				}
 				case Align.CENTER:
 				case VerticalAlign.MIDDLE:
-				{
 					vMultiplier = 0.5;
 					break;
-				}
 				default:
-				{
 					vMultiplier = 0;
 					break;
-				}
 			}
-			
+
 			content.x = lastOriginX + paddingH + (paddedSourceWidth - content.width) * hMultiplier;
 			content.y = lastOriginY + paddingV + (paddedSourceHeight - content.height) * vMultiplier;
 		}
@@ -298,7 +286,7 @@ package feathers.controls.popups
 				return;
 			}
 			source.getBounds(PopUpManager.root, HELPER_RECT);
-			if (HELPER_RECT.x != lastOriginX || 
+			if (HELPER_RECT.x != lastOriginX ||
 				HELPER_RECT.y != lastOriginY ||
 				HELPER_RECT.width != lastOriginWidth ||
 				HELPER_RECT.height != lastOriginHeight)
