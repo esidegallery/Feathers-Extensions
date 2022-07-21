@@ -15,27 +15,32 @@ package feathers.controls
 	import starling.events.KeyboardEvent;
 	import starling.utils.StringUtil;
 
+	[Event(name="open", type="starling.events.Event")]
+	[Event(name="close", type="starling.events.Event")]
+
 	public class NumericalTextInputWithSlider extends TextInput
 	{
 		/** Intended for 2-digit inputs. */
 		public static const ALTERNATIVE_STYLE_NAME_NARROW:String = "narrow";
+
 		/** Intended for 4-digit inputs. */
 		public static const ALTERNATIVE_STYLE_NAME_WIDE:String = "wide";
-		
+
 		public static const DEFAULT_CHILD_STYLE_NAME_SLIDER:String = "numericalTextInputWithSlider_slider";
-		
+
 		private static const INVALIDATION_FLAG_PARAMETERS:String = "parameters";
-		
+
 		private var sliderCallout:Callout;
 		private var slider:Slider;
-		
+
 		public static var globalStyleProvider:IStyleProvider;
 		override protected function get defaultStyleProvider():IStyleProvider
 		{
 			return globalStyleProvider;
 		}
-		
+
 		private var _softMinimum:Number = NaN;
+
 		/** The minimum value of the slider, which can be extended via the text input up to <code>hardMinimum</code>. */
 		public function get softMinimum():Number
 		{
@@ -51,6 +56,7 @@ package feathers.controls
 		}
 
 		private var _hardMinimum:Number = 0;
+
 		/** The absolute minimum of the slider. */
 		public function get hardMinimum():Number
 		{
@@ -64,7 +70,7 @@ package feathers.controls
 				invalidate(INVALIDATION_FLAG_PARAMETERS);
 			}
 		}
-		
+
 		private var _softMaximum:Number = NaN;
 		public function get softMaximum():Number
 		{
@@ -101,7 +107,7 @@ package feathers.controls
 		{
 			setSliderValue(value);
 		}
-		
+
 		public function get stepSize():Number
 		{
 			return slider.step;
@@ -126,14 +132,14 @@ package feathers.controls
 			_text = value;
 			invalidate(INVALIDATION_FLAG_DATA);
 		}
-		
+
 		public function NumericalTextInputWithSlider()
 		{
 			super();
-			
+
 			restrict = "0-9.";
 			addEventListener(FeathersEventType.ENTER, enterHandler);
-			
+
 			slider = new Slider; // Instantiating slider now, so it can be used immediately.
 			slider.isFocusEnabled = false;
 			slider.styleNameList.add(DEFAULT_CHILD_STYLE_NAME_SLIDER);
@@ -141,7 +147,7 @@ package feathers.controls
 			slider.addEventListener(Event.CHANGE, slider_changeHandler);
 			slider.addEventListener(FeathersEventType.END_INTERACTION, slider_endInteractionHandler);
 		}
-		
+
 		override protected function draw():void
 		{
 			if (isInvalid(INVALIDATION_FLAG_PARAMETERS))
@@ -151,7 +157,7 @@ package feathers.controls
 			}
 			super.draw();
 		}
-		
+
 		private function showSliderCallout():void
 		{
 			if (sliderCallout != null)
@@ -164,18 +170,19 @@ package feathers.controls
 			sliderCallout = Callout.show(slider, this, new <String>[RelativePosition.BOTTOM], false);
 			sliderCallout.padding = ManagerTheme.SIZE_CONTROL_GUTTER;
 			sliderCallout.disposeContent = false;
+			dispatchEventWith(Event.OPEN);
 
 			var starling:Starling = stage != null ? stage.starling : Starling.current;
 			var priority:int = getPopUpIndex(sliderCallout);
 			starling.nativeStage.addEventListener(flash.events.KeyboardEvent.KEY_DOWN, sliderCallout_nativeStage_keyDownHandler, false, priority, true);
 			sliderCallout.addEventListener(Event.REMOVED_FROM_STAGE, sliderCallout_removedFromStageHandler);
 		}
-		
+
 		private function commitSliderValue():void
 		{
 			text = String(slider.value);
 		}
-		
+
 		private function commitInputText():void
 		{
 			var newValue:Number = NaN;
@@ -192,7 +199,7 @@ package feathers.controls
 				dispatchEventWith(Event.CHANGE, false, slider.value);
 			}
 		}
-		
+
 		protected function setSliderValue(value:Number):void
 		{
 			// Clamp to absolute parameters:
@@ -224,11 +231,11 @@ package feathers.controls
 		override protected function feathersControl_addedToStageHandler(event:Event):void
 		{
 			super.feathersControl_addedToStageHandler(event);
-			
+
 			var starling:Starling = stage != null ? stage.starling : Starling.current;
 			starling.stage.addEventListener(starling.events.KeyboardEvent.KEY_DOWN, stage_keyDownHandler);
 		}
-		
+
 		override protected function feathersControl_removedFromStageHandler(event:Event):void
 		{
 			super.feathersControl_removedFromStageHandler(event);
@@ -243,7 +250,7 @@ package feathers.controls
 
 			showSliderCallout();
 		}
-		
+
 		override protected function focusOutHandler(event:Event):void
 		{
 			super.focusOutHandler(event);
@@ -254,13 +261,13 @@ package feathers.controls
 				sliderCallout.close();
 			}
 		}
-		
+
 		private function slider_changeHandler():void
 		{
 			commitSliderValue();
 			dispatchEventWith(Event.CHANGE, false, slider.value);
 		}
-		
+
 		private function slider_endInteractionHandler():void
 		{
 			focusManager.focus = this;
@@ -272,7 +279,7 @@ package feathers.controls
 			{
 				return;
 			}
-			
+
 			if (event.keyCode == Keyboard.PAGE_UP)
 			{
 				event.preventDefault();
@@ -293,7 +300,7 @@ package feathers.controls
 				event.preventDefault();
 				slider.value -= slider.step * (event.shiftKey ? 10 : 1);
 			}
-			
+
 			focusManager.focus = this;
 		}
 
@@ -312,6 +319,7 @@ package feathers.controls
 
 		private function sliderCallout_removedFromStageHandler():void
 		{
+			dispatchEventWith(Event.CLOSE);
 			commitSliderValue();
 			var starling:Starling = stage != null ? stage.starling : Starling.current;
 			starling.nativeStage.removeEventListener(flash.events.KeyboardEvent.KEY_DOWN, sliderCallout_nativeStage_keyDownHandler);
@@ -329,7 +337,7 @@ package feathers.controls
 				slider.dispose();
 				slider = null;
 			}
-			
+
 			super.dispose();
 		}
 	}
