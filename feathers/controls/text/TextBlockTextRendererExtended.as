@@ -137,13 +137,6 @@ package feathers.controls.text
 			_truncationText = "…";
 		}
 
-		override protected function commit():void
-		{
-			super.commit();
-
-			// trace("COMMIT_fontStylesElementFormat
-		}
-
 		override protected function refreshTextLines(textLines:Vector.<TextLine>,
 			textLineParent:DisplayObjectContainer, width:Number, height:Number,
 			result:MeasureTextResult = null):MeasureTextResult
