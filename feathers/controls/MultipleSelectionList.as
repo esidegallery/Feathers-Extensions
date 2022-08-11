@@ -14,7 +14,7 @@ package feathers.controls
 	/**
 	 * Extends list functioanlity to support Ctrl-click and Shift-click multiple selection.
 	 */
-	public class ListExtended extends List
+	public class MultipleSelectionList extends List
 	{
 		private static const EVENT_CTRL_TAP:String = "listExtended_ctrlTap";
 		private static const EVENT_SHIFT_TAP:String = "listExtended_shiftTap";
