@@ -1,222 +1,225 @@
 package feathers.skins
 {
-    import feathers.core.IMeasureDisplayObject;
-    import feathers.core.IStateContext;
-    import feathers.core.IStateObserver;
-    import feathers.motion.StateTweener;
+	import feathers.core.IMeasureDisplayObject;
+	import feathers.core.IStateContext;
+	import feathers.core.IStateObserver;
+	import feathers.motion.StateTweener;
 
-    import flash.display.BitmapData;
-    import flash.errors.IllegalOperationError;
-    import flash.geom.Point;
-    import flash.geom.Rectangle;
+	import flash.display.BitmapData;
+	import flash.errors.IllegalOperationError;
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 
-    import starling.core.Starling;
-    import starling.display.Image;
-    import starling.display.Stage;
-    import starling.events.Event;
-    import starling.filters.ColorMatrixFilterPatched;
-    import starling.rendering.Painter;
-    import starling.textures.Texture;
-    import starling.utils.Color;
-    import starling.utils.Pool;
+	import starling.core.Starling;
+	import starling.display.Image;
+	import starling.display.Stage;
+	import starling.events.Event;
+	import starling.filters.ColorMatrixFilterPatched;
+	import starling.rendering.Painter;
+	import starling.textures.Texture;
+	import starling.utils.Color;
+	import starling.utils.Pool;
 
-    public class DuoToneImageSkin extends Image implements IMeasureDisplayObject, IStateObserver
-    {
+	public class DuoToneImageSkin extends Image implements IMeasureDisplayObject, IStateObserver
+	{
 		private static const HELPER_RECTANGLE:Rectangle = new Rectangle;
-		
+
 		/** The blackColor property that is referenced and tweened. */
 		protected static const BLACK_COLOR:String = "blackColor";
+
 		/** The whiteColor property that is referenced and tweened. */
 		protected static const WHITE_COLOR:String = "whiteColor";
+
 		/** The blackAlpha property that is referenced and tweened. */
 		protected static const BLACK_ALPHA:String = "blackAlpha";
+
 		/** The whiteAlpha property that is referenced and tweened. */
 		protected static const WHITE_ALPHA:String = "whiteAlpha";
 
 		protected var _explicitWidth:Number = NaN;
 		public function get explicitWidth():Number
 		{
-			return this._explicitWidth;
+			return _explicitWidth;
 		}
 		override public function set width(value:Number):void
 		{
-			if(this._explicitWidth == value)
+			if (_explicitWidth == value)
 			{
 				return;
 			}
-			if(value != value && this._explicitWidth != this._explicitWidth) //isNaN
+			if (value != value && _explicitWidth != _explicitWidth) // isNaN
 			{
 				return;
 			}
-			this._explicitWidth = value;
-			if(value == value) //!isNaN
+			_explicitWidth = value;
+			if (value == value) // !isNaN
 			{
 				super.width = value;
 			}
-			else if(this.texture != null)
+			else if (texture != null)
 			{
-				//return to the original width of the texture
-				this.scaleX = 1;
-				this.readjustSize(this.texture.frameWidth);
+				// return to the original width of the texture
+				scaleX = 1;
+				readjustSize(texture.frameWidth);
 			}
 			else
 			{
-				this.readjustSize();
+				readjustSize();
 			}
-			this.dispatchEventWith(Event.RESIZE);
+			dispatchEventWith(Event.RESIZE);
 		}
 
 		protected var _explicitHeight:Number = NaN;
 		public function get explicitHeight():Number
 		{
-			return this._explicitHeight;
+			return _explicitHeight;
 		}
 		override public function set height(value:Number):void
 		{
-			if(this._explicitHeight == value)
+			if (_explicitHeight == value)
 			{
 				return;
 			}
-			if(value != value && this._explicitHeight != this._explicitHeight) //isNaN
+			if (value != value && _explicitHeight != _explicitHeight) // isNaN
 			{
 				return;
 			}
-			this._explicitHeight = value;
-			if(value == value) //!isNaN
+			_explicitHeight = value;
+			if (value == value) // !isNaN
 			{
 				super.height = value;
 			}
-			else if(this.texture != null)
+			else if (texture != null)
 			{
-				//return to the original height of the texture
-				this.scaleY = 1;
-				this.readjustSize(-1, this.texture.frameHeight);
+				// return to the original height of the texture
+				scaleY = 1;
+				readjustSize(-1, texture.frameHeight);
 			}
 			else
 			{
-				this.readjustSize();
+				readjustSize();
 			}
-			this.dispatchEventWith(Event.RESIZE);
+			dispatchEventWith(Event.RESIZE);
 		}
 
 		protected var _explicitMinWidth:Number = NaN;
 		public function get explicitMinWidth():Number
 		{
-			return this._explicitMinWidth;
+			return _explicitMinWidth;
 		}
 		public function get minWidth():Number
 		{
-			if(this._explicitMinWidth == this._explicitMinWidth) //!isNaN
+			if (_explicitMinWidth == _explicitMinWidth) // !isNaN
 			{
-				return this._explicitMinWidth;
+				return _explicitMinWidth;
 			}
 			return 0;
 		}
 		public function set minWidth(value:Number):void
 		{
-			if(this._explicitMinWidth == value)
+			if (_explicitMinWidth == value)
 			{
 				return;
 			}
-			if(value != value && this._explicitMinWidth != this._explicitMinWidth) //isNaN
+			if (value != value && _explicitMinWidth != _explicitMinWidth) // isNaN
 			{
 				return;
 			}
-			this._explicitMinWidth = value;
-			this.dispatchEventWith(Event.RESIZE);
+			_explicitMinWidth = value;
+			dispatchEventWith(Event.RESIZE);
 		}
 
 		protected var _explicitMaxWidth:Number = Number.POSITIVE_INFINITY;
 		public function get explicitMaxWidth():Number
 		{
-			return this._explicitMaxWidth;
+			return _explicitMaxWidth;
 		}
 		public function get maxWidth():Number
 		{
-			return this._explicitMaxWidth;
+			return _explicitMaxWidth;
 		}
 		public function set maxWidth(value:Number):void
 		{
-			if(this._explicitMaxWidth == value)
+			if (_explicitMaxWidth == value)
 			{
 				return;
 			}
-			if(value != value && this._explicitMaxWidth != this._explicitMaxWidth) //isNaN
+			if (value != value && _explicitMaxWidth != _explicitMaxWidth) // isNaN
 			{
 				return;
 			}
-			this._explicitMaxWidth = value;
-			this.dispatchEventWith(Event.RESIZE);
+			_explicitMaxWidth = value;
+			dispatchEventWith(Event.RESIZE);
 		}
 
 		protected var _explicitMinHeight:Number = NaN;
 		public function get explicitMinHeight():Number
 		{
-			return this._explicitMinHeight;
+			return _explicitMinHeight;
 		}
 		public function get minHeight():Number
 		{
-			if(this._explicitMinHeight == this._explicitMinHeight) //!isNaN
+			if (_explicitMinHeight == _explicitMinHeight) // !isNaN
 			{
-				return this._explicitMinHeight;
+				return _explicitMinHeight;
 			}
 			return 0;
 		}
 		public function set minHeight(value:Number):void
 		{
-			if(this._explicitMinHeight == value)
+			if (_explicitMinHeight == value)
 			{
 				return;
 			}
-			if(value != value && this._explicitMinHeight != this._explicitMinHeight) //isNaN
+			if (value != value && _explicitMinHeight != _explicitMinHeight) // isNaN
 			{
 				return;
 			}
-			this._explicitMinHeight = value;
-			this.dispatchEventWith(Event.RESIZE);
+			_explicitMinHeight = value;
+			dispatchEventWith(Event.RESIZE);
 		}
 
 		protected var _explicitMaxHeight:Number = Number.POSITIVE_INFINITY;
 		public function get explicitMaxHeight():Number
 		{
-			return this._explicitMaxHeight;
+			return _explicitMaxHeight;
 		}
 		public function get maxHeight():Number
 		{
-			return this._explicitMaxHeight;
+			return _explicitMaxHeight;
 		}
 		public function set maxHeight(value:Number):void
 		{
-			if(this._explicitMaxHeight == value)
+			if (_explicitMaxHeight == value)
 			{
 				return;
 			}
-			if(value != value && this._explicitMaxHeight != this._explicitMaxHeight) //isNaN
+			if (value != value && _explicitMaxHeight != _explicitMaxHeight) // isNaN
 			{
 				return;
 			}
-			this._explicitMaxHeight = value;
-			this.dispatchEventWith(Event.RESIZE);
+			_explicitMaxHeight = value;
+			dispatchEventWith(Event.RESIZE);
 		}
 
 		protected var _minTouchWidth:Number = 0;
 		public function get minTouchWidth():Number
 		{
-			return this._minTouchWidth;
+			return _minTouchWidth;
 		}
 		public function set minTouchWidth(value:Number):void
 		{
-			this._minTouchWidth = value;
+			_minTouchWidth = value;
 		}
 
 		protected var _minTouchHeight:Number = 0;
 		public function get minTouchHeight():Number
 		{
-			return this._minTouchHeight;
+			return _minTouchHeight;
 		}
 		public function set minTouchHeight(value:Number):void
 		{
-			this._minTouchHeight = value;
+			_minTouchHeight = value;
 		}
 
 		public function get stateContext():IStateContext
@@ -228,9 +231,9 @@ package feathers.skins
 			stateTweener.stateContext = value;
 		}
 
-        override public function set color(value:uint):void
+		override public function set color(value:uint):void
 		{
-			if (this.restrictColor)
+			if (restrictColor)
 			{
 				throw new IllegalOperationError("To set the color of an ImageSkin, use defaultColor or setColorForState().");
 			}
@@ -238,13 +241,13 @@ package feathers.skins
 		}
 
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
-        public function get defaultWhiteColor():uint
-        {
+		public function get defaultWhiteColor():uint
+		{
 			var value:* = stateTweener.getDefaultProperty(WHITE_COLOR);
-        	return value is uint ? value as uint : uint.MAX_VALUE;
-        }
-        public function set defaultWhiteColor(value:uint):void
-        {
+			return value is uint ? value as uint : uint.MAX_VALUE;
+		}
+		public function set defaultWhiteColor(value:uint):void
+		{
 			if (value == uint.MAX_VALUE)
 			{
 				stateTweener.clearDefaultProperty(WHITE_COLOR);
@@ -253,16 +256,16 @@ package feathers.skins
 			{
 				stateTweener.setDefaultProperty(WHITE_COLOR, value);
 			}
-        }
+		}
 
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
-        public function get selectedWhiteColor():uint
-        {
+		public function get selectedWhiteColor():uint
+		{
 			var value:* = stateTweener.getSelectedProperty(WHITE_COLOR);
-        	return value is uint ? value as uint : uint.MAX_VALUE;
-        }
-        public function set selectedWhiteColor(value:uint):void
-        {
+			return value is uint ? value as uint : uint.MAX_VALUE;
+		}
+		public function set selectedWhiteColor(value:uint):void
+		{
 			if (value == uint.MAX_VALUE)
 			{
 				stateTweener.clearSelectedProperty(WHITE_COLOR);
@@ -271,16 +274,16 @@ package feathers.skins
 			{
 				stateTweener.setSelectedProperty(WHITE_COLOR, value);
 			}
-        }
+		}
 
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
-        public function get disabledWhiteColor():uint
-        {
+		public function get disabledWhiteColor():uint
+		{
 			var value:* = stateTweener.getDisabledProperty(WHITE_COLOR);
-        	return value is uint ? value as uint : uint.MAX_VALUE;
-        }
-        public function set disabledWhiteColor(value:uint):void
-        {
+			return value is uint ? value as uint : uint.MAX_VALUE;
+		}
+		public function set disabledWhiteColor(value:uint):void
+		{
 			if (value == uint.MAX_VALUE)
 			{
 				stateTweener.clearDisabledProperty(WHITE_COLOR);
@@ -289,10 +292,10 @@ package feathers.skins
 			{
 				stateTweener.setDisabledProperty(WHITE_COLOR, value);
 			}
-        }
+		}
 
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
-        public function setWhiteColorForState(state:String, value:uint):void
+		public function setWhiteColorForState(state:String, value:uint):void
 		{
 			if (value == uint.MAX_VALUE)
 			{
@@ -310,13 +313,13 @@ package feathers.skins
 		}
 
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
-        public function get defaultBlackColor():uint
-        {
+		public function get defaultBlackColor():uint
+		{
 			var value:* = stateTweener.getDefaultProperty(BLACK_COLOR);
-        	return value is uint ? value as uint : uint.MAX_VALUE;
-        }
-        public function set defaultBlackColor(value:uint):void
-        {
+			return value is uint ? value as uint : uint.MAX_VALUE;
+		}
+		public function set defaultBlackColor(value:uint):void
+		{
 			if (value == uint.MAX_VALUE)
 			{
 				stateTweener.clearDefaultProperty(BLACK_COLOR);
@@ -325,16 +328,16 @@ package feathers.skins
 			{
 				stateTweener.setDefaultProperty(BLACK_COLOR, value);
 			}
-        }
+		}
 
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
-        public function get selectedBlackColor():uint
-        {
+		public function get selectedBlackColor():uint
+		{
 			var value:* = stateTweener.getSelectedProperty(BLACK_COLOR);
-        	return value is uint ? value as uint : uint.MAX_VALUE;
-        }
-        public function set selectedBlackColor(value:uint):void
-        {
+			return value is uint ? value as uint : uint.MAX_VALUE;
+		}
+		public function set selectedBlackColor(value:uint):void
+		{
 			if (value == uint.MAX_VALUE)
 			{
 				stateTweener.clearSelectedProperty(BLACK_COLOR);
@@ -343,16 +346,16 @@ package feathers.skins
 			{
 				stateTweener.setSelectedProperty(BLACK_COLOR, value);
 			}
-        }
-        
+		}
+
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
-        public function get disabledBlackColor():uint
-        {
+		public function get disabledBlackColor():uint
+		{
 			var value:* = stateTweener.getDisabledProperty(BLACK_COLOR);
-        	return value is uint ? value as uint : uint.MAX_VALUE;
-        }
-        public function set disabledBlackColor(value:uint):void
-        {
+			return value is uint ? value as uint : uint.MAX_VALUE;
+		}
+		public function set disabledBlackColor(value:uint):void
+		{
 			if (value == uint.MAX_VALUE)
 			{
 				stateTweener.clearDisabledProperty(BLACK_COLOR);
@@ -361,10 +364,10 @@ package feathers.skins
 			{
 				stateTweener.setDisabledProperty(BLACK_COLOR, value);
 			}
-        }
+		}
 
 		/** Set to <code>NaN</code> to clear/ignore this property. */
-        public function setBlackColorForState(state:String, value:uint):void
+		public function setBlackColorForState(state:String, value:uint):void
 		{
 			if (value == uint.MAX_VALUE)
 			{
@@ -380,15 +383,15 @@ package feathers.skins
 			var value:* = stateTweener.getPropertyForState(BLACK_COLOR, state);
 			return value is uint ? value as uint : uint.MAX_VALUE;
 		}
-		
+
 		/** Set to <code>NaN</code> to clear/ignore this property. */
-        public function get defaultWhiteAlpha():Number
-        {
+		public function get defaultWhiteAlpha():Number
+		{
 			var value:Number = stateTweener.getDefaultProperty(WHITE_ALPHA) as Number;
-        	return value == value ? value : NaN;
-        }
-        public function set defaultWhiteAlpha(value:Number):void
-        {
+			return value == value ? value : NaN;
+		}
+		public function set defaultWhiteAlpha(value:Number):void
+		{
 			if (value != value) // isNaN
 			{
 				stateTweener.clearDefaultProperty(WHITE_ALPHA);
@@ -397,16 +400,16 @@ package feathers.skins
 			{
 				stateTweener.setDefaultProperty(WHITE_ALPHA, value);
 			}
-        }
+		}
 
 		/** Set to <code>NaN</code> to clear/ignore this property. */
-        public function get selectedWhiteAlpha():Number
-        {
+		public function get selectedWhiteAlpha():Number
+		{
 			var value:Number = stateTweener.getSelectedProperty(WHITE_ALPHA) as Number;
-        	return value == value ? value : NaN;
-        }
-        public function set selectedWhiteAlpha(value:Number):void
-        {
+			return value == value ? value : NaN;
+		}
+		public function set selectedWhiteAlpha(value:Number):void
+		{
 			if (value != value) // isNaN
 			{
 				stateTweener.clearSelectedProperty(WHITE_ALPHA);
@@ -415,16 +418,16 @@ package feathers.skins
 			{
 				stateTweener.setSelectedProperty(WHITE_ALPHA, value);
 			}
-        }
-        
+		}
+
 		/** Set the <code>NaN</code> to clear/ignore this property. */
-        public function get disabledWhiteAlpha():Number
-        {
+		public function get disabledWhiteAlpha():Number
+		{
 			var value:Number = stateTweener.getSelectedProperty(WHITE_ALPHA) as Number;
-        	return value == value ? value : NaN;
-        }
-        public function set disabledWhiteAlpha(value:Number):void
-        {
+			return value == value ? value : NaN;
+		}
+		public function set disabledWhiteAlpha(value:Number):void
+		{
 			if (value != value) // isNaN
 			{
 				stateTweener.clearDisabledProperty(WHITE_ALPHA);
@@ -433,10 +436,10 @@ package feathers.skins
 			{
 				stateTweener.setDisabledProperty(WHITE_ALPHA, value);
 			}
-        }
+		}
 
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
-        public function setWhiteAlphaForState(state:String, value:Number):void
+		public function setWhiteAlphaForState(state:String, value:Number):void
 		{
 			if (value != value) // isNaN
 			{
@@ -452,15 +455,15 @@ package feathers.skins
 			var value:Number = stateTweener.getPropertyForState(WHITE_ALPHA, state) as Number;
 			return value == value ? value : NaN;
 		}
-		
+
 		/** Set to <code>NaN</code> to clear/ignore this property. */
-        public function get defaultBlackAlpha():Number
-        {
+		public function get defaultBlackAlpha():Number
+		{
 			var value:Number = stateTweener.getDefaultProperty(BLACK_ALPHA) as Number;
-        	return value == value ? value : NaN;
-        }
-        public function set defaultBlackAlpha(value:Number):void
-        {
+			return value == value ? value : NaN;
+		}
+		public function set defaultBlackAlpha(value:Number):void
+		{
 			if (value != value) // isNaN
 			{
 				stateTweener.clearDefaultProperty(BLACK_ALPHA);
@@ -469,16 +472,16 @@ package feathers.skins
 			{
 				stateTweener.setDefaultProperty(BLACK_ALPHA, value);
 			}
-        }
+		}
 
 		/** Set to <code>NaN</code> to clear/ignore this property. */
-        public function get selectedBlackAlpha():Number
-        {
+		public function get selectedBlackAlpha():Number
+		{
 			var value:Number = stateTweener.getSelectedProperty(BLACK_ALPHA) as Number;
-        	return value == value ? value : NaN;
-        }
-        public function set selectedBlackAlpha(value:Number):void
-        {
+			return value == value ? value : NaN;
+		}
+		public function set selectedBlackAlpha(value:Number):void
+		{
 			if (value != value) // isNaN
 			{
 				stateTweener.clearSelectedProperty(BLACK_ALPHA);
@@ -487,16 +490,16 @@ package feathers.skins
 			{
 				stateTweener.setSelectedProperty(BLACK_ALPHA, value);
 			}
-        }
-        
+		}
+
 		/** Set the <code>NaN</code> to clear/ignore this property. */
-        public function get disabledBlackAlpha():Number
-        {
+		public function get disabledBlackAlpha():Number
+		{
 			var value:Number = stateTweener.getSelectedProperty(BLACK_ALPHA) as Number;
-        	return value == value ? value : NaN;
-        }
-        public function set disabledBlackAlpha(value:Number):void
-        {
+			return value == value ? value : NaN;
+		}
+		public function set disabledBlackAlpha(value:Number):void
+		{
 			if (value != value) // isNaN
 			{
 				stateTweener.clearDisabledProperty(BLACK_ALPHA);
@@ -505,10 +508,10 @@ package feathers.skins
 			{
 				stateTweener.setDisabledProperty(BLACK_ALPHA, value);
 			}
-        }
+		}
 
 		/** Set the <code>uint.MAX_VALUE</code> to clear/ignore this property. */
-        public function setBlackAlphaForState(state:String, value:Number):void
+		public function setBlackAlphaForState(state:String, value:Number):void
 		{
 			if (value != value) // isNaN
 			{
@@ -553,28 +556,29 @@ package feathers.skins
 		}
 
 		/** Prevents <code>color</code> being set directly (once instantiated). */
-        protected var restrictColor:Boolean = false;
-        protected var colorMatrixFilter:ColorMatrixFilterPatched;
+		protected var restrictColor:Boolean = false;
+		protected var colorMatrixFilter:ColorMatrixFilterPatched;
+
 		/** Holds the color values to be tweened. */
 		protected var filterTweenTarget:Object;
 		protected var stateTweener:StateTweener;
 
-        public function DuoToneImageSkin(texture:Texture)
-        {
-            super(texture);
+		public function DuoToneImageSkin(texture:Texture)
+		{
+			super(texture);
 
-            // After construction, color may only be set via state-specific members:
-            restrictColor = true;
+			// After construction, color may only be set via state-specific members:
+			restrictColor = true;
 
-            colorMatrixFilter = new ColorMatrixFilterPatched;
-            filter = colorMatrixFilter;
-	
+			colorMatrixFilter = new ColorMatrixFilterPatched;
+			filter = colorMatrixFilter;
+
 			filterTweenTarget = new Object;
 			filterTweenTarget[BLACK_COLOR] = Color.BLACK;
 			filterTweenTarget[WHITE_COLOR] = Color.WHITE;
 			filterTweenTarget[BLACK_ALPHA] = 1;
 			filterTweenTarget[WHITE_ALPHA] = 1;
-	
+
 			stateTweener = new StateTweener(filterTweenTarget);
 			stateTweener.setDefaultProperty(BLACK_COLOR, filterTweenTarget[BLACK_COLOR]);
 			stateTweener.setDefaultProperty(WHITE_COLOR, filterTweenTarget[WHITE_COLOR]);
@@ -583,23 +587,23 @@ package feathers.skins
 			stateTweener.onUpdate = applyFilterValues;
 
 			applyFilterValues();
-        }
+		}
 
 		public function validate():void
 		{
 			stateTweener.validate();
 		}
 
-        override public function readjustSize(width:Number=-1, height:Number=-1):void
+		override public function readjustSize(width:Number = -1, height:Number = -1):void
 		{
 			super.readjustSize(width, height);
-			if(this._explicitWidth == this._explicitWidth) //!isNaN
+			if (_explicitWidth == _explicitWidth) // !isNaN
 			{
-				super.width = this._explicitWidth;
+				super.width = _explicitWidth;
 			}
-			if(this._explicitHeight == this._explicitHeight) //!isNaN
+			if (_explicitHeight == _explicitHeight) // !isNaN
 			{
-				super.height = this._explicitHeight;
+				super.height = _explicitHeight;
 			}
 		}
 
@@ -612,92 +616,96 @@ package feathers.skins
 		override public function drawToBitmapData(out:BitmapData = null, color:uint = 0, alpha:Number = 0.0):BitmapData
 		{
 			var painter:Painter = Starling.painter;
-            var stage:Stage = Starling.current.stage;
-            var viewPort:Rectangle = Starling.current.viewPort;
-            var stageWidth:Number  = stage.stageWidth;
-            var stageHeight:Number = stage.stageHeight;
-            var scaleX:Number = viewPort.width  / stageWidth;
-            var scaleY:Number = viewPort.height / stageHeight;
-            var backBufferScale:Number = painter.backBufferScaleFactor;
-            var totalScaleX:Number = scaleX * backBufferScale;
-            var totalScaleY:Number = scaleY * backBufferScale;
-            var projectionX:Number, projectionY:Number;
-            var bounds:Rectangle;
+			var stage:Stage = Starling.current.stage;
+			var viewPort:Rectangle = Starling.current.viewPort;
+			var stageWidth:Number = stage.stageWidth;
+			var stageHeight:Number = stage.stageHeight;
+			var scaleX:Number = viewPort.width / stageWidth;
+			var scaleY:Number = viewPort.height / stageHeight;
+			var backBufferScale:Number = painter.backBufferScaleFactor;
+			var totalScaleX:Number = scaleX * backBufferScale;
+			var totalScaleY:Number = scaleY * backBufferScale;
+			var projectionX:Number, projectionY:Number;
+			var bounds:Rectangle;
 
-            if (this is Stage)
-            {
-                projectionX = viewPort.x < 0 ? -viewPort.x / scaleX : 0.0;
-                projectionY = viewPort.y < 0 ? -viewPort.y / scaleY : 0.0;
+			if (this is Stage)
+			{
+				projectionX = viewPort.x < 0 ? -viewPort.x / scaleX : 0.0;
+				projectionY = viewPort.y < 0 ? -viewPort.y / scaleY : 0.0;
 
-                out ||= new BitmapData(painter.backBufferWidth  * backBufferScale,
-                                       painter.backBufferHeight * backBufferScale);
-            }
-            else
-            {
-                bounds = getBounds(parent, HELPER_RECTANGLE);
-                projectionX = bounds.x;
-                projectionY = bounds.y;
+				out ||= new BitmapData(painter.backBufferWidth * backBufferScale,
+					painter.backBufferHeight * backBufferScale);
+			}
+			else
+			{
+				bounds = getBounds(parent, HELPER_RECTANGLE);
+				projectionX = bounds.x;
+				projectionY = bounds.y;
 
-                out ||= new BitmapData(Math.ceil(bounds.width  * totalScaleX),
-                                       Math.ceil(bounds.height * totalScaleY));
-            }
+				out ||= new BitmapData(Math.ceil(bounds.width * totalScaleX),
+					Math.ceil(bounds.height * totalScaleY));
+			}
 
-            color = Color.multiply(color, alpha); // premultiply alpha
+			color = Color.multiply(color, alpha); // premultiply alpha
 
-            painter.pushState();
-            painter.setupContextDefaults();
-            painter.state.renderTarget = null;
-            painter.state.setModelviewMatricesToIdentity();
-            painter.setStateTo(transformationMatrix);
+			painter.pushState();
+			painter.setupContextDefaults();
+			painter.state.renderTarget = null;
+			painter.state.setModelviewMatricesToIdentity();
+			painter.setStateTo(transformationMatrix);
 
 			// Images that are bigger than the current back buffer are drawn in multiple steps.
 
-            var stepX:Number;
-            var stepY:Number = projectionY;
-            var stepWidth:Number  = painter.backBufferWidth  / scaleX;
-            var stepHeight:Number = painter.backBufferHeight / scaleY;
-            var positionInBitmap:Point = Pool.getPoint(0, 0);
-            var boundsInBuffer:Rectangle = Pool.getRectangle(0, 0,
-                    painter.backBufferWidth  * backBufferScale,
-                    painter.backBufferHeight * backBufferScale);
+			var stepX:Number;
+			var stepY:Number = projectionY;
+			var stepWidth:Number = painter.backBufferWidth / scaleX;
+			var stepHeight:Number = painter.backBufferHeight / scaleY;
+			var positionInBitmap:Point = Pool.getPoint(0, 0);
+			var boundsInBuffer:Rectangle = Pool.getRectangle(0, 0,
+				painter.backBufferWidth * backBufferScale,
+				painter.backBufferHeight * backBufferScale);
 
-            while (positionInBitmap.y < out.height)
-            {
-                stepX = projectionX;
-                positionInBitmap.x = 0;
-				
-                while (positionInBitmap.x < out.width)
-                {					
-                    painter.clear(color, alpha);
-                    painter.state.setProjectionMatrix(stepX, stepY, stepWidth, stepHeight,
-                        stageWidth, stageHeight, stage.cameraPosition);
+			while (positionInBitmap.y < out.height)
+			{
+				stepX = projectionX;
+				positionInBitmap.x = 0;
 
-                    if (mask)   painter.drawMask(mask, this);
+				while (positionInBitmap.x < out.width)
+				{
+					painter.clear(color, alpha);
+					painter.state.setProjectionMatrix(stepX, stepY, stepWidth, stepHeight,
+						stageWidth, stageHeight, stage.cameraPosition);
 
-                    if (filter) filter.render(painter);
-                    else         render(painter);
+					if (mask)
+						painter.drawMask(mask, this);
 
-                    if (mask)   painter.eraseMask(mask, this);
+					if (filter)
+						filter.render(painter);
+					else
+						render(painter);
 
-                    painter.finishMeshBatch();
-                    //line 478 - for some reason the bitmapdata is distorted depending the size of the stageHeight and stageWidth on windows. Throwing in an additional bitmapdata and using copyPixels method fixes it.
+					if (mask)
+						painter.eraseMask(mask, this);
+
+					painter.finishMeshBatch();
+					// line 478 - for some reason the bitmapdata is distorted depending the size of the stageHeight and stageWidth on windows. Throwing in an additional bitmapdata and using copyPixels method fixes it.
 					var bmd:BitmapData = new BitmapData(stepWidth, stepHeight, true, 0x00ffffff);
 					painter.context.drawToBitmapData(bmd, boundsInBuffer);
-					out.copyPixels(bmd, boundsInBuffer,positionInBitmap);
+					out.copyPixels(bmd, boundsInBuffer, positionInBitmap);
 
-                    stepX += stepWidth;
-                    positionInBitmap.x += stepWidth * totalScaleX;
-                }
-                stepY += stepHeight;
-                positionInBitmap.y += stepHeight * totalScaleY;
-            }
+					stepX += stepWidth;
+					positionInBitmap.x += stepWidth * totalScaleX;
+				}
+				stepY += stepHeight;
+				positionInBitmap.y += stepHeight * totalScaleY;
+			}
 
-            painter.popState();
+			painter.popState();
 
-            Pool.putRectangle(boundsInBuffer);
-            Pool.putPoint(positionInBitmap);
+			Pool.putRectangle(boundsInBuffer);
+			Pool.putPoint(positionInBitmap);
 
-            return out;
+			return out;
 		}
 
 		override public function dispose():void
@@ -706,5 +714,5 @@ package feathers.skins
 			colorMatrixFilter.dispose();
 			super.dispose();
 		}
-    }
+	}
 }

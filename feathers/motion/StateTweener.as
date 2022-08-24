@@ -175,9 +175,10 @@ package feathers.motion
 			var properties:Object = stateToProperties[state];
 			return properties && propertyName in properties;
 		}
+
 		/**
 		 * @param propertyName
-		 * @param state 
+		 * @param state
 		 * @return Whether there was a property to clear.
 		 */
 		public function clearPropertyForState(propertyName:String, state:String):Boolean
@@ -206,43 +207,44 @@ package feathers.motion
 			}
 		}
 
-        protected var _onUpdate:Function;
-        public function get onUpdate():Function
-        {
-        	return _onUpdate;
-        }
-        public function set onUpdate(value:Function):void
-        {
-        	_onUpdate = value;
+		protected var _onUpdate:Function;
+		public function get onUpdate():Function
+		{
+			return _onUpdate;
+		}
+		public function set onUpdate(value:Function):void
+		{
+			_onUpdate = value;
 			if (tween)
 			{
 				tween.onUpdate = _onUpdate;
 			}
-        }
+		}
 
-        protected var _onComplete:Function;
-        public function get onComplete():Function
-        {
-        	return _onComplete;
-        }
-        public function set onComplete(value:Function):void
-        {
-        	_onComplete = value;
+		protected var _onComplete:Function;
+		public function get onComplete():Function
+		{
+			return _onComplete;
+		}
+		public function set onComplete(value:Function):void
+		{
+			_onComplete = value;
 			if (tween)
 			{
 				tween.onComplete = _onComplete;
 			}
-        }
+		}
 
 		private var _tweenTarget:Object;
 		public function get tweenTarget():Object
 		{
 			return _tweenTarget;
 		}
-		
+
 		protected var tween:Tween;
+
 		/** Used to track changes to target values of all properties. */
-		protected var propertyToEndValue:Object
+		protected var propertyToEndValue:Object;
 
 		public function StateTweener(tweenTarget:Object)
 		{
@@ -267,7 +269,7 @@ package feathers.motion
 			{
 				return;
 			}
-			
+
 			var valuesChanged:Boolean = false;
 			if (!propertyToEndValue)
 			{
@@ -277,7 +279,7 @@ package feathers.motion
 			var referencedProperties:Object = new Object;
 
 			if (_stateContext)
-            {
+			{
 				// Prioritise properties specifically for this state:
 				var properties:Object = stateToProperties[_stateContext.currentState];
 				for (var property:String in properties)
@@ -326,10 +328,10 @@ package feathers.motion
 							}
 							referencedProperties[property] = true;
 						}
-					}	
+					}
 				}
-            }
-			
+			}
+
 			// Apply any unreferenced default properties:
 			for (property in defaultProperties)
 			{
