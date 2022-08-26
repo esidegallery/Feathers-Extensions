@@ -130,6 +130,7 @@ package feathers.controls
 				return;
 			}
 			_text = value;
+			dispatchEventWith(Event.CHANGE, false, slider.value);
 			invalidate(INVALIDATION_FLAG_DATA);
 		}
 
@@ -265,7 +266,6 @@ package feathers.controls
 		private function slider_changeHandler():void
 		{
 			commitSliderValue();
-			dispatchEventWith(Event.CHANGE, false, slider.value);
 		}
 
 		private function slider_endInteractionHandler():void
