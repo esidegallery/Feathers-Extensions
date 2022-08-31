@@ -119,10 +119,10 @@ package feathers.controls
 
 		override public function set text(value:String):void
 		{
-			// Same as super, without dispatching a change:
-			if (!value)
+			// Same as super.text, without dispatching a change.
+			if (value == null)
 			{
-				// Don't allow null
+				// Don't allow null:
 				value = "";
 			}
 			if (_text == value)
@@ -130,7 +130,6 @@ package feathers.controls
 				return;
 			}
 			_text = value;
-			dispatchEventWith(Event.CHANGE, false, slider.value);
 			invalidate(INVALIDATION_FLAG_DATA);
 		}
 
@@ -152,6 +151,7 @@ package feathers.controls
 		override protected function draw():void
 		{
 			if (isInvalid(INVALIDATION_FLAG_PARAMETERS))
+
 			{
 				// Reset slider's value (via setSliderValue) to force an adjustment of the range:
 				setSliderValue(value);
@@ -266,6 +266,7 @@ package feathers.controls
 		private function slider_changeHandler():void
 		{
 			commitSliderValue();
+			dispatchEventWith(Event.CHANGE, false, slider.value);
 		}
 
 		private function slider_endInteractionHandler():void
@@ -331,6 +332,7 @@ package feathers.controls
 			if (sliderCallout != null)
 			{
 				sliderCallout.removeFromParent(true);
+				sliderCallout = null;
 			}
 			if (slider != null)
 			{
