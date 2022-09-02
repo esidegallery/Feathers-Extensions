@@ -1,5 +1,8 @@
 package feathers.utils.touch
 {
+	import feathers.events.ExclusiveTouch;
+	import feathers.utils.pixelsToInches;
+
 	import flash.geom.Point;
 
 	import starling.display.DisplayObject;
@@ -15,9 +18,17 @@ package feathers.utils.touch
 	 */
 	public class TapToEventExtended extends TapToEvent
 	{
+		public static const MAX_MOVE_DISTANCE:Number = 0.1;
+
 		public var shiftKey:Boolean;
 		public var ctrlKey:Boolean;
 		public var bubbles:Boolean;
+		public var checkExclusiveTouch:Boolean;
+		public var limitMoveDistance:Boolean;
+
+		protected var previousTouchX:Number;
+		protected var previousTouchY:Number;
+		protected var cumulativeDistance:Number;
 
 		/**
 		 * @param target 
@@ -28,7 +39,7 @@ package feathers.utils.touch
 		 * @param tapCount The number of times a component must be tapped before the event will be dispatched.
 		 *        If the value of <code>tapCount</code> is <code>-1</code>, the event will be dispatched for every tap.
 		 */
-		public function TapToEventExtended(target:DisplayObject = null, eventType:String = null, bubbles:Boolean = false, ctrlKey:Boolean = false, shiftKey:Boolean = false, tapCount:int = -1)
+		public function TapToEventExtended(target:DisplayObject = null, eventType:String = null, bubbles:Boolean = false, ctrlKey:Boolean = false, shiftKey:Boolean = false, tapCount:int = -1, checkExclusiveTouch:Boolean = false, limitMoveDIstance:Boolean = false)
 		{
 			this.target = target;
 			this.eventType = eventType;
@@ -36,6 +47,8 @@ package feathers.utils.touch
 			this.ctrlKey = ctrlKey;
 			this.shiftKey = shiftKey;
 			this.tapCount = tapCount;
+			this.checkExclusiveTouch = checkExclusiveTouch;
+			this.limitMoveDistance = limitMoveDIstance;
 		}
 
 		override protected function target_touchHandler(event:TouchEvent):void
@@ -59,7 +72,7 @@ package feathers.utils.touch
 				if (touch.phase == TouchPhase.ENDED)
 				{
 					var stage:Stage = _target.stage;
-					if (stage !== null)
+					if (stage !== null && ExclusiveTouch.forStage(stage).getClaim(touch.id) === null)
 					{
 						var point:Point = Pool.getPoint();
 						touch.getLocation(stage, point);
@@ -81,19 +94,31 @@ package feathers.utils.touch
 						}
 					}
 
-					// the touch has ended, so now we can start watching for a
+					// The touch has ended, so now we can start watching for a
 					// new one.
 					_touchPointID = -1;
+				}
+				else if (limitMoveDistance && touch.phase == TouchPhase.MOVED)
+				{
+					var currentPos:Point = Pool.getPoint(touch.globalX, touch.globalY);
+					currentPos.offset(-previousTouchX, -previousTouchY);
+					cumulativeDistance += pixelsToInches(Math.abs(currentPos.length));
+					Pool.putPoint(currentPos);
+					if (cumulativeDistance > MAX_MOVE_DISTANCE)
+					{
+						// The touch has moved past the max threshold, so cancel the touch:
+						_touchPointID = -1;
+					}
 				}
 				return;
 			}
 			else
 			{
-				// we aren't tracking another touch, so let's look for a new one.
+				// We aren't tracking another touch, so let's look for a new one.
 				touch = event.getTouch(DisplayObject(_target), TouchPhase.BEGAN);
 				if (!touch)
 				{
-					// we only care about the began phase. ignore all other
+					// We only care about the began phase. ignore all other
 					// phases when we don't have a saved touch ID.
 					return;
 				}
@@ -109,8 +134,11 @@ package feathers.utils.touch
 					}
 				}
 
-				// save the touch ID so that we can track this touch's phases.
+				// Save the touch ID so that we can track this touch's phases.
 				_touchPointID = touch.id;
+				cumulativeDistance = 0;
+				previousTouchX = touch.globalX;
+				previousTouchY = touch.globalY;
 			}
 		}
 	}
