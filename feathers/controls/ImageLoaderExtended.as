@@ -128,6 +128,8 @@ package feathers.controls
 			else
 			{
 				super.source = value;
+				texturePreferredWidth = NaN;
+				texturePreferredWidth = NaN;
 			}
 			if (debug)
 			{

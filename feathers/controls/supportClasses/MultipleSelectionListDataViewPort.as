@@ -17,7 +17,7 @@ package feathers.controls.supportClasses
 	import starling.events.TouchPhase;
 	import starling.utils.Pool;
 
-	public class ListExtendedDataViewPort extends ListDataViewPort
+	public class MultipleSelectionListDataViewPort extends ListDataViewPort
 	{
 		// override protected function dragEnterHandler(event:DragDropEvent):void
 		// {

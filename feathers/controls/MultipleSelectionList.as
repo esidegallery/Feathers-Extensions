@@ -1,7 +1,7 @@
 package feathers.controls
 {
 	import feathers.controls.renderers.IListItemRenderer;
-	import feathers.controls.supportClasses.ListExtendedDataViewPort;
+	import feathers.controls.supportClasses.MultipleSelectionListDataViewPort;
 	import feathers.events.DragDropEvent;
 	import feathers.events.FeathersEventType;
 
@@ -25,7 +25,7 @@ package feathers.controls
 		{
 			if (!value)
 			{
-				throw new Error("ListExtended.allowMultipleSelection cannot be disabled.")
+				throw new Error("ListExtended.allowMultipleSelection cannot be disabled.");
 			}
 		}
 
@@ -39,7 +39,7 @@ package feathers.controls
 		{
 			_allowMultipleSelection = true;
 
-			dataViewPort = new ListExtendedDataViewPort;
+			dataViewPort = new MultipleSelectionListDataViewPort;
 			dataViewPort.owner = this;
 			viewPort = dataViewPort;
 
@@ -75,13 +75,13 @@ package feathers.controls
 			}
 			else if (touch.phase === TouchPhase.ENDED)
 			{
-				if (touchWhitespaceToDeselect && 
+				if (touchWhitespaceToDeselect &&
 					event.target == this &&
 					!ctrlActive &&
 					!shiftActive &&
 					!isScrolling)
 				{
-					selectedIndex = -1
+					selectedIndex = -1;
 				}
 				else if (touchedSelectedIndex != -1 &&
 					!isScrolling)
@@ -110,10 +110,10 @@ package feathers.controls
 				}
 
 				clearLastTouch();
-				
+
 				if (changed)
 				{
-					getSelectedItems(_selectedItems); // Necessary to commit selected indices. 
+					getSelectedItems(_selectedItems); // Necessary to commit selected indices.
 					invalidate(INVALIDATION_FLAG_SELECTED);
 					dispatchEventWith(Event.CHANGE);
 				}
@@ -124,7 +124,7 @@ package feathers.controls
 		{
 			var renderer:IListItemRenderer = event.currentTarget as IListItemRenderer;
 			var touch:Touch = event.getTouch(renderer as DisplayObject, TouchPhase.BEGAN);
-			if (touch !== null && 
+			if (touch !== null &&
 				renderer.isSelected)
 			{
 				// Record renderer so we can apply changes manually if necessary:
@@ -135,14 +135,14 @@ package feathers.controls
 		override protected function selectedIndices_changeHandler(event:Event):void
 		{
 			getSelectedItems(_selectedItems);
-			
+
 			if (_selectedIndices.length > 0)
 			{
 				_selectedIndices.removeEventListener(Event.CHANGE, selectedIndices_changeHandler); // Prevent nested calling of this method.
 
 				var currentSelectedIndex:int = _selectedIndices.getItemAt(_selectedIndices.length - 1) as int;
 				_selectedIndex = currentSelectedIndex;
-				
+
 				if (shiftActive)
 				{
 					selectIndices(lastSelectedIndex, currentSelectedIndex);
@@ -151,7 +151,7 @@ package feathers.controls
 				{
 					_selectedIndices.data = new <int>[currentSelectedIndex];
 				}
-				
+
 				lastSelectedIndex = currentSelectedIndex;
 
 				_selectedIndices.addEventListener(Event.CHANGE, selectedIndices_changeHandler);
@@ -166,14 +166,14 @@ package feathers.controls
 				this._selectedIndex = -1;
 			}
 
-			getSelectedItems(_selectedItems); // Necessary to commit selected indices. 
+			getSelectedItems(_selectedItems); // Necessary to commit selected indices.
 			invalidate(INVALIDATION_FLAG_SELECTED);
 			dispatchEventWith(Event.CHANGE);
 		}
 
 		/**
-		 * @param fromIndex 
-		 * @param toIndex 
+		 * @param fromIndex
+		 * @param toIndex
 		 * @return Whether any selected indices were changed
 		 */
 		protected function selectIndices(fromIndex:int, toIndex:int):Boolean
