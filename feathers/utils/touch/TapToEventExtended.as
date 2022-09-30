@@ -14,7 +14,8 @@ package feathers.utils.touch
 	import starling.utils.Pool;
 
 	/**
-	 * Extends TapToEvent to add support for modifier keys and event bubbling.
+	 * Extends TapToEvent to add support for modifier keys, event bubbling, exclusive touch checking,
+	 * maximum move distance, and dispatching the touch object with the event.
 	 */
 	public class TapToEventExtended extends TapToEvent
 	{
@@ -38,6 +39,8 @@ package feathers.utils.touch
 		 * @param shiftKey Whether the Shift key needs to be active before the event will be dispatched.
 		 * @param tapCount The number of times a component must be tapped before the event will be dispatched.
 		 *        If the value of <code>tapCount</code> is <code>-1</code>, the event will be dispatched for every tap.
+		 * @param checkExclusiveTouch
+		 * @param limitMoveDistance
 		 */
 		public function TapToEventExtended(target:DisplayObject = null, eventType:String = null, bubbles:Boolean = false, ctrlKey:Boolean = false, shiftKey:Boolean = false, tapCount:int = -1, checkExclusiveTouch:Boolean = false, limitMoveDIstance:Boolean = false)
 		{
@@ -90,7 +93,7 @@ package feathers.utils.touch
 							event.shiftKey == shiftKey &&
 							event.ctrlKey == ctrlKey)
 						{
-							_target.dispatchEventWith(_eventType, bubbles);
+							_target.dispatchEventWith(_eventType, bubbles, touch);
 						}
 					}
 
