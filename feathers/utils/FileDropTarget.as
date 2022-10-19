@@ -119,8 +119,12 @@ package feathers.utils
 		
 		private function target_dragEnterHandler(event:DragDropEvent, dragData:DragData):void
 		{
-			if (dragData.hasDataForFormat(ClipboardFormats.FILE_LIST_FORMAT)
-				&& checkDroppedFiles(Vector.<File>(dragData.getDataForFormat(ClipboardFormats.FILE_LIST_FORMAT))))
+			if (!dragData.hasDataForFormat(ClipboardFormats.FILE_LIST_FORMAT))
+			{
+				return;
+			}
+			var data:Array = dragData.getDataForFormat(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+			if (data != null && checkDroppedFiles(Vector.<File>(data)))
 			{
 				DragDropManager.acceptDrag(IDropTarget(target));
 				NativeDragManager.dropAction = NativeDragActions.COPY;
