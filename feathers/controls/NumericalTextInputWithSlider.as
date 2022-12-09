@@ -6,6 +6,7 @@ package feathers.controls
 	import feathers.layout.RelativePosition;
 	import feathers.skins.IStyleProvider;
 	import feathers.utils.display.getPopUpIndex;
+	import feathers.utils.math.roundToNearest;
 
 	import flash.events.KeyboardEvent;
 	import flash.ui.Keyboard;
@@ -48,11 +49,12 @@ package feathers.controls
 		}
 		public function set softMinimum(value:Number):void
 		{
-			if (_softMinimum != value)
+			if (_softMinimum == value)
 			{
-				_softMinimum = value;
-				invalidate(INVALIDATION_FLAG_PARAMETERS);
+				return;
 			}
+			_softMinimum = value;
+			invalidate(INVALIDATION_FLAG_PARAMETERS);
 		}
 
 		private var _hardMinimum:Number = 0;
@@ -64,11 +66,12 @@ package feathers.controls
 		}
 		public function set hardMinimum(value:Number):void
 		{
-			if (_hardMinimum != value)
+			if (_hardMinimum == value)
 			{
-				_hardMinimum = value;
-				invalidate(INVALIDATION_FLAG_PARAMETERS);
+				return;
 			}
+			_hardMinimum = value;
+			invalidate(INVALIDATION_FLAG_PARAMETERS);
 		}
 
 		private var _softMaximum:Number = NaN;
@@ -78,11 +81,12 @@ package feathers.controls
 		}
 		public function set softMaximum(value:Number):void
 		{
-			if (_softMaximum != value)
+			if (_softMaximum == value)
 			{
-				_softMaximum = value;
-				invalidate(INVALIDATION_FLAG_PARAMETERS);
+				return;
 			}
+			_softMaximum = value;
+			invalidate(INVALIDATION_FLAG_PARAMETERS);
 		}
 
 		private var _hardMaximum:Number = 0;
@@ -92,16 +96,18 @@ package feathers.controls
 		}
 		public function set hardMaximum(value:Number):void
 		{
-			if (_hardMaximum != value)
+			if (_hardMaximum == value)
 			{
-				_hardMaximum = value;
-				invalidate(INVALIDATION_FLAG_PARAMETERS);
+				return;
 			}
+			_hardMaximum = value;
+			invalidate(INVALIDATION_FLAG_PARAMETERS);
 		}
 
 		public function get value():Number
 		{
-			return slider.value;
+			// We need to round to step on the fly to avoid a weird rounding error I can't get to the bottom of:
+			return roundToNearest(slider.value, slider.step);
 		}
 		public function set value(value:Number):void
 		{
@@ -181,7 +187,7 @@ package feathers.controls
 
 		private function commitSliderValue():void
 		{
-			text = String(slider.value);
+			text = String(value); // We need to do this to avoid a weird rounding error.
 		}
 
 		private function commitInputText():void
@@ -192,20 +198,20 @@ package feathers.controls
 			{
 				newValue = Number(trimmed);
 			}
-			if (newValue == newValue && newValue != slider.value)
+			if (newValue == newValue && newValue != value)
 			{
 				slider.removeEventListener(Event.CHANGE, slider_changeHandler);
 				setSliderValue(newValue);
 				slider.addEventListener(Event.CHANGE, slider_changeHandler);
-				dispatchEventWith(Event.CHANGE, false, slider.value);
+				dispatchEventWith(Event.CHANGE, false, value);
 			}
 		}
 
 		protected function setSliderValue(value:Number):void
 		{
 			// Clamp to absolute parameters:
-			slider.minimum = !isNaN(_softMinimum) ? Math.max(Math.min(value, _softMinimum), _hardMinimum) : _hardMinimum;
-			slider.maximum = !isNaN(_softMaximum) ? Math.min(Math.max(value, _softMaximum), _hardMaximum) : _hardMaximum;
+			slider.minimum = _softMinimum == _softMinimum ? Math.max(Math.min(value, _softMinimum), _hardMinimum) : _hardMinimum;
+			slider.maximum = _softMaximum == _softMaximum ? Math.min(Math.max(value, _softMaximum), _hardMaximum) : _hardMaximum;
 			slider.value = value;
 			commitSliderValue();
 		}
@@ -266,7 +272,7 @@ package feathers.controls
 		private function slider_changeHandler():void
 		{
 			commitSliderValue();
-			dispatchEventWith(Event.CHANGE, false, slider.value);
+			dispatchEventWith(Event.CHANGE, false, value);
 		}
 
 		private function slider_endInteractionHandler():void
