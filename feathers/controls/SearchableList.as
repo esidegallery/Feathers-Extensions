@@ -17,7 +17,7 @@ package feathers.controls
 	public class SearchableList extends List
 	{
 		public static const DEFAULT_CHILD_STYLE_NAME_SEARCH_POP_UP_LABEL:String = "searchable-list-search-tooltip";
-		
+
 		public static const INVALIDATION_FLAG_POP_UP_LABEL:String = "popUpLabel";
 		public static const INVALIDATION_FLAG_SEARCH:String = "search";
 
@@ -218,7 +218,7 @@ package feathers.controls
 		{
 			var searchInvalid:Boolean = isInvalid(INVALIDATION_FLAG_SEARCH);
 			var popUpLabelInvalid:Boolean = isInvalid(INVALIDATION_FLAG_POP_UP_LABEL);
-			
+
 			if (popUpLabelInvalid)
 			{
 				disposePopUpLabel();
@@ -327,7 +327,7 @@ package feathers.controls
 				event.preventDefault();
 				return;
 			}
-		
+
 			if (event.charCode == Keyboard.SPACE)
 			{
 				var character:String = " ";
@@ -355,7 +355,7 @@ package feathers.controls
 			clearTimeout(clearSearchTimeoutID);
 			popUpContentManager.dispose();
 			disposePopUpLabel();
-		
+
 			super.dispose();
 		}
 	}
