@@ -157,7 +157,6 @@ package feathers.controls
 		override protected function draw():void
 		{
 			if (isInvalid(INVALIDATION_FLAG_PARAMETERS))
-
 			{
 				// Reset slider's value (via setSliderValue) to force an adjustment of the range:
 				setSliderValue(value);
