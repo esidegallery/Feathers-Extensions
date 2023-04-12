@@ -1,6 +1,8 @@
 package feathers.controls
 {
 	import feathers.core.FeathersControl;
+	import feathers.layout.HorizontalAlign;
+	import feathers.layout.VerticalAlign;
 	import feathers.utils.math.clamp;
 
 	import starling.animation.Tween;
@@ -139,6 +141,50 @@ package feathers.controls
 			}
 		}
 
+		private var _horizontalAlign:String = HorizontalAlign.CENTER;
+		public function get horizontalAlign():String
+		{
+			return _horizontalAlign;
+		}
+		public function set horizontalAlign(value:String):void
+		{
+			if (_horizontalAlign == value)
+			{
+				return;
+			}
+			_horizontalAlign = value;
+			invalidate(INVALIDATION_FLAG_LAYOUT);
+		}
+
+		private var _verticalAlign:String = VerticalAlign.MIDDLE;
+		public function get verticalAlign():String
+		{
+			return _verticalAlign;
+		}
+		public function set verticalAlign(value:String):void
+		{
+			if (_verticalAlign == value)
+			{
+				return;
+			}
+			_verticalAlign = value;
+			invalidate(INVALIDATION_FLAG_LAYOUT);
+		}
+
+		override public function set alpha(value:Number):void
+		{
+			super.alpha = value;
+
+			if (incomplete != null)
+			{
+				incomplete.alpha = value;
+			}
+			if (complete != null)
+			{
+				complete.alpha = value;
+			}
+		}
+
 		protected var incomplete:NGon;
 		protected var complete:NGon;
 		
@@ -154,12 +200,13 @@ package feathers.controls
 		override protected function initialize():void
 		{
 			super.initialize();
-			
 			incomplete = new NGon;
 			incomplete.blendMode = BlendMode.NORMAL;
+			incomplete.alpha = alpha;
 			addChild(incomplete);
 			complete = new NGon;
 			complete.blendMode = BlendMode.NORMAL;
+			complete.alpha = alpha;
 			addChild(complete);
 			
 			addEventListener(Event.REMOVED_FROM_STAGE, disposeTweens);
@@ -243,15 +290,10 @@ package feathers.controls
 				}
 			}
 			
-			autoSizeIfNeeded();
+			var layoutInvalid:Boolean = autoSizeIfNeeded() || isInvalid(INVALIDATION_FLAG_LAYOUT) || isInvalid(INVALIDATION_FLAG_SIZE);
 			layoutChildren();
 			
 			super.draw();
-		}
-		
-		override public function set alpha(value:Number):void
-		{
-			super.alpha = value;
 		}
 		
 		private function tweenUpdateHandler():void
@@ -296,7 +338,7 @@ package feathers.controls
 		protected function layoutChildren():void
 		{
 			var outerRad:Number = Math.max(0, (Math.min(actualWidth, actualHeight) - padding * 2) / 2);
-			var innerRad:Number = clamp(outerRad * innerRadius, 0, outerRad);
+			var innerRad:Number = clamp(outerRad * _innerRadius, 0, outerRad);
 			if (incomplete.radius != outerRad)
 			{
 				incomplete.radius = complete.radius = outerRad;
@@ -306,9 +348,36 @@ package feathers.controls
 				incomplete.innerRadius = complete.innerRadius = innerRad;
 			}
 			
-			incomplete.x = incomplete.y 
-				= complete.x = complete.y
-				= padding + outerRad;
+			var contentCentre:Number = padding + outerRad;
+			switch (_horizontalAlign)
+			{
+				case HorizontalAlign.LEFT:
+					var centreX:Number = contentCentre;
+					break;
+				case HorizontalAlign.RIGHT:
+					centreX = actualWidth - contentCentre;
+					break;
+				default: // CENTER:
+					centreX = actualWidth / 2;
+					break;
+			}
+			switch (_verticalAlign)
+			{
+				case VerticalAlign.TOP:
+					var centreY:Number = contentCentre;
+					break;
+				case VerticalAlign.BOTTOM:
+					centreY = actualHeight - contentCentre;
+					break;
+				default: // CENTER:
+					centreY = actualHeight / 2;
+					break;
+			}
+			
+			incomplete.x = centreX;
+			incomplete.y = centreY;
+			complete.x = centreX;
+			complete.y = centreY;
 		}
 		
 		private function disposeTweens():void
