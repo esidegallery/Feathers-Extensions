@@ -126,7 +126,7 @@ package feathers.controls
 		protected var _textureScaleMultiplierX:Number = 1;
 		protected var _textureScaleMultiplierY:Number = 1;
 
-		/** 
+		/**
 		 * To be called on VideoPlayer's clear event, to ensure the no-longer-valid
 		 * video texture will no longer be displayed. Will not clear the RenderTexture if being shown.
 		 */
@@ -435,11 +435,29 @@ package feathers.controls
 			var backBufferScale:Number = painter.backBufferScaleFactor;
 			var totalScaleX:Number = scaleX * backBufferScale;
 			var totalScaleY:Number = scaleY * backBufferScale;
-			var bounds:Rectangle = getBounds(parent, HELPER_RECTANGLE);
-			var projectionX:Number = bounds.x;
-			var projectionY:Number = bounds.y;
+			var projectionX:Number, projectionY:Number;
+			var bounds:Rectangle;
 
-			out ||= new BitmapData(Math.ceil(bounds.width * totalScaleX), Math.ceil(bounds.height * totalScaleY));
+			if (this is Stage)
+			{
+				projectionX = viewPort.x < 0 ? -viewPort.x / scaleX : 0.0;
+				projectionY = viewPort.y < 0 ? -viewPort.y / scaleY : 0.0;
+
+				out ||= new BitmapData(
+					painter.backBufferWidth * backBufferScale,
+					painter.backBufferHeight * backBufferScale);
+			}
+			else
+			{
+				bounds = getBounds(parent, Pool.getRectangle());
+				projectionX = bounds.x;
+				projectionY = bounds.y;
+
+				out ||= new BitmapData(
+					Math.ceil(bounds.width * totalScaleX),
+					Math.ceil(bounds.height * totalScaleY));
+			}
+
 			color = Color.multiply(color, alpha); // premultiply alpha
 
 			painter.pushState();
@@ -452,12 +470,13 @@ package feathers.controls
 
 			var stepX:Number;
 			var stepY:Number = projectionY;
-			var stepWidth:Number = painter.backBufferWidth / scaleX;
-			var stepHeight:Number = painter.backBufferHeight / scaleY;
+			var stepWidth:int = painter.backBufferWidth / scaleX;
+			var stepHeight:int = painter.backBufferHeight / scaleY;
 			var positionInBitmap:Point = Pool.getPoint(0, 0);
-			var boundsInBuffer:Rectangle = Pool.getRectangle(0, 0,
-				painter.backBufferWidth * backBufferScale,
-				painter.backBufferHeight * backBufferScale);
+			var boundsInBuffer:Rectangle = Pool.getRectangle(
+				0, 0,
+				Math.floor(painter.backBufferWidth * backBufferScale),
+				Math.floor(painter.backBufferHeight * backBufferScale));
 
 			while (positionInBitmap.y < out.height)
 			{
@@ -467,35 +486,45 @@ package feathers.controls
 				while (positionInBitmap.x < out.width)
 				{
 					painter.clear(color, alpha);
-					painter.state.setProjectionMatrix(stepX, stepY, stepWidth, stepHeight,
+					painter.state.setProjectionMatrix(
+						stepX, stepY, stepWidth, stepHeight,
 						stageWidth, stageHeight, stage.cameraPosition);
 
 					if (mask)
+					{
 						painter.drawMask(mask, this);
+					}
 
 					if (filter)
+					{
 						filter.render(painter);
+					}
 					else
+					{
 						render(painter);
+					}
 
 					if (mask)
+					{
 						painter.eraseMask(mask, this);
+					}
 
 					painter.finishMeshBatch();
 					// For some reason the bitmapdata is distorted depending the size of the stageHeight and stageWidth on windows. Throwing in an additional bitmapdata and using copyPixels method fixes it.
-					var bmd:BitmapData = new BitmapData(stepWidth, stepHeight, true, 0x00ffffff);
+					var bmd:BitmapData = new BitmapData(Math.ceil(stepWidth * backBufferScale), Math.ceil(stepHeight * backBufferScale), true, 0x00ffffff);
 					painter.context.drawToBitmapData(bmd, boundsInBuffer);
 					out.copyPixels(bmd, boundsInBuffer, positionInBitmap);
 
 					stepX += stepWidth;
-					positionInBitmap.x += stepWidth * totalScaleX;
+					positionInBitmap.x += Math.floor(stepWidth * totalScaleX);
 				}
 				stepY += stepHeight;
-				positionInBitmap.y += stepHeight * totalScaleY;
+				positionInBitmap.y += Math.floor(stepHeight * totalScaleY);
 			}
 
 			painter.popState();
 
+			Pool.putRectangle(bounds);
 			Pool.putRectangle(boundsInBuffer);
 			Pool.putPoint(positionInBitmap);
 

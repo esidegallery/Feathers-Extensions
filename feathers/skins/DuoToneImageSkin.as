@@ -633,16 +633,18 @@ package feathers.skins
 				projectionX = viewPort.x < 0 ? -viewPort.x / scaleX : 0.0;
 				projectionY = viewPort.y < 0 ? -viewPort.y / scaleY : 0.0;
 
-				out ||= new BitmapData(painter.backBufferWidth * backBufferScale,
+				out ||= new BitmapData(
+					painter.backBufferWidth * backBufferScale,
 					painter.backBufferHeight * backBufferScale);
 			}
 			else
 			{
-				bounds = getBounds(parent, HELPER_RECTANGLE);
+				bounds = getBounds(parent, Pool.getRectangle());
 				projectionX = bounds.x;
 				projectionY = bounds.y;
 
-				out ||= new BitmapData(Math.ceil(bounds.width * totalScaleX),
+				out ||= new BitmapData(
+					Math.ceil(bounds.width * totalScaleX),
 					Math.ceil(bounds.height * totalScaleY));
 			}
 
@@ -658,12 +660,13 @@ package feathers.skins
 
 			var stepX:Number;
 			var stepY:Number = projectionY;
-			var stepWidth:Number = painter.backBufferWidth / scaleX;
-			var stepHeight:Number = painter.backBufferHeight / scaleY;
+			var stepWidth:int = painter.backBufferWidth / scaleX;
+			var stepHeight:int = painter.backBufferHeight / scaleY;
 			var positionInBitmap:Point = Pool.getPoint(0, 0);
-			var boundsInBuffer:Rectangle = Pool.getRectangle(0, 0,
-				painter.backBufferWidth * backBufferScale,
-				painter.backBufferHeight * backBufferScale);
+			var boundsInBuffer:Rectangle = Pool.getRectangle(
+				0, 0,
+				Math.floor(painter.backBufferWidth * backBufferScale),
+				Math.floor(painter.backBufferHeight * backBufferScale));
 
 			while (positionInBitmap.y < out.height)
 			{
@@ -673,35 +676,45 @@ package feathers.skins
 				while (positionInBitmap.x < out.width)
 				{
 					painter.clear(color, alpha);
-					painter.state.setProjectionMatrix(stepX, stepY, stepWidth, stepHeight,
+					painter.state.setProjectionMatrix(
+						stepX, stepY, stepWidth, stepHeight,
 						stageWidth, stageHeight, stage.cameraPosition);
 
 					if (mask)
+					{
 						painter.drawMask(mask, this);
+					}
 
 					if (filter)
+					{
 						filter.render(painter);
+					}
 					else
+					{
 						render(painter);
+					}
 
 					if (mask)
+					{
 						painter.eraseMask(mask, this);
+					}
 
 					painter.finishMeshBatch();
-					// line 478 - for some reason the bitmapdata is distorted depending the size of the stageHeight and stageWidth on windows. Throwing in an additional bitmapdata and using copyPixels method fixes it.
-					var bmd:BitmapData = new BitmapData(stepWidth, stepHeight, true, 0x00ffffff);
+					// For some reason the bitmapdata is distorted depending the size of the stageHeight and stageWidth on windows. Throwing in an additional bitmapdata and using copyPixels method fixes it.
+					var bmd:BitmapData = new BitmapData(Math.ceil(stepWidth * backBufferScale), Math.ceil(stepHeight * backBufferScale), true, 0x00ffffff);
 					painter.context.drawToBitmapData(bmd, boundsInBuffer);
 					out.copyPixels(bmd, boundsInBuffer, positionInBitmap);
 
 					stepX += stepWidth;
-					positionInBitmap.x += stepWidth * totalScaleX;
+					positionInBitmap.x += Math.floor(stepWidth * totalScaleX);
 				}
 				stepY += stepHeight;
-				positionInBitmap.y += stepHeight * totalScaleY;
+				positionInBitmap.y += Math.floor(stepHeight * totalScaleY);
 			}
 
 			painter.popState();
 
+			Pool.putRectangle(bounds);
 			Pool.putRectangle(boundsInBuffer);
 			Pool.putPoint(positionInBitmap);
 
