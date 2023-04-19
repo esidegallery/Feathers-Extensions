@@ -1,7 +1,5 @@
 package feathers.controls
 {
-	import app.manager.view.theme.ManagerTheme;
-
 	import feathers.events.FeathersEventType;
 	import feathers.layout.RelativePosition;
 	import feathers.skins.IStyleProvider;
@@ -174,7 +172,7 @@ package feathers.controls
 			setSliderValue(value); // To force the parameters to rescale:
 
 			sliderCallout = Callout.show(slider, this, new <String>[RelativePosition.BOTTOM], false);
-			sliderCallout.padding = ManagerTheme.SIZE_CONTROL_GUTTER;
+			sliderCallout.padding = 12;
 			sliderCallout.disposeContent = false;
 			dispatchEventWith(Event.OPEN);
 
