@@ -157,21 +157,6 @@ package feathers.controls
 			invalidate(INVALIDATION_FLAG_LAYOUT);
 		}
 
-		private var _numSides:uint = 25;
-		public function get numSides():uint
-		{
-			return _numSides;
-		}
-		public function set numSides(value:uint):void
-		{
-			if (_numSides == value)
-			{
-				return;
-			}
-			_numSides = value;
-			invalidate(INVALIDATION_FLAG_STYLES);
-		}
-
 		private var _horizontalAlign:String = HorizontalAlign.CENTER;
 		public function get horizontalAlign():String
 		{
@@ -371,7 +356,7 @@ package feathers.controls
 					}
 				}, 4);
 
-				if (ratio < 1)
+				if (ratio < 1 && _incompleteAlpha > 0)
 				{
 					var image:Image = new Image(donutTexture);
 					image.alignPivot();
@@ -395,7 +380,7 @@ package feathers.controls
 					addChild(incompleteDisplay);
 				}
 
-				if (ratio > 0)
+				if (ratio > 0 && _completeAlpha > 0)
 				{
 					image = new Image(donutTexture);
 					image.alignPivot();
