@@ -5,13 +5,17 @@ package feathers.controls
 	import feathers.layout.VerticalAlign;
 	import feathers.utils.math.clamp;
 
+	import flash.display.BlendMode;
+
 	import starling.animation.Tween;
 	import starling.core.Starling;
-	import starling.display.BlendMode;
-	import starling.display.graphics.NGon;
-	import starling.events.Event;
+	import starling.display.Canvas;
+	import starling.display.DisplayObject;
+	import starling.display.Image;
+	import starling.extensions.QuadSection;
+	import starling.textures.RenderTexture;
 	import starling.utils.Color;
-	
+
 	public class ProgressPie extends FeathersControl
 	{
 		private var _minimumValue:Number = 0;
@@ -21,25 +25,29 @@ package feathers.controls
 		}
 		public function set minimumValue(value:Number):void
 		{
-			if (_minimumValue != value)
+			if (_minimumValue == value)
 			{
-				minimumValue = value;
-				invalidate(INVALIDATION_FLAG_DATA);
+				return;
 			}
+			_minimumValue = value;
+			invalidate(INVALIDATION_FLAG_DATA);
 		}
 
 		private var _maximumValue:Number = 1;
+
+		/** Set to <code>Number.POSITIVE_INFINITY</code> to make progress indefinite. */
 		public function get maximumValue():Number
 		{
 			return _maximumValue;
 		}
 		public function set maximumValue(value:Number):void
 		{
-			if (_maximumValue != value)
+			if (_maximumValue == value)
 			{
-				_maximumValue = value;
-				invalidate(INVALIDATION_FLAG_DATA);
+				return;
 			}
+			_maximumValue = value;
+			invalidate(INVALIDATION_FLAG_DATA);
 		}
 
 		private var _currentValue:Number = 0;
@@ -49,11 +57,12 @@ package feathers.controls
 		}
 		public function set currentValue(value:Number):void
 		{
-			if (_currentValue != value)
+			if (_currentValue == value)
 			{
-				_currentValue = value;
-				invalidate(INVALIDATION_FLAG_DATA);
+				return;
 			}
+			_currentValue = value;
+			invalidate(INVALIDATION_FLAG_DATA);
 		}
 
 		private var _innerRadius:Number = 0;
@@ -61,58 +70,78 @@ package feathers.controls
 		{
 			return _innerRadius;
 		}
+
 		/** In radians, so 0 = no radius, 1 = entire redius. */
 		public function set innerRadius(value:Number):void
 		{
-			if (_innerRadius != value)
+			if (_innerRadius == value)
 			{
-				_innerRadius = value;
-				invalidate(INVALIDATION_FLAG_LAYOUT);
+				return;
 			}
+			_innerRadius = value;
+			invalidate(INVALIDATION_FLAG_LAYOUT);
 		}
-		
-		protected var _showIncomplete:Boolean = true;
-		public function get showIncomplete():Boolean
-		{
-			return _showIncomplete;
-		}
-		public function set showIncomplete(value:Boolean):void
-		{
-			if (_showIncomplete != value)
-			{
-				_showIncomplete = value;
-				invalidate(INVALIDATION_FLAG_STYLES);
-			}
-		}
-		
-		private var _incompleteColor:uint = Color.WHITE;
+
+		private var _incompleteColor:uint = Color.BLACK;
 		public function get incompleteColor():uint
 		{
 			return _incompleteColor;
 		}
 		public function set incompleteColor(value:uint):void
 		{
-			if (_incompleteColor != value)
+			if (_incompleteColor == value)
 			{
-				_incompleteColor = value;
-				invalidate(INVALIDATION_FLAG_STYLES);
+				return;
 			}
+			_incompleteColor = value;
+			invalidate(INVALIDATION_FLAG_STYLES);
 		}
 
-		private var _completeColor:uint = 0;
+		private var _completeColor:uint = Color.WHITE;
 		public function get completeColor():uint
 		{
 			return _completeColor;
 		}
 		public function set completeColor(value:uint):void
 		{
-			if (_completeColor != value)
+			if (_completeColor == value)
 			{
-				_completeColor = value;
-				invalidate(INVALIDATION_FLAG_STYLES);
+				return;
 			}
+			_completeColor = value;
+			invalidate(INVALIDATION_FLAG_STYLES);
 		}
-		
+
+		private var _incompleteAlpha:Number = 1;
+		public function get incompleteAlpha():Number
+		{
+			return _incompleteAlpha;
+		}
+		public function set incompleteAlpha(value:Number):void
+		{
+			if (_incompleteAlpha == value)
+			{
+				return;
+			}
+			_incompleteAlpha = value;
+			invalidate(INVALIDATION_FLAG_STYLES);
+		}
+
+		private var _completeAlpha:Number = 1;
+		public function get completeAlpha():Number
+		{
+			return _completeAlpha;
+		}
+		public function set completeAlpha(value:Number):void
+		{
+			if (_completeAlpha == value)
+			{
+				return;
+			}
+			_completeAlpha = value;
+			invalidate(INVALIDATION_FLAG_STYLES);
+		}
+
 		private var _padding:Number = 0;
 		public function get padding():Number
 		{
@@ -120,13 +149,14 @@ package feathers.controls
 		}
 		public function set padding(value:Number):void
 		{
-			if (_padding != value)
+			if (_padding == value)
 			{
-				_padding = value;
-				invalidate(INVALIDATION_FLAG_LAYOUT);
+				return;
 			}
+			_padding = value;
+			invalidate(INVALIDATION_FLAG_LAYOUT);
 		}
-		
+
 		private var _numSides:uint = 25;
 		public function get numSides():uint
 		{
@@ -134,11 +164,12 @@ package feathers.controls
 		}
 		public function set numSides(value:uint):void
 		{
-			if (_numSides != value)
+			if (_numSides == value)
 			{
-				_numSides = value;
-				invalidate(INVALIDATION_FLAG_STYLES);
+				return;
 			}
+			_numSides = value;
+			invalidate(INVALIDATION_FLAG_STYLES);
 		}
 
 		private var _horizontalAlign:String = HorizontalAlign.CENTER;
@@ -171,234 +202,270 @@ package feathers.controls
 			invalidate(INVALIDATION_FLAG_LAYOUT);
 		}
 
-		override public function set alpha(value:Number):void
+		/** In indefinite mode, how many seconds it takes for the pie to loop round. */
+		private var _loopDuration:Number = 1.75;
+		public function get loopDuration():Number
 		{
-			super.alpha = value;
-
-			if (incomplete != null)
+			return _loopDuration;
+		}
+		public function set loopDuration(value:Number):void
+		{
+			if (_loopDuration == value)
 			{
-				incomplete.alpha = value;
+				return;
 			}
-			if (complete != null)
-			{
-				complete.alpha = value;
-			}
+			_loopDuration = value;
+			disposeTweens();
+			invalidate(INVALIDATION_FLAG_DATA);
 		}
 
-		protected var incomplete:NGon;
-		protected var complete:NGon;
-		
-		private var autoTween1:Tween;
-		private var autoTween2:Tween;
-		private var tweenTarget:Object = {start: 0, end: 0};
-		private var tweenSwapStartAndEnd:Boolean;
-		private var tweenAngleIsObtuse:Boolean;
-		
-		/** In indefinite mode, how many seconds it takes for the ring to loop round. */ 
-		public var loopDuration:Number = 1.75;
-		
+		protected var donutTexture:RenderTexture;
+		protected var incompleteDisplay:DisplayObject;
+		protected var completeDisplay:DisplayObject;
+		protected var incompleteMask:QuadSection;
+		protected var completeMask:QuadSection;
+
+		protected var ratioTweenID:int;
+		protected var rotationTweenID:int;
+		protected var tweenTarget:Object;
+		protected var swapMasks:Boolean;
+
 		override protected function initialize():void
 		{
 			super.initialize();
-			incomplete = new NGon;
-			incomplete.blendMode = BlendMode.NORMAL;
-			incomplete.alpha = alpha;
-			addChild(incomplete);
-			complete = new NGon;
-			complete.blendMode = BlendMode.NORMAL;
-			complete.alpha = alpha;
-			addChild(complete);
-			
-			addEventListener(Event.REMOVED_FROM_STAGE, disposeTweens);
 		}
-		
+
 		override protected function draw():void
 		{
-			if (isInvalid(INVALIDATION_FLAG_STYLES))
+			if (autoSizeIfNeeded() || isInvalid())
 			{
-				if (incomplete.visible != showIncomplete)
+				if (donutTexture != null)
 				{
-					incomplete.visible = showIncomplete;
+					donutTexture.dispose();
+					donutTexture = null;
 				}
-				if (incomplete.material.color != incompleteColor)
+				if (incompleteDisplay != null)
 				{
-					incomplete.material.color = incompleteColor;
+					incompleteDisplay.removeFromParent(true);
+					incompleteDisplay = null;
 				}
-				if (complete.material.color != completeColor)
+				if (incompleteMask != null)
 				{
-					complete.material.color = completeColor;
+					incompleteMask.removeFromParent(true);
+					incompleteMask = null;
 				}
-				if (incomplete.numSides != _numSides)
+				if (completeDisplay != null)
 				{
-					incomplete.numSides = complete.numSides = _numSides;
+					completeDisplay.removeFromParent(true);
+					completeDisplay = null;
 				}
-			}
-			if (isInvalid(INVALIDATION_FLAG_DATA))
-			{
-				if (_maximumValue == Number.MAX_VALUE)
+				if (completeMask != null)
 				{
-					if (!autoTween1)
+					completeMask.removeFromParent(true);
+					completeMask = null;
+				}
+
+				var outerRad:Number = Math.max(0, (Math.min(actualWidth, actualHeight) - padding * 2) / 2);
+				var innerRad:Number = clamp(outerRad * _innerRadius, 0, outerRad);
+
+				var contentCentre:Number = _padding + outerRad;
+				switch (_horizontalAlign)
+				{
+					case HorizontalAlign.LEFT:
+						var centreX:Number = contentCentre;
+						break;
+					case HorizontalAlign.RIGHT:
+						centreX = actualWidth - contentCentre;
+						break;
+					default: // CENTER:
+						centreX = actualWidth / 2;
+						break;
+				}
+				switch (_verticalAlign)
+				{
+					case VerticalAlign.TOP:
+						var centreY:Number = contentCentre;
+						break;
+					case VerticalAlign.BOTTOM:
+						centreY = actualHeight - contentCentre;
+						break;
+					default: // CENTER:
+						centreY = actualHeight / 2;
+						break;
+				}
+
+				if (_maximumValue == Number.POSITIVE_INFINITY)
+				{
+					// Spinning animation:
+					tweenTarget ||= {};
+
+					if (ratioTweenID == 0)
 					{
-						tweenTarget.start = tweenTarget.end = 0;
-						tweenUpdateHandler();
-						autoTween1 = new Tween(tweenTarget, loopDuration);
-						autoTween1.repeatCount = 0;
-						autoTween1.onUpdate = tweenUpdateHandler;
-						autoTween1.animate("start", 360);
-						
-						autoTween2 = new Tween(tweenTarget, loopDuration * 0.57143);
-						autoTween2.repeatCount = 0;
-						autoTween2.animate("end", 360);
-						
-						Starling.juggler.add(autoTween1);
-						Starling.juggler.add(autoTween2);
+						tweenTarget.ratio = 0;
+						var tween:Tween = new Tween(tweenTarget, loopDuration);
+						tween.repeatCount = 0;
+						tween.animate("ratio", 1);
+						tween.onUpdate = function():void
+						{
+							invalidate(INVALIDATION_FLAG_DATA);
+						};
+						tween.onRepeat = function():void
+						{
+							swapMasks = !swapMasks;
+						};
+						ratioTweenID = Starling.juggler.add(tween);
 					}
+
+					if (rotationTweenID == 0)
+					{
+						tweenTarget.rotation = 0;
+						tween = new Tween(tweenTarget, loopDuration * 0.57143);
+						tween.repeatCount = 0;
+						tween.animate("rotation", Math.PI * 2);
+						rotationTweenID = Starling.juggler.add(tween);
+					}
+
+					var ratio:Number = tweenTarget.ratio;
+					var rotation:Number = tweenTarget.rotation;
 				}
-				else if (autoTween1)
+				else
 				{
 					disposeTweens();
-				}
-				
-				if (!autoTween1)
-				{
+
 					if (_minimumValue == _maximumValue)
 					{
-						var completeStartAngle:Number = 0;
-						var completeEndAngle:Number = 360;
+						ratio = 1;
 					}
 					else
 					{
-						completeStartAngle = 0;
-						completeEndAngle = (_currentValue - _minimumValue) / (_maximumValue - _minimumValue) * 360;
-						if (completeEndAngle < 0.000001)
+						ratio = (_currentValue - _minimumValue) / (_maximumValue - _minimumValue);
+						if (ratio < 0)
 						{
-							completeEndAngle = 0.000001;
+							ratio = 0;
 						}
-						else if (completeEndAngle > 360)
+						else if (ratio > 1)
 						{
-							completeEndAngle = 360;
+							ratio = 1;
 						}
 					}
-					if (incomplete.startAngle != completeEndAngle || incomplete.endAngle != completeStartAngle)
+					rotation = 0;
+				}
+
+				var canvas:Canvas = new Canvas;
+				canvas.beginFill(Color.WHITE);
+				canvas.drawCircle(outerRad, outerRad, outerRad);
+				canvas.endFill();
+				var scaleFactor:Number = stage != null ? stage.starling.contentScaleFactor : Starling.current.contentScaleFactor;
+				donutTexture = new RenderTexture(outerRad * 2, outerRad * 2, true, scaleFactor);
+				donutTexture.drawBundled(function():void
+				{
+					donutTexture.draw(canvas);
+					if (innerRad > 0)
 					{
-						incomplete.startAngle = completeEndAngle;
-						incomplete.endAngle = completeStartAngle;
-						complete.startAngle = completeStartAngle;
-						complete.endAngle = completeEndAngle;
-						setRequiresRedraw();
+						canvas.clear();
+						canvas.beginFill();
+						canvas.drawCircle(outerRad, outerRad, innerRad);
+						canvas.endFill();
+						canvas.blendMode = BlendMode.ERASE;
+						donutTexture.draw(canvas);
 					}
+				}, 4);
+
+				if (ratio < 1)
+				{
+					var image:Image = new Image(donutTexture);
+					image.alignPivot();
+					image.color = _incompleteColor;
+					image.alpha = _incompleteAlpha;
+					incompleteDisplay = image;
+					incompleteDisplay.x = centreX;
+					incompleteDisplay.y = centreY;
+					if (ratio > 0)
+					{
+						incompleteMask = new QuadSection(outerRad * 2, outerRad * 2);
+						incompleteMask.alignPivot();
+						incompleteMask.rotation = rotation;
+						incompleteMask.ratio = ratio;
+						incompleteMask.x = centreX;
+						incompleteMask.y = centreY;
+						addChild(incompleteMask);
+						incompleteDisplay.mask = incompleteMask;
+						incompleteDisplay.maskInverted = !swapMasks;
+					}
+					addChild(incompleteDisplay);
+				}
+
+				if (ratio > 0)
+				{
+					image = new Image(donutTexture);
+					image.alignPivot();
+					image.color = _completeColor;
+					image.alpha = _completeAlpha;
+					completeDisplay = image;
+					completeDisplay.x = centreX;
+					completeDisplay.y = centreY;
+					if (ratio < 1)
+					{
+						completeMask = new QuadSection(outerRad * 2, outerRad * 2);
+						completeMask.alignPivot();
+						completeMask.rotation = rotation;
+						completeMask.ratio = ratio;
+						completeMask.x = centreX;
+						completeMask.y = centreY;
+						addChild(completeMask);
+						completeDisplay.mask = completeMask;
+						completeDisplay.maskInverted = swapMasks;
+					}
+					addChild(completeDisplay);
 				}
 			}
-			
-			var layoutInvalid:Boolean = autoSizeIfNeeded() || isInvalid(INVALIDATION_FLAG_LAYOUT) || isInvalid(INVALIDATION_FLAG_SIZE);
-			layoutChildren();
-			
+
 			super.draw();
 		}
-		
-		private function tweenUpdateHandler():void
-		{
-			var start:Number = tweenTarget.start;
-			var end:Number = tweenTarget.end;
-			if (end < start)
-			{
-				end += 360;
-			}
-			var isObtuseNow:Boolean = end - start > 180;
-			if (isObtuseNow != tweenAngleIsObtuse && end - start < 180) // Detects a crossover between start and end.
-			{
-				tweenSwapStartAndEnd = !tweenSwapStartAndEnd;
-			}
-			complete.startAngle = tweenSwapStartAndEnd ? end : start;
-			complete.endAngle = tweenSwapStartAndEnd ? start : end;
-			incomplete.startAngle = complete.endAngle;
-			incomplete.endAngle = complete.startAngle;
-			tweenAngleIsObtuse = isObtuseNow;
-			setRequiresRedraw();
-		}
-		
+
 		protected function autoSizeIfNeeded():Boolean
 		{
-			var needsWidth:Boolean = _explicitWidth !== _explicitWidth; //isNaN
-			var needsHeight:Boolean = _explicitHeight !== _explicitHeight; //isNaN
-			var needsMinWidth:Boolean = _explicitMinWidth !== _explicitMinWidth; //isNaN
-			var needsMinHeight:Boolean = _explicitMinHeight !== _explicitMinHeight; //isNaN
+			var needsWidth:Boolean = _explicitWidth !== _explicitWidth; // isNaN
+			var needsHeight:Boolean = _explicitHeight !== _explicitHeight; // isNaN
+			var needsMinWidth:Boolean = _explicitMinWidth !== _explicitMinWidth; // isNaN
+			var needsMinHeight:Boolean = _explicitMinHeight !== _explicitMinHeight; // isNaN
 			if (!needsWidth && !needsHeight && !needsMinWidth && !needsMinHeight)
 			{
 				return false;
 			}
-			
-			var newMinWidth:Number = _explicitMinWidth || 0;
-			var newMinHeight:Number = _explicitMinHeight || 0;
+
+			var newMinWidth:Number = _explicitMinWidth || padding * 2;
+			var newMinHeight:Number = _explicitMinHeight || padding * 2;
 			var newWidth:Number = _explicitWidth || padding * 2;
 			var newHeight:Number = _explicitHeight || padding * 2;
 			return this.saveMeasurements(newWidth || newHeight, newHeight || newWidth, newMinWidth, newMinHeight);
 		}
-		
-		protected function layoutChildren():void
+
+		protected function disposeTweens():void
 		{
-			var outerRad:Number = Math.max(0, (Math.min(actualWidth, actualHeight) - padding * 2) / 2);
-			var innerRad:Number = clamp(outerRad * _innerRadius, 0, outerRad);
-			if (incomplete.radius != outerRad)
+			swapMasks = false;
+			tweenTarget = null;
+			if (ratioTweenID != 0)
 			{
-				incomplete.radius = complete.radius = outerRad;
+				Starling.juggler.removeByID(ratioTweenID);
+				ratioTweenID = 0;
 			}
-			if (incomplete.innerRadius != innerRad)
+			if (rotationTweenID != 0)
 			{
-				incomplete.innerRadius = complete.innerRadius = innerRad;
+				Starling.juggler.removeByID(rotationTweenID);
+				rotationTweenID = 0;
 			}
-			
-			var contentCentre:Number = padding + outerRad;
-			switch (_horizontalAlign)
-			{
-				case HorizontalAlign.LEFT:
-					var centreX:Number = contentCentre;
-					break;
-				case HorizontalAlign.RIGHT:
-					centreX = actualWidth - contentCentre;
-					break;
-				default: // CENTER:
-					centreX = actualWidth / 2;
-					break;
-			}
-			switch (_verticalAlign)
-			{
-				case VerticalAlign.TOP:
-					var centreY:Number = contentCentre;
-					break;
-				case VerticalAlign.BOTTOM:
-					centreY = actualHeight - contentCentre;
-					break;
-				default: // CENTER:
-					centreY = actualHeight / 2;
-					break;
-			}
-			
-			incomplete.x = centreX;
-			incomplete.y = centreY;
-			complete.x = centreX;
-			complete.y = centreY;
 		}
-		
-		private function disposeTweens():void
-		{
-			Starling.juggler.removeTweens(tweenTarget);
-			if (autoTween1)
-			{
-				autoTween1.onUpdate = null;
-				autoTween1.reset(null, 0);
-			}
-			if (autoTween2)
-			{
-				autoTween2.reset(null, 0);
-			}
-			autoTween1 = null;
-			autoTween2 = null;
-		}
-		
+
 		override public function dispose():void
 		{
 			disposeTweens();
+			if (donutTexture != null)
+			{
+				donutTexture.dispose();
+				donutTexture = null;
+			}
+
 			super.dispose();
 		}
 	}
