@@ -5,6 +5,7 @@ package feathers.controls
 	import feathers.controls.popups.IPopUpContentManager;
 	import feathers.controls.popups.OverlayPopUpContentManager;
 	import feathers.data.IListCollection;
+	import feathers.skins.IStyleProvider;
 
 	import flash.events.KeyboardEvent;
 	import flash.ui.Keyboard;
@@ -20,6 +21,12 @@ package feathers.controls
 
 		public static const INVALIDATION_FLAG_POP_UP_LABEL:String = "popUpLabel";
 		public static const INVALIDATION_FLAG_SEARCH:String = "search";
+
+		public static var globalStyleProvider:IStyleProvider;
+		override protected function get defaultStyleProvider():IStyleProvider
+		{
+			return globalStyleProvider;
+		}
 
 		public static function defaultSearchFunction(textToMatch:String, data:IListCollection, searchField:String):int
 		{
@@ -198,6 +205,11 @@ package feathers.controls
 			searchText = null;
 		}
 
+		public function SearchableList()
+		{
+			popUpContentManager = new OverlayPopUpContentManager;
+		}
+
 		override protected function initialize():void
 		{
 			addEventListener(Event.CHANGE, changeHandler);
@@ -207,11 +219,6 @@ package feathers.controls
 			});
 
 			super.initialize();
-
-			if (popUpContentManager == null)
-			{
-				popUpContentManager = new OverlayPopUpContentManager;
-			}
 		}
 
 		override protected function draw():void

@@ -7,9 +7,43 @@ package feathers.controls
 	import starling.events.Event;
 	import starling.events.KeyboardEvent;
 
-	/** Fixes an occasional edge-case runtime error. */
+	/** Adds some extra features and fixes an occasional edge-case runtime error. */
 	public class PickerListPatched extends PickerList
 	{
+		/**
+		 * If true, the list's item renderer label field property will be set
+		 * to the PickerList's labelField property.
+		 */
+		private var _autoSetListRendererLabelField:Boolean = true;
+		public function get autoSetListRendererLabelField():Boolean
+		{
+			return _autoSetListRendererLabelField;
+		}
+		public function set autoSetListRendererLabelField(value:Boolean):void
+		{
+			if (_autoSetListRendererLabelField == value)
+			{
+				return;
+			}
+			_autoSetListRendererLabelField = value;
+			invalidate(INVALIDATION_FLAG_DATA);
+		}
+
+		override protected function draw():void
+		{
+			var dataInvalid:Boolean = isInvalid(INVALIDATION_FLAG_DATA);
+
+			if (dataInvalid)
+			{
+				if (_autoSetListRendererLabelField)
+				{
+					listProperties.@itemRendererProperties.labelField = _labelField;
+				}
+			}
+
+			super.draw();
+		}
+
 		override protected function list_removedFromStageHandler(event:Event):void
 		{
 			if (list == null || list.stage == null)
