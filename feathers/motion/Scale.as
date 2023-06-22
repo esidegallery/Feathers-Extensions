@@ -40,5 +40,32 @@ package feathers.motion
 				return context;
 			}
 		}
+
+		/**
+		 * @param toScaleX:Number
+		 * @param toScaleY:Number
+		 * @param duration:Number
+		 * @param ease:Object
+		 * @param interruptBehavior:String
+		 */
+		public static function createScaleToEffect(toScaleX:Number, toScaleY:Number, duration:Number = 0.5, ease:Object = Transitions.EASE_OUT, interruptBehavior:String = EffectInterruptBehavior.END):Function
+		{
+			return function(target:DisplayObject):IEffectContext
+			{
+				if (target is IFeathersControl)
+				{
+					(target as IFeathersControl).suspendEffects();
+				}
+				if (target is IFeathersControl)
+				{
+					(target as IFeathersControl).resumeEffects();
+				}
+				var tween:Tween = new Tween(target, duration, ease);
+				tween.animate("scaleX", toScaleX);
+				tween.animate("scaleY", toScaleY);
+				var context:TweenEffectContext = new TweenEffectContext(target, tween, interruptBehavior);
+				return context;
+			}
+		}
 	}
 }
