@@ -294,8 +294,7 @@ package feathers.motion
 				}
 
 				// Add any unreferenced disabled properties if applicable:
-				if (stateContext is FeathersControl &&
-					!(stateContext as FeathersControl).isEnabled)
+				if (stateContext is FeathersControl && !(stateContext as FeathersControl).isEnabled)
 				{
 					for (property in disabledProperties)
 					{
@@ -313,8 +312,7 @@ package feathers.motion
 				}
 
 				// Then unreferenced selected properties if applicable:
-				if (stateContext is IToggle &&
-					(stateContext as IToggle).isSelected)
+				if (stateContext is IToggle && (stateContext as IToggle).isSelected)
 				{
 					for (property in selectedProperties)
 					{

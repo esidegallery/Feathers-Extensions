@@ -634,8 +634,8 @@ package feathers.skins
 				projectionY = viewPort.y < 0 ? -viewPort.y / scaleY : 0.0;
 
 				out ||= new BitmapData(
-					painter.backBufferWidth * backBufferScale,
-					painter.backBufferHeight * backBufferScale);
+						painter.backBufferWidth * backBufferScale,
+						painter.backBufferHeight * backBufferScale);
 			}
 			else
 			{
@@ -644,8 +644,8 @@ package feathers.skins
 				projectionY = bounds.y;
 
 				out ||= new BitmapData(
-					Math.ceil(bounds.width * totalScaleX),
-					Math.ceil(bounds.height * totalScaleY));
+						Math.ceil(bounds.width * totalScaleX),
+						Math.ceil(bounds.height * totalScaleY));
 			}
 
 			color = Color.multiply(color, alpha); // premultiply alpha
@@ -664,9 +664,9 @@ package feathers.skins
 			var stepHeight:int = painter.backBufferHeight / scaleY;
 			var positionInBitmap:Point = Pool.getPoint(0, 0);
 			var boundsInBuffer:Rectangle = Pool.getRectangle(
-				0, 0,
-				Math.floor(painter.backBufferWidth * backBufferScale),
-				Math.floor(painter.backBufferHeight * backBufferScale));
+					0, 0,
+					Math.floor(painter.backBufferWidth * backBufferScale),
+					Math.floor(painter.backBufferHeight * backBufferScale));
 
 			while (positionInBitmap.y < out.height)
 			{
@@ -677,8 +677,8 @@ package feathers.skins
 				{
 					painter.clear(color, alpha);
 					painter.state.setProjectionMatrix(
-						stepX, stepY, stepWidth, stepHeight,
-						stageWidth, stageHeight, stage.cameraPosition);
+							stepX, stepY, stepWidth, stepHeight,
+							stageWidth, stageHeight, stage.cameraPosition);
 
 					if (mask)
 					{

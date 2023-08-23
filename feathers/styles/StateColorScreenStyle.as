@@ -106,7 +106,7 @@ package feathers.styles
 		{
 			stateTweener.setPropertyForState(PROPERTY_COLOR, state, value);
 		}
-		
+
 		protected var stateTweener:StateTweener;
 
 		public function StateColorScreenStyle()
