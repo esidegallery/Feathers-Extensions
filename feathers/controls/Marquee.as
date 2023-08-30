@@ -188,13 +188,13 @@ package feathers.controls
 			var renderTexture:RenderTexture = new RenderTexture(_stripeSize * 2 * numIterations, _borderSize);
 			renderTexture.clear(color2, 1);
 			renderTexture.drawBundled(function():void
-			{
-				for (var i:int = 0; i < numIterations; i++)
 				{
-					color1Quad.x = _stripeSize * 2 * i;
-					renderTexture.draw(color1Quad);
-				}
-			});
+					for (var i:int = 0; i < numIterations; i++)
+					{
+						color1Quad.x = _stripeSize * 2 * i;
+						renderTexture.draw(color1Quad);
+					}
+				});
 
 			texture_h = renderTexture;
 			texture_v = Texture.fromTexture(renderTexture, renderTexture.region, renderTexture.frame, true);
