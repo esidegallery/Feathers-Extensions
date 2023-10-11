@@ -218,8 +218,8 @@ package feathers.controls
 			var textureScaleX:Number = textureScale * _textureScaleMultiplierX;
 			var textureScaleY:Number = textureScale * _textureScaleMultiplierY;
 			if (this.scaleContent && this.maintainAspectRatio &&
-				this.scaleMode !== starling.utils.ScaleMode.NONE &&
-				this.scale9Grid === null)
+					this.scaleMode !== starling.utils.ScaleMode.NONE &&
+					this.scale9Grid === null)
 			{
 				if (!needsHeight)
 				{
@@ -385,7 +385,7 @@ package feathers.controls
 				this.image.height = imageHeight;
 			}
 			if ((!this.scaleContent || (this.maintainAspectRatio && this.scaleMode !== starling.utils.ScaleMode.SHOW_ALL)) &&
-				(this.actualWidth != imageWidth || this.actualHeight != imageHeight))
+					(this.actualWidth != imageWidth || this.actualHeight != imageHeight))
 			{
 				var mask:Quad = this.image.mask as Quad;
 				if (mask !== null)
@@ -432,25 +432,13 @@ package feathers.controls
 			var projectionX:Number, projectionY:Number;
 			var bounds:Rectangle;
 
-			if (this is Stage)
-			{
-				projectionX = viewPort.x < 0 ? -viewPort.x / scaleX : 0.0;
-				projectionY = viewPort.y < 0 ? -viewPort.y / scaleY : 0.0;
+			bounds = getBounds(parent, Pool.getRectangle());
+			projectionX = bounds.x;
+			projectionY = bounds.y;
 
-				out ||= new BitmapData(
-					painter.backBufferWidth * backBufferScale,
-					painter.backBufferHeight * backBufferScale);
-			}
-			else
-			{
-				bounds = getBounds(parent, Pool.getRectangle());
-				projectionX = bounds.x;
-				projectionY = bounds.y;
-
-				out ||= new BitmapData(
+			out ||= new BitmapData(
 					Math.ceil(bounds.width * totalScaleX),
 					Math.ceil(bounds.height * totalScaleY));
-			}
 
 			color = Color.multiply(color, alpha); // premultiply alpha
 
@@ -468,9 +456,9 @@ package feathers.controls
 			var stepHeight:int = painter.backBufferHeight / scaleY;
 			var positionInBitmap:Point = Pool.getPoint(0, 0);
 			var boundsInBuffer:Rectangle = Pool.getRectangle(
-				0, 0,
-				Math.floor(painter.backBufferWidth * backBufferScale),
-				Math.floor(painter.backBufferHeight * backBufferScale));
+					0, 0,
+					Math.floor(painter.backBufferWidth * backBufferScale),
+					Math.floor(painter.backBufferHeight * backBufferScale));
 
 			while (positionInBitmap.y < out.height)
 			{
@@ -481,8 +469,8 @@ package feathers.controls
 				{
 					painter.clear(color, alpha);
 					painter.state.setProjectionMatrix(
-						stepX, stepY, stepWidth, stepHeight,
-						stageWidth, stageHeight, stage.cameraPosition);
+							stepX, stepY, stepWidth, stepHeight,
+							stageWidth, stageHeight, stage.cameraPosition);
 
 					if (mask)
 					{
@@ -531,12 +519,12 @@ package feathers.controls
 			if (bitmapData.width > maxDisplaySize || bitmapData.height > maxDisplaySize)
 			{
 				Bitmap(this.loader.content).bitmapData = ImageUtils.resize(
-					bitmapData,
-					maxDisplaySize, maxDisplaySize,
-					com.esidegallery.enums.ScaleMode.FIT,
-					0, false, false, 0,
-					HorizontalAlign.CENTER, VerticalAlign.MIDDLE,
-					true);
+						bitmapData,
+						maxDisplaySize, maxDisplaySize,
+						com.esidegallery.enums.ScaleMode.FIT,
+						0, false, false, 0,
+						HorizontalAlign.CENTER, VerticalAlign.MIDDLE,
+						true);
 			}
 			super.loader_completeHandler(event);
 		}
