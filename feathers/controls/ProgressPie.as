@@ -343,18 +343,18 @@ package feathers.controls
 				var scaleFactor:Number = stage != null ? stage.starling.contentScaleFactor : Starling.current.contentScaleFactor;
 				donutTexture = new RenderTexture(outerRad * 2, outerRad * 2, true, scaleFactor);
 				donutTexture.drawBundled(function():void
-				{
-					donutTexture.draw(canvas);
-					if (innerRad > 0)
 					{
-						canvas.clear();
-						canvas.beginFill();
-						canvas.drawCircle(outerRad, outerRad, innerRad);
-						canvas.endFill();
-						canvas.blendMode = BlendMode.ERASE;
 						donutTexture.draw(canvas);
-					}
-				}, 4);
+						if (innerRad > 0)
+						{
+							canvas.clear();
+							canvas.beginFill();
+							canvas.drawCircle(outerRad, outerRad, innerRad);
+							canvas.endFill();
+							canvas.blendMode = BlendMode.ERASE;
+							donutTexture.draw(canvas);
+						}
+					}, 4);
 
 				if (ratio < 1 && _incompleteAlpha > 0)
 				{
