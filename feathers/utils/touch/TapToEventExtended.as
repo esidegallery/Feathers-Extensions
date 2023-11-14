@@ -32,7 +32,7 @@ package feathers.utils.touch
 		protected var cumulativeDistance:Number;
 
 		/**
-		 * @param target 
+		 * @param target
 		 * @param eventType The event type to dispatch.
 		 * @param bubbles Whether the event should bubble when dispatched.
 		 * @param ctrlKey  Whether the Ctrl key needs to be active before the event will be dispatched.
@@ -42,7 +42,7 @@ package feathers.utils.touch
 		 * @param checkExclusiveTouch
 		 * @param limitMoveDistance
 		 */
-		public function TapToEventExtended(target:DisplayObject = null, eventType:String = null, bubbles:Boolean = false, ctrlKey:Boolean = false, shiftKey:Boolean = false, tapCount:int = -1, checkExclusiveTouch:Boolean = false, limitMoveDIstance:Boolean = false)
+		public function TapToEventExtended(target:DisplayObject = null, eventType:String = null, bubbles:Boolean = false, ctrlKey:Boolean = false, shiftKey:Boolean = false, tapCount:int = -1, checkExclusiveTouch:Boolean = false, limitMoveDistance:Boolean = false)
 		{
 			this.target = target;
 			this.eventType = eventType;
@@ -51,7 +51,7 @@ package feathers.utils.touch
 			this.shiftKey = shiftKey;
 			this.tapCount = tapCount;
 			this.checkExclusiveTouch = checkExclusiveTouch;
-			this.limitMoveDistance = limitMoveDIstance;
+			this.limitMoveDistance = limitMoveDistance;
 		}
 
 		override protected function target_touchHandler(event:TouchEvent):void
@@ -89,9 +89,9 @@ package feathers.utils.touch
 						}
 						Pool.putPoint(point);
 						if (isInBounds &&
-							(_tapCount == -1 || _tapCount == touch.tapCount) &&
-							event.shiftKey == shiftKey &&
-							event.ctrlKey == ctrlKey)
+								(_tapCount == -1 || _tapCount == touch.tapCount) &&
+								event.shiftKey == shiftKey &&
+								event.ctrlKey == ctrlKey)
 						{
 							_target.dispatchEventWith(_eventType, bubbles, touch);
 						}

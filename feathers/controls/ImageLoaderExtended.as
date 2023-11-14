@@ -13,8 +13,11 @@ package feathers.controls
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.utils.ByteArray;
+	import flash.utils.setTimeout;
 
 	import org.osflash.signals.Promise;
 
@@ -22,6 +25,7 @@ package feathers.controls
 	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.display.Stage;
+	import starling.events.Event;
 	import starling.rendering.Painter;
 	import starling.textures.Texture;
 	import starling.utils.Color;
@@ -533,6 +537,85 @@ package feathers.controls
 		{
 			super.refreshCurrentTexture();
 			calculateTextureScaleMultipliers();
+		}
+
+		override protected function replaceRawTextureData(rawData:ByteArray):void
+		{
+			var starling:Starling = stage !== null ? stage.starling : Starling.current;
+			if (!starling.contextValid)
+			{
+				setTimeout(replaceRawTextureData, 1, rawData);
+				return;
+			}
+			verifyCurrentStarling();
+
+			if (findSourceInCache())
+			{
+				// Someone else added this URL to the cache while we were in the
+				// middle of loading it. we can reuse the texture from the cache!
+
+				// Don't forget to clear the ByteArray, though...
+				rawData.clear();
+
+				// Then invalidate so that everything is resized correctly
+				invalidate(INVALIDATION_FLAG_DATA);
+				return;
+			}
+
+			if (!_texture)
+			{
+				if (_asyncTextureUpload)
+				{
+					_texture = Texture.fromAtfData(rawData, scaleFactor, false, _uploadComplete);
+				}
+				else
+				{
+					try
+					{
+						_texture = Texture.fromAtfData(rawData, scaleFactor);
+					}
+					catch (error:Error)
+					{
+						cleanupTexture();
+						invalidate(INVALIDATION_FLAG_DATA);
+						dispatchEventWith(starling.events.Event.IO_ERROR, false, new IOErrorEvent(IOErrorEvent.IO_ERROR, false, false, error.toString()));
+						return;
+					}
+					_uploadComplete();
+				}
+				_texture.root.onRestore = createTextureOnRestore(_texture,
+						_source, textureFormat, scaleFactor);
+				if (_textureCache)
+				{
+					var cacheKey:String = sourceToTextureCacheKey(_source);
+					if (cacheKey !== null)
+					{
+						_textureCache.addTexture(cacheKey, _texture, true);
+					}
+				}
+			}
+			else
+			{
+				if (_asyncTextureUpload)
+				{
+					_texture.root.uploadAtfData(rawData, 0, _uploadComplete);
+				}
+				else
+				{
+					_texture.root.uploadAtfData(rawData);
+					_uploadComplete();
+				}
+			}
+
+			function _uploadComplete():void
+			{
+				rawData.clear();
+				_isTextureOwner = _textureCache === null;
+				_isRestoringTexture = false;
+				_isLoaded = true;
+				invalidate(INVALIDATION_FLAG_DATA);
+				dispatchEventWith(starling.events.Event.COMPLETE);
+			}
 		}
 
 		override protected function cleanupTexture():void
