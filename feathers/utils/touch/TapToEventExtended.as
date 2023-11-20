@@ -19,13 +19,11 @@ package feathers.utils.touch
 	 */
 	public class TapToEventExtended extends TapToEvent
 	{
-		public static const MAX_MOVE_DISTANCE:Number = 0.1;
-
 		public var shiftKey:Boolean;
 		public var ctrlKey:Boolean;
 		public var bubbles:Boolean;
 		public var checkExclusiveTouch:Boolean;
-		public var limitMoveDistance:Boolean;
+		public var maxMoveDistance:Number;
 
 		protected var previousTouchX:Number;
 		protected var previousTouchY:Number;
@@ -40,9 +38,9 @@ package feathers.utils.touch
 		 * @param tapCount The number of times a component must be tapped before the event will be dispatched.
 		 *        If the value of <code>tapCount</code> is <code>-1</code>, the event will be dispatched for every tap.
 		 * @param checkExclusiveTouch
-		 * @param limitMoveDistance
+		 * @param maxMoveDistance For multi-tap to event; the maximum distance (in inches) between taps before the event is cancelled.
 		 */
-		public function TapToEventExtended(target:DisplayObject = null, eventType:String = null, bubbles:Boolean = false, ctrlKey:Boolean = false, shiftKey:Boolean = false, tapCount:int = -1, checkExclusiveTouch:Boolean = false, limitMoveDistance:Boolean = false)
+		public function TapToEventExtended(target:DisplayObject = null, eventType:String = null, bubbles:Boolean = false, ctrlKey:Boolean = false, shiftKey:Boolean = false, tapCount:int = -1, checkExclusiveTouch:Boolean = false, maxMoveDistance:Number = 0.2)
 		{
 			this.target = target;
 			this.eventType = eventType;
@@ -51,7 +49,7 @@ package feathers.utils.touch
 			this.shiftKey = shiftKey;
 			this.tapCount = tapCount;
 			this.checkExclusiveTouch = checkExclusiveTouch;
-			this.limitMoveDistance = limitMoveDistance;
+			this.maxMoveDistance = maxMoveDistance;
 		}
 
 		override protected function target_touchHandler(event:TouchEvent):void
@@ -101,13 +99,13 @@ package feathers.utils.touch
 					// new one.
 					_touchPointID = -1;
 				}
-				else if (limitMoveDistance && touch.phase == TouchPhase.MOVED)
+				else if (!isNaN(maxMoveDistance) && touch.phase == TouchPhase.MOVED)
 				{
 					var currentPos:Point = Pool.getPoint(touch.globalX, touch.globalY);
 					currentPos.offset(-previousTouchX, -previousTouchY);
 					cumulativeDistance += pixelsToInches(Math.abs(currentPos.length));
 					Pool.putPoint(currentPos);
-					if (cumulativeDistance > MAX_MOVE_DISTANCE)
+					if (cumulativeDistance > Math.abs(maxMoveDistance))
 					{
 						// The touch has moved past the max threshold, so cancel the touch:
 						_touchPointID = -1;
