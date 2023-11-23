@@ -224,8 +224,8 @@ package feathers.controls
 			var textureScaleX:Number = textureScale * _textureScaleMultiplierX;
 			var textureScaleY:Number = textureScale * _textureScaleMultiplierY;
 			if (scaleContent && maintainAspectRatio &&
-				scaleMode !== starling.utils.ScaleMode.NONE &&
-				scale9Grid === null)
+					scaleMode !== starling.utils.ScaleMode.NONE &&
+					scale9Grid === null)
 			{
 				if (!needsHeight)
 				{
@@ -391,7 +391,7 @@ package feathers.controls
 				image.height = imageHeight;
 			}
 			if ((!scaleContent || (maintainAspectRatio && scaleMode !== starling.utils.ScaleMode.SHOW_ALL)) &&
-				(actualWidth != imageWidth || actualHeight != imageHeight))
+					(actualWidth != imageWidth || actualHeight != imageHeight))
 			{
 				var mask:Quad = image.mask as Quad;
 				if (mask !== null)
@@ -444,8 +444,8 @@ package feathers.controls
 				projectionY = viewPort.y < 0 ? -viewPort.y / scaleY : 0.0;
 
 				out ||= new BitmapData(
-					painter.backBufferWidth * backBufferScale,
-					painter.backBufferHeight * backBufferScale);
+						painter.backBufferWidth * backBufferScale,
+						painter.backBufferHeight * backBufferScale);
 			}
 			else
 			{
@@ -454,8 +454,8 @@ package feathers.controls
 				projectionY = bounds.y;
 
 				out ||= new BitmapData(
-					Math.ceil(bounds.width * totalScaleX),
-					Math.ceil(bounds.height * totalScaleY));
+						Math.ceil(bounds.width * totalScaleX),
+						Math.ceil(bounds.height * totalScaleY));
 			}
 
 			color = Color.multiply(color, alpha); // premultiply alpha
@@ -474,9 +474,9 @@ package feathers.controls
 			var stepHeight:int = painter.backBufferHeight / scaleY;
 			var positionInBitmap:Point = Pool.getPoint(0, 0);
 			var boundsInBuffer:Rectangle = Pool.getRectangle(
-				0, 0,
-				Math.floor(painter.backBufferWidth * backBufferScale),
-				Math.floor(painter.backBufferHeight * backBufferScale));
+					0, 0,
+					Math.floor(painter.backBufferWidth * backBufferScale),
+					Math.floor(painter.backBufferHeight * backBufferScale));
 
 			while (positionInBitmap.y < out.height)
 			{
@@ -487,8 +487,8 @@ package feathers.controls
 				{
 					painter.clear(color, alpha);
 					painter.state.setProjectionMatrix(
-						stepX, stepY, stepWidth, stepHeight,
-						stageWidth, stageHeight, stage.cameraPosition);
+							stepX, stepY, stepWidth, stepHeight,
+							stageWidth, stageHeight, stage.cameraPosition);
 
 					if (mask)
 					{
