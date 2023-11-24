@@ -22,7 +22,7 @@ package feathers.extensions.maps
 
 	public class TouchSheetContainer extends FeathersControl
 	{
-		private static const INVALIDATION_FLAG_CONTENT:String = "content";
+		protected static const INVALIDATION_FLAG_CONTENT:String = "content";
 
 		private var _movementEnabled:Boolean = true;
 		public function get movementEnabled():Boolean
@@ -250,16 +250,6 @@ package feathers.extensions.maps
 			throw new Error("Use content property in TouchScreenContainer");
 		}
 
-		override public function removeChildAt(index:int, dispose:Boolean = false):DisplayObject
-		{
-			throw new Error("Use content property in TouchScreenContainer");
-		}
-
-		override public function set mask(value:DisplayObject):void
-		{
-			throw new Error("TouchScreenContainer manages its own mask");
-		}
-
 		public function forceTouchSheetUpdate():void
 		{
 			if (touchSheet == null)
@@ -348,7 +338,7 @@ package feathers.extensions.maps
 			{
 				duration = defaultAnimationDuration;
 			}
-			if (!transition == null)
+			if (transition == null)
 			{
 				transition = defaultAnimationTransition;
 			}
@@ -605,11 +595,14 @@ package feathers.extensions.maps
 
 		protected function disposeTouchSheet():void
 		{
-			touchSheet.requestUpdateViewport.removeAll();
-			touchSheet.viewPortChanged.removeAll();
-			touchSheet.removeChildAt(0);
-			touchSheet.removeFromParent(true);
-			touchSheet = null;
+			if (touchSheet != null)
+			{
+				touchSheet.requestUpdateViewport.removeAll();
+				touchSheet.viewPortChanged.removeAll();
+				touchSheet.removeChildAt(0);
+				touchSheet.removeFromParent(true);
+				touchSheet = null;
+			}
 			removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
 			if (doubleTapToEvent != null)
 			{

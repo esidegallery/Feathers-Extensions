@@ -21,13 +21,21 @@ package feathers.extensions.maps
 		public static const MIN_ZOOM:int = 1;
 		public static const MAX_ZOOM:int = 20;
 
-		public var textureCache:TextureCache;
+		private var _textureCache:TextureCache;
+		public function get textureCache():TextureCache
+		{
+			return _textureCache;
+		}
+		public function set textureCache(value:TextureCache):void
+		{
+			_textureCache = value;
+		}
 
 		/**
 		 * Defaults to <code>MapLayer</code>. The class contructor needs to have the following signature:<br/>
 		 * <code>MapLayer(map:Map, id:String, options:MapLayerOptions, buffer:MapTilesBuffer)</code>
 		 */
-		public var layerFactoryClass:Class = MapLayer;
+		public var mapLayerFactoryClass:Class = MapLayer;
 
 		/**
 		 * Defaults to <code>MapImageLayer</code>. The class contructor needs to have the following signature:<br/>
@@ -85,7 +93,7 @@ package feathers.extensions.maps
 			{
 				var childIndex:uint = options.index >= 0 ? Math.min(options.index, mapContainer.numChildren) : mapContainer.numChildren;
 
-				layer = new layerFactoryClass(id, options, mapTilesBuffer) as MapLayer;
+				layer = new mapLayerFactoryClass(id, options, mapTilesBuffer) as MapLayer;
 				if (layer == null)
 				{
 					throw new Error("layerFactoryClass is invalid");
