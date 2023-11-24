@@ -49,6 +49,7 @@ package feathers.extensions.maps
 				_imageLoader.height = _options.displayHeight;
 			}
 			_imageLoader.source = _options.imageSource;
+			_imageLoader.textureCache = _options.textureCache;
 			addChild(_imageLoader);
 		}
 	}

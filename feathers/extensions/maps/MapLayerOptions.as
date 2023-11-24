@@ -1,5 +1,7 @@
 package feathers.extensions.maps
 {
+	import feathers.utils.textures.TextureCache;
+
 	import flash.geom.Rectangle;
 
 	public class MapLayerOptions
@@ -23,9 +25,9 @@ package feathers.extensions.maps
 
 		public var blendMode:String;
 
-		public var minZoomVisibility:int = Map.MIN_ZOOM;
+		public var minimumZoomVisibility:int = Map.MIN_ZOOM;
 
-		public var maxZoomVisibility:int = Map.MAX_ZOOM;
+		public var maximumZoomVisibility:int = Map.MAX_ZOOM;
 
 		/** Whether the first requested batch of tiles are loaded without buffering or animation. */
 		public var loadInitialTilesInstantly:Boolean;
@@ -50,5 +52,7 @@ package feathers.extensions.maps
 
 		/** For non-looping maps, limit tile creation to the coords if set. */
 		public var limitTileCreationTo:Rectangle;
+
+		public var tileTextureCache:TextureCache;
 	}
 }

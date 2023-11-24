@@ -3,7 +3,6 @@ package feathers.extensions.maps
 	import com.esidegallery.utils.MathUtils;
 
 	import feathers.core.IFeathersControl;
-	import feathers.utils.textures.TextureCache;
 	import feathers.utils.touch.TapToTrigger;
 
 	import flash.geom.Point;
@@ -20,16 +19,6 @@ package feathers.extensions.maps
 	{
 		public static const MIN_ZOOM:int = 1;
 		public static const MAX_ZOOM:int = 20;
-
-		private var _textureCache:TextureCache;
-		public function get textureCache():TextureCache
-		{
-			return _textureCache;
-		}
-		public function set textureCache(value:TextureCache):void
-		{
-			_textureCache = value;
-		}
 
 		/**
 		 * Defaults to <code>MapLayer</code>. The class contructor needs to have the following signature:<br/>
@@ -48,6 +37,21 @@ package feathers.extensions.maps
 		 * <code>MapVideoLayer(map:Map, id:String, options:MapVideoLayerOptions)</code>
 		 */
 		public var videoLayerFactoryClass:Class = MapVideoLayer;
+
+		protected var _customMarkerSortCompareFunction:Function;
+		public function get customMarkerSortCompareFunction():Function
+		{
+			return _customMarkerSortCompareFunction;
+		}
+		public function set customMarkerSortCompareFunction(value:Function):void
+		{
+			if (_customMarkerSortCompareFunction == value)
+			{
+				return;
+			}
+			_customMarkerSortCompareFunction = value;
+			sortMarkers();
+		}
 
 		private var _zoomLevel:int;
 		public function get zoomLevel():int
@@ -98,7 +102,6 @@ package feathers.extensions.maps
 				{
 					throw new Error("layerFactoryClass is invalid");
 				}
-				layer.textureCache = textureCache;
 
 				mapContainer.addChildAt(layer, childIndex);
 				mapContainer.addChild(markersContainer); // Markers above layers.
@@ -260,7 +263,14 @@ package feathers.extensions.maps
 		public function sortMarkers():void
 		{
 			var markers:Vector.<MapMarker> = getAllMarkers();
-			markers.sort(markerCompareFunction);
+			if (_customMarkerSortCompareFunction != null)
+			{
+				markers.sort(_customMarkerSortCompareFunction);
+			}
+			else
+			{
+				markers.sort(defaultMarkerSortCompareFunction);
+			}
 			for (var i:int = 0, l:int = markers.length; i < l; i++)
 			{
 				markersContainer.addChildAt(markers[i].displayObject, i);
@@ -302,7 +312,7 @@ package feathers.extensions.maps
 			}
 		}
 
-		protected static function markerCompareFunction(marker1:MapMarker, marker2:MapMarker):Number
+		protected static function defaultMarkerSortCompareFunction(marker1:MapMarker, marker2:MapMarker):Number
 		{
 			if (marker1.alwaysOnTop && !marker2.alwaysOnTop)
 			{

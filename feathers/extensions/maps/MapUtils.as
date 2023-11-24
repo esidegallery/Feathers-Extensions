@@ -20,12 +20,7 @@ package feathers.extensions.maps
 			var currentSize:int = Math.max(mapWidth, mapHeight);
 			while (currentSize > minimumViewSize)
 			{
-				var nextSize:Number = currentSize * 0.5;
-				if (nextSize < minimumViewSize)
-				{
-					break;
-				}
-				currentSize = nextSize;
+				currentSize *= 0.5;
 				zoom--;
 			}
 			return zoom;
