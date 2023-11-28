@@ -164,21 +164,21 @@ package feathers.extensions.maps
 		 */
 		public var initialScaleMode:String = ScaleMode.SHOW_ALL;
 
-		/** If not NaN, overrides <code>minimumScaleMode</code>. */
+		/** If not NaN, the smaller of this and <code>minimumScaleMode</code> will be applied. */
 		public var minimumScale:Number = NaN;
 
 		/**
 		 * If set, the content can be zoomed out to the equivalent of this <code>ScaleMode</code>.<br/>
-		 * Overridden by <code>minimumScale</code>.
+		 * If <code>minimumScale</code> is not NaN, the smaller of the two will be applied.
 		 */
 		public var minimumScaleMode:String = ScaleMode.SHOW_ALL;
 
-		/** If not NaN, overrides <code>maximumScaleMode</code>. */
+		/** If not NaN, the larger of this and <code>maximumScaleMode</code> will be applied. */
 		public var maximumScale:Number = NaN;
 
 		/**
 		 * If set, the content can be zoomed in to the equivalent of this <code>ScaleMode</code>.<br/>
-		 * Overridden by <code>maximumScale</code>.
+		 * If <code>maximumScale</code> is not NaN, the larger of the two will be applied.
 		 */
 		public var maximumScaleMode:String;
 
@@ -203,31 +203,17 @@ package feathers.extensions.maps
 			}
 		}
 
-		private var _touchElasticity:Number = 0.4;
-		public function get touchElasticity():Number
+		private var _elasticity:Number = 0.85;
+		public function get elasticity():Number
 		{
-			return _touchElasticity;
+			return _elasticity;
 		}
-		public function set touchElasticity(value:Number):void
+		public function set elasticity(value:Number):void
 		{
-			_touchElasticity = value;
+			_elasticity = value;
 			if (touchSheet != null)
 			{
-				touchSheet.touchElasticity = _touchElasticity;
-			}
-		}
-
-		private var _nonTouchElasticity:Number = 0.85;
-		public function get nonTouchElasticity():Number
-		{
-			return _nonTouchElasticity;
-		}
-		public function set nonTouchElasticity(value:Number):void
-		{
-			_nonTouchElasticity = value;
-			if (touchSheet != null)
-			{
-				touchSheet.nonTouchElasticity = _nonTouchElasticity;
+				touchSheet.elasticity = _elasticity;
 			}
 		}
 
@@ -573,15 +559,13 @@ package feathers.extensions.maps
 			touchSheet.zoomingEnabled = _zoomingEnabled;
 			touchSheet.isEnabled = _isEnabled;
 			touchSheet.inertia = _inertia;
-			touchSheet.touchElasticity = _touchElasticity;
-			touchSheet.nonTouchElasticity = _nonTouchElasticity;
+			touchSheet.elasticity = _elasticity;
 			touchSheet.requestUpdateViewport.add(updateTouchSheetViewport);
 			touchSheet.viewPortChanged.add(touchSheet_viewPortChangedHandler);
-			touchSheet.addEventListener(FeathersEventType.BEGIN_INTERACTION, dispatchEvent);
-			touchSheet.addEventListener(FeathersEventType.END_INTERACTION, dispatchEvent);
-			touchSheet.addEventListener(TouchSheetEventType.MOVE, dispatchEvent);
-			touchSheet.addEventListener(TouchSheetEventType.ZOOM, dispatchEvent);
-			touchSheet.addEventListener(TouchSheetEventType.ROTATE, dispatchEvent);
+			touchSheet.addEventListener(FeathersEventType.BEGIN_INTERACTION, touchSheet_beginInteractionHandler);
+			touchSheet.addEventListener(FeathersEventType.END_INTERACTION, touchSheet_endInteractionHandler);
+			touchSheet.addEventListener(TouchSheetEventType.MOVE, touchSheet_moveHandler);
+			touchSheet.addEventListener(TouchSheetEventType.ZOOM, touchSheet_zoomHandler);
 			addEventListener(Event.ENTER_FRAME, enterFrameHandler);
 			if (_doubleTapToZoom)
 			{
@@ -670,11 +654,25 @@ package feathers.extensions.maps
 				touchSheet.movementBounds.setTo(0, 0, touchSheet.content.width, touchSheet.content.height);
 			}
 
-			var minScale:Number = !isNaN(minimumScale) ? minimumScale : getScaleForScaleMode(minimumScaleMode);
-			var maxScale:Number = !isNaN(maximumScale) ? maximumScale : getScaleForScaleMode(maximumScaleMode);
+			var scaleModeScale:Number = getScaleForScaleMode(minimumScaleMode);
+			if (MathUtils.isNotNaNOrInfinity(minimumScale))
+			{
+				touchSheet.minimumScale = MathUtils.isNotNaNOrInfinity(scaleModeScale) ? Math.min(minimumScale, scaleModeScale) : minimumScale;
+			}
+			else
+			{
+				touchSheet.minimumScale = MathUtils.isNotNaNOrInfinity(scaleModeScale) ? scaleModeScale : 0;
+			}
 
-			touchSheet.minimumScale = MathUtils.isNotNaNOrInfinity(minScale) ? minScale : 0;
-			touchSheet.maximumScale = MathUtils.isNotNaNOrInfinity(maxScale) ? Math.max(touchSheet.minimumScale, maxScale) : Number.MAX_VALUE;
+			scaleModeScale = getScaleForScaleMode(maximumScaleMode);
+			if (MathUtils.isNotNaNOrInfinity(maximumScale))
+			{
+				touchSheet.maximumScale = MathUtils.isNotNaNOrInfinity(scaleModeScale) ? Math.max(maximumScale, scaleModeScale) : maximumScale;
+			}
+			else
+			{
+				touchSheet.maximumScale = MathUtils.isNotNaNOrInfinity(scaleModeScale) ? scaleModeScale : Number.MAX_VALUE;
+			}
 		}
 
 		override protected function feathersControl_addedToStageHandler(event:Event):void
@@ -694,6 +692,26 @@ package feathers.extensions.maps
 		protected function enterFrameHandler():void
 		{
 			updateTouchSheetLimits();
+		}
+
+		protected function touchSheet_beginInteractionHandler(event:Event):void
+		{
+			dispatchEvent(event);
+		}
+
+		protected function touchSheet_endInteractionHandler(event:Event):void
+		{
+			dispatchEvent(event);
+		}
+
+		protected function touchSheet_moveHandler(event:Event):void
+		{
+			dispatchEvent(event);
+		}
+
+		protected function touchSheet_zoomHandler(event:Event):void
+		{
+			dispatchEvent(event);
 		}
 
 		protected function touchSheet_tweenUpdateHandler():void
@@ -747,7 +765,7 @@ package feathers.extensions.maps
 			{
 				touchSheet.globalToLocal(pivot, pivot);
 				var delta:Number = touchSheet.scale * mouseWheelZoomStep * event.delta;
-				touchSheet.scaleTo(touchSheet.scale + delta, pivot.x, pivot.y, defaultAnimationDuration, defaultAnimationTransition, touchSheet_tweenUpdateHandler);
+				touchSheet.scaleTo(touchSheet.scale + delta, pivot.x, pivot.y, defaultAnimationDuration, Transitions.EASE_OUT, touchSheet_tweenUpdateHandler);
 			}
 
 			Pool.putPoint(pivot);
@@ -779,6 +797,7 @@ import flash.geom.Rectangle;
 import org.osflash.signals.Signal;
 
 import starling.display.DisplayObject;
+import starling.events.Event;
 import starling.events.Touch;
 import starling.utils.Pool;
 import starling.utils.RectangleUtil;
@@ -852,17 +871,24 @@ class TouchSheetExtended extends TouchSheet
 
 	override protected function applyGravity():void
 	{
+		if (_isTouching && _elasticity == 0)
+		{
+			x += movementGravity.x;
+			y += movementGravity.y;
+			scale += scaleGravity;
+		}
+		
 		if (!_isTouching)
 		{
 			if (Math.abs(velocity.length) > MINIMUM_VELOCITY || Math.abs(movementGravity.length) > MINIMUM_VELOCITY || Math.abs(scaleGravity) >= 0.001)
 			{
 				// Pull back according to gravity:
-				x += movementGravity.x * (1 - _nonTouchElasticity);
-				y += movementGravity.y * (1 - _nonTouchElasticity);
-				scale += scaleGravity * (1 - _nonTouchElasticity);
+				x += movementGravity.x * (1 - _elasticity);
+				y += movementGravity.y * (1 - _elasticity);
+				scale += scaleGravity * (1 - _elasticity);
 				// Adjust velocity for the next frame:
-				velocity.x *= _inertia * (movementGravity.x ? _nonTouchElasticity : 1);
-				velocity.y *= _inertia * (movementGravity.y ? _nonTouchElasticity : 1);
+				velocity.x *= _inertia * (movementGravity.x ? _elasticity : 1);
+				velocity.y *= _inertia * (movementGravity.y ? _elasticity : 1);
 			}
 			else
 			{
@@ -881,7 +907,7 @@ class TouchSheetExtended extends TouchSheet
 			}
 			else
 			{
-				scale += scaleGravity * (1 - _nonTouchElasticity);
+				scale += scaleGravity * (1 - _elasticity);
 			}
 		}
 	}

@@ -53,6 +53,6 @@ package feathers.extensions.maps
 		/** For non-looping maps, limit tile creation to the coords if set. */
 		public var limitTileCreationTo:Rectangle;
 
-		public var tileTextureCache:TextureCache;
+		public var tilesTextureCache:TextureCache;
 	}
 }

@@ -37,7 +37,7 @@ package feathers.extensions.maps
 		/** Required to calculate the ${z} portion of the URL from the map zoom level. */
 		protected var maximumZoom:int;
 
-		protected var tileTextureCache:TextureCache;
+		protected var tilesTextureCache:TextureCache;
 
 		protected var _suspendUpdates:Boolean;
 		public function get suspendUpdates():Boolean
@@ -74,7 +74,7 @@ package feathers.extensions.maps
 			tileCreationMargin = _options.tileCreationMargin || 0;
 			blendMode = _options.blendMode || BlendMode.NORMAL;
 			maximumZoom = _options.maximumZoomLevel || Map.MAX_ZOOM;
-			tileTextureCache = _options.tileTextureCache;
+			tilesTextureCache = _options.tilesTextureCache;
 		}
 
 		/**
@@ -183,7 +183,7 @@ package feathers.extensions.maps
 				tile.loadInstantly ||= (_options.loadInitialTilesInstantly && firstLoad);
 				tile.prioritiseBuffering = options.prioritiseTileLoading;
 				tile.animateShow = _options.animateShowTiles;
-				tile.textureCache = tileTextureCache;
+				tile.textureCache = tilesTextureCache;
 				tile.source = url;
 				tile.setSize(tileSize, tileSize);
 				tile.move(x * actualTileSize, y * actualTileSize);

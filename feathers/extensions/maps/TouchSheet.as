@@ -105,24 +105,14 @@ package feathers.extensions.maps
 			_inertia = clamp(value, 0, 1) || 0;
 		}
 
-		protected var _touchElasticity:Number = 0.4;
-		public function get touchElasticity():Number
+		protected var _elasticity:Number = 0.85;
+		public function get elasticity():Number
 		{
-			return _touchElasticity;
+			return _elasticity;
 		}
-		public function set touchElasticity(value:Number):void
+		public function set elasticity(value:Number):void
 		{
-			_touchElasticity = clamp(value, 0, 1);
-		}
-
-		protected var _nonTouchElasticity:Number = 0.85;
-		public function get nonTouchElasticity():Number
-		{
-			return _nonTouchElasticity;
-		}
-		public function set nonTouchElasticity(value:Number):void
-		{
-			_nonTouchElasticity = clamp(value, 0, 1);
+			_elasticity = clamp(value, 0, 1);
 		}
 
 		protected var _isTouching:Boolean;
@@ -575,7 +565,7 @@ package feathers.extensions.maps
 				}
 				else
 				{
-					scale += scaleGravity * (1 - _nonTouchElasticity);
+					scale += scaleGravity * (1 - _elasticity);
 				}
 			}
 		}
