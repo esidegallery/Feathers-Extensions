@@ -25,6 +25,8 @@ package feathers.extensions.maps
 
 	/** <code>Event.data</code> was whether a manipulation (i.e. drag/scale/rotation) took place. */
 	[Event(type="starling.events.Event", name="endInteraction")]
+
+	/** <code>Event.data</code> is <code>Point</code> containing the amount moved since the previous move (or since interaction started). */
 	[Event(type="starling.events.Event", name="move")]
 	[Event(type="starling.events.Event", name="zoom")]
 	[Event(type="starling.events.Event", name="rotate")]
@@ -38,9 +40,6 @@ package feathers.extensions.maps
 
 		/** Previous velocities are saved for an accurate measurement at the end of a touch. */
 		private static const MAXIMUM_SAVED_VELOCITY_COUNT:int = 3;
-
-		/** Distance dragged (in inches) in an interaction before counted as a manipulation. */
-		private static const MIN_DRAG_DISTANCE:Number = 0.2;
 
 		private var _uid:String;
 		public function get uid():String
@@ -115,6 +114,9 @@ package feathers.extensions.maps
 			_elasticity = clamp(value, 0, 1);
 		}
 
+		/** Distance dragged (in inches) in an interaction before counted as a manipulation. */
+		public var minimumDragDistance:Number = 0.2;
+
 		protected var _isTouching:Boolean;
 		public function get isTouching():Boolean
 		{
@@ -177,11 +179,22 @@ package feathers.extensions.maps
 		/** The amount to add to current scale to return within <code>minimumScale</code> & <code>maximumScale</code>. */
 		protected var scaleGravity:Number;
 
-		/** Distance dragged in the last interaction. */
-		protected var _dragDistance:Number;
-		public function get dragDistance():Number
+		/** Net movement in the current/last interaction (in the touchSheet's parent's space). */
+		protected var _dragMovement:Point;
+
+		/** Net movement in the current/last interaction (in the touchSheet's parent's space). */
+		public function getDragMovement(out:Point = null):Point
 		{
-			return _dragDistance;
+			out ||= new Point;
+			if (_dragMovement != null)
+			{
+				out.copyFrom(_dragMovement);
+			}
+			else
+			{
+				out.setTo(0, 0);
+			}
+			return out;
 		}
 
 		public function TouchSheet(content:DisplayObject)
@@ -224,20 +237,14 @@ package feathers.extensions.maps
 			if (!zoomingEnabled && !rotationEnabled || movementEnabled && touchID_b == -1) // Single-touch - movement only:
 			{
 				// Current touch coords:
-				var point:Point = Pool.getPoint(touchCoords_a.x, touchCoords_a.y);
+				var touchMovement:Point = Pool.getPoint(touchCoords_a.x, touchCoords_a.y);
 				// Movement from touch start:
-				point.subtractToOutput(startTouchCoords, point);
-				// New touch sheet coords (global):
-				startCoords.addToOutput(point, point);
-				// New touch sheet coords (local):
-				parent.globalToLocal(point, point);
-				// Apply new coords:
-				x = point.x;
-				y = point.y;
-				Pool.putPoint(point);
+				touchMovement.subtractToOutput(startTouchCoords, touchMovement);
 			}
 			else // Multi-touch gesture:
 			{
+				// Any multi-touch gesture counts as a manipulation:
+				_wasManipulated = true;
 				var touchACoords:Point = Pool.getPoint(touchCoords_a.x, touchCoords_a.y);
 				var touchBCoords:Point = Pool.getPoint(touchCoords_b.x, touchCoords_b.y);
 				var currentVector:Point = touchACoords.subtractToOutput(touchBCoords, Pool.getPoint());
@@ -246,6 +253,7 @@ package feathers.extensions.maps
 				{
 					var deltaScale:Number = currentVector.length / startTouchVector.length;
 					scale = startScale * deltaScale;
+					var wasZoomed:Boolean = scale != previousScale;
 				}
 				if (rotationEnabled)
 				{
@@ -253,21 +261,14 @@ package feathers.extensions.maps
 					var currentAngle:Number = Math.atan2(currentVector.y, currentVector.x);
 					var deltaAngle:Number = currentAngle - startAngle;
 					rotation = startRotation + deltaAngle;
+					var wasRotated:Boolean = rotation != previousRotation;
 				}
 				if (movementEnabled)
 				{
 					// Midpoint between current touches:
-					var midPoint:Point = Point.interpolateToOutput(touchACoords, touchBCoords, 0.5, Pool.getPoint());
+					touchMovement = Point.interpolateToOutput(touchACoords, touchBCoords, 0.5, Pool.getPoint());
 					// Movement from start midpoint:
-					midPoint.subtractToOutput(startTouchCoords, midPoint);
-					// New touch sheet coords (global):
-					startCoords.addToOutput(midPoint, midPoint);
-					// New touch sheet coords (local):
-					parent.globalToLocal(midPoint, midPoint);
-					// Apply new coords:
-					x = midPoint.x;
-					y = midPoint.y;
-					Pool.putPoint(midPoint);
+					touchMovement.subtractToOutput(startTouchCoords, touchMovement);
 				}
 
 				Pool.putPoint(touchACoords);
@@ -275,18 +276,29 @@ package feathers.extensions.maps
 				Pool.putPoint(currentVector);
 			}
 
-			var newCoords:Point = Pool.getPoint(x, y);
-			var movement:Number = Math.abs(previousCoords.subtract(newCoords).length);
-			_dragDistance += movement;
-			var wasMoved:Boolean = movement > 0;
-			var wasZoomed:Boolean = scale != previousScale;
-			var wasRotated:Boolean = rotation != previousRotation;
+			// Store the drag movement:
+			_dragMovement.copyFrom(touchMovement);
+			trace("dm", _dragMovement);
 			if (!_wasManipulated)
 			{
-				_wasManipulated = wasZoomed ||
-					wasRotated ||
-					pixelsToInches(_dragDistance) >= MIN_DRAG_DISTANCE;
+				// Test drag movement passes threshold for manipulation:
+				_wasManipulated = Math.abs(pixelsToInches(_dragMovement.x)) > minimumDragDistance ||
+					Math.abs(pixelsToInches(_dragMovement.y)) > minimumDragDistance;
 			}
+
+			if (touchMovement != null && _wasManipulated)
+			{
+				// New touch sheet coords (global):
+				startCoords.addToOutput(touchMovement, touchMovement);
+				// New touch sheet coords (local):
+				parent.globalToLocal(touchMovement, touchMovement);
+				// Apply new coords:
+				x = touchMovement.x;
+				y = touchMovement.y;
+				Pool.putPoint(touchMovement);
+				var wasMoved:Boolean = previousCoords.x != x || previousCoords.y != y;
+			}
+
 			if (wasMoved)
 			{
 				dispatchEventWith(TouchSheetEventType.MOVE);
@@ -299,10 +311,7 @@ package feathers.extensions.maps
 			{
 				dispatchEventWith(TouchSheetEventType.ROTATE);
 			}
-
 			Pool.putPoint(previousCoords);
-			Pool.putPoint(newCoords);
-
 			saveVelocity();
 		}
 
@@ -347,16 +356,16 @@ package feathers.extensions.maps
 			startCoords.setTo(x, y);
 			parent.localToGlobal(startCoords, startCoords);
 
-			if (!_isTouching)
-			{
-				_dragDistance = 0;
-				_wasManipulated = false;
-			}
-
 			killVelocity();
 
-			_isTouching = true;
-			dispatchEventWith(FeathersEventType.BEGIN_INTERACTION);
+			if (!_isTouching)
+			{
+				_dragMovement ||= Pool.getPoint();
+				_dragMovement.setTo(0, 0);
+				_wasManipulated = false;
+				_isTouching = true;
+				dispatchEventWith(FeathersEventType.BEGIN_INTERACTION);
+			}
 		}
 
 		protected function endTouch():void
@@ -387,10 +396,6 @@ package feathers.extensions.maps
 			previousCoords.setTo(x, y);
 			velocity.setTo(sumX / totalWeight || 0, sumY / totalWeight || 0);
 
-			if (!_wasManipulated && pixelsToInches(_dragDistance) >= MIN_DRAG_DISTANCE)
-			{
-				_wasManipulated = true;
-			}
 			dispatchEventWith(FeathersEventType.END_INTERACTION, _wasManipulated);
 		}
 
@@ -676,6 +681,8 @@ package feathers.extensions.maps
 			endTouch();
 			disposeTweens();
 			killVelocity();
+			Pool.putPoint(_dragMovement);
+			_dragMovement = null;
 
 			super.dispose();
 		}

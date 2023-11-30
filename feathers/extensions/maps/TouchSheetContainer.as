@@ -18,6 +18,7 @@ package feathers.extensions.maps
 	import starling.events.Event;
 	import starling.events.Touch;
 	import starling.utils.Pool;
+	import starling.utils.RectangleUtil;
 	import starling.utils.ScaleMode;
 
 	public class TouchSheetContainer extends FeathersControl
@@ -95,6 +96,10 @@ package feathers.extensions.maps
 			if (touchSheet != null)
 			{
 				touchSheet.isEnabled = _isEnabled;
+			}
+			if (doubleTapToEvent != null)
+			{
+				doubleTapToEvent.isEnabled = _isEnabled;
 			}
 		}
 
@@ -217,6 +222,22 @@ package feathers.extensions.maps
 			}
 		}
 
+		private var _minimumDragDistance:Number = 0.2;
+
+		/** Distance dragged (in inches) in an interaction before counted as a manipulation. */
+		public function get minimumDragDistance():Number
+		{
+			return _minimumDragDistance;
+		}
+		public function set minimumDragDistance(value:Number):void
+		{
+			_minimumDragDistance = value;
+			if (touchSheet != null)
+			{
+				touchSheet.minimumDragDistance = _minimumDragDistance;
+			}
+		}
+
 		public function get isTouching():Boolean
 		{
 			return touchSheet != null && touchSheet.isTouching;
@@ -260,19 +281,6 @@ package feathers.extensions.maps
 			updateTouchSheetLimits();
 			updateTouchSheetViewport();
 
-			if (initialViewRectangle != null && touchSheet.movementBounds != null)
-			{
-				tweenToViewRectangle(initialViewRectangle, 0);
-			}
-			else if (!isNaN(initialScale))
-			{
-				var scaleValue:Number = initialScale;
-			}
-			else
-			{
-				scaleValue = getScaleForScaleMode(initialScaleMode);
-			}
-
 			if (isNaN(duration))
 			{
 				duration = defaultAnimationDuration;
@@ -282,9 +290,31 @@ package feathers.extensions.maps
 				transition = defaultAnimationTransition;
 			}
 
-			if (!isNaN(scaleValue))
+			if (initialViewRectangle != null)
 			{
-				scaleTo(scaleValue, NaN, NaN, duration, transition);
+				tweenToViewRectangle(initialViewRectangle, duration, transition);
+				return;
+			}
+			if (initialScaleMode == ScaleMode.SHOW_ALL)
+			{
+				var viewport:Rectangle = getViewPort(Pool.getRectangle());
+				// We fit the viewport to the opposite scale mode to get the right effect:
+				RectangleUtil.fit(viewport, movementBounds, ScaleMode.NO_BORDER, false, viewport);
+				tweenToViewRectangle(viewport, duration, transition);
+				Pool.putRectangle(viewport);
+				return;
+			}
+			if (initialScaleMode == ScaleMode.NO_BORDER)
+			{
+				viewport = getViewPort(Pool.getRectangle());
+				RectangleUtil.fit(viewport, movementBounds, ScaleMode.SHOW_ALL, false, viewport);
+				tweenToViewRectangle(viewport, duration, transition);
+				Pool.putRectangle(viewport);
+				return;
+			}
+			if (!isNaN(initialScale))
+			{
+				scaleTo(initialScale, NaN, NaN, duration, transition);
 			}
 		}
 
@@ -468,6 +498,16 @@ package feathers.extensions.maps
 			tweenTo(rectangle.left + rectangle.width / 2, rectangle.top + rectangle.height / 2, newScale, duration, transition);
 		}
 
+		public function killVelocity():void
+		{
+			if (touchSheet == null)
+			{
+				return;
+			}
+
+			touchSheet.killVelocity();
+		}
+
 		public function getViewPort(out:Rectangle = null):Rectangle
 		{
 			updateTouchSheetViewport();
@@ -497,6 +537,20 @@ package feathers.extensions.maps
 			else
 			{
 				out.setTo(touchSheet.viewPort.left + touchSheet.viewPort.width * 0.5, touchSheet.viewPort.top + touchSheet.viewPort.height * 0.5);
+			}
+			return out;
+		}
+
+		public function getDragMovement(out:Point = null):Point
+		{
+			out ||= new Point;
+			if (touchSheet != null)
+			{
+				touchSheet.getDragMovement(out);
+			}
+			else
+			{
+				out.setTo(0, 0);
 			}
 			return out;
 		}
@@ -556,10 +610,12 @@ package feathers.extensions.maps
 		{
 			touchSheet = new TouchSheetExtended(content);
 			touchSheet.rotationEnabled = false;
+			touchSheet.movementEnabled = _movementEnabled;
 			touchSheet.zoomingEnabled = _zoomingEnabled;
 			touchSheet.isEnabled = _isEnabled;
 			touchSheet.inertia = _inertia;
 			touchSheet.elasticity = _elasticity;
+			touchSheet.minimumDragDistance = _minimumDragDistance;
 			touchSheet.requestUpdateViewport.add(updateTouchSheetViewport);
 			touchSheet.viewPortChanged.add(touchSheet_viewPortChangedHandler);
 			touchSheet.addEventListener(FeathersEventType.BEGIN_INTERACTION, touchSheet_beginInteractionHandler);
@@ -608,6 +664,7 @@ package feathers.extensions.maps
 					false,
 					false,
 					2);
+			doubleTapToEvent.isEnabled = _isEnabled;
 			touchSheet.addEventListener(EventType.DOUBLE_TAP, touchSheet_doubleTapListener);
 		}
 
@@ -877,7 +934,7 @@ class TouchSheetExtended extends TouchSheet
 			y += movementGravity.y;
 			scale += scaleGravity;
 		}
-		
+
 		if (!_isTouching)
 		{
 			if (Math.abs(velocity.length) > MINIMUM_VELOCITY || Math.abs(movementGravity.length) > MINIMUM_VELOCITY || Math.abs(scaleGravity) >= 0.001)
