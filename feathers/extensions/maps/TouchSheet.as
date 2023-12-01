@@ -205,24 +205,6 @@ package feathers.extensions.maps
 			addEventListener(Event.REMOVED_FROM_STAGE, removedFromStageHandler);
 		}
 
-		override protected function draw():void
-		{
-			var layoutInvalid:Boolean = isInvalid(INVALIDATION_FLAG_LAYOUT);
-			if (layoutInvalid)
-			{
-				if (_isTouching)
-				{
-					commitTouch();
-				}
-				else
-				{
-					commitNonTouch();
-				}
-				updateGravity();
-				applyGravity();
-			}
-		}
-
 		protected function commitTouch():void
 		{
 			if (!_isTouching || !movementEnabled && !zoomingEnabled && !rotationEnabled)
@@ -313,13 +295,6 @@ package feathers.extensions.maps
 			}
 			Pool.putPoint(previousCoords);
 			saveVelocity();
-		}
-
-		protected function commitNonTouch():void
-		{
-			// Move according to velocity:
-			x += velocity.x;
-			y += velocity.y;
 		}
 
 		protected function startTouch(touchA:Touch, touchB:Touch):void
@@ -577,9 +552,13 @@ package feathers.extensions.maps
 
 		protected function enterFrameHandler():void
 		{
-			// Layout needs to happen on every frame, but preferrably on validation,
-			// so we invalidate on every frame.
-			invalidate(INVALIDATION_FLAG_LAYOUT);
+			if (!_isTouching)
+			{
+				x += velocity.x;
+				y += velocity.y;
+				updateGravity();
+				applyGravity();
+			}
 		}
 
 		protected function touchHandler(event:TouchEvent):void
@@ -658,7 +637,9 @@ package feathers.extensions.maps
 				touchCoords_b.setTo(touchB.globalX, touchB.globalY);
 			}
 
-			invalidate(INVALIDATION_FLAG_LAYOUT);
+			commitTouch();
+			updateGravity();
+			applyGravity();
 		}
 
 		protected function removedFromStageHandler(event:Event):void
