@@ -31,6 +31,11 @@ package feathers.controls
 		private static const HELPER_RECTANGLE:Rectangle = new Rectangle;
 		private static const HELPER_RECTANGLE2:Rectangle = new Rectangle;
 
+		public function get imageInstance():Image
+		{
+			return image;
+		}
+
 		private var _videoSource:Texture;
 		override public function get source():Object
 		{
