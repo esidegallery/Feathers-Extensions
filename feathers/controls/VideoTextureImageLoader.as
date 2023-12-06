@@ -103,25 +103,6 @@ package feathers.controls
 			invalidate(INVALIDATION_FLAG_VIDEO_SOURCE);
 		}
 
-		private var _videoCodedHeight:int;
-		public function get videoCodedHeight():int
-		{
-			return _videoCodedHeight;
-		}
-		public function set videoCodedHeight(value:int):void
-		{
-			if (_videoCodedHeight == value)
-			{
-				return;
-			}
-			_videoCodedHeight = value;
-			if (_videoSource == null)
-			{
-				return;
-			}
-			invalidate(INVALIDATION_FLAG_VIDEO_SOURCE);
-		}
-
 		protected var _renderTexture:RenderTexture;
 		protected var _textureScaleMultiplierX:Number = 1;
 		protected var _textureScaleMultiplierY:Number = 1;
@@ -184,13 +165,6 @@ package feathers.controls
 			if (newSource == null)
 			{
 				return;
-			}
-
-			if (_videoDisplayHeight > 0 && _videoCodedHeight > 0 && _videoDisplayHeight != _videoCodedHeight)
-			{
-				var cropRect:Rectangle = Pool.getRectangle(0, 0, newSource.width, newSource.height - (_videoCodedHeight - _videoDisplayHeight));
-				newSource = Texture.fromTexture(newSource, cropRect);
-				Pool.putRectangle(cropRect);
 			}
 
 			if (_videoDisplayWidth > 0)
