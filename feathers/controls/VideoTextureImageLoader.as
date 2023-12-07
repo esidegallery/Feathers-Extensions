@@ -31,11 +31,6 @@ package feathers.controls
 		private static const HELPER_RECTANGLE:Rectangle = new Rectangle;
 		private static const HELPER_RECTANGLE2:Rectangle = new Rectangle;
 
-		public function get imageInstance():Image
-		{
-			return image;
-		}
-
 		private var _videoSource:Texture;
 		override public function get source():Object
 		{
@@ -108,25 +103,6 @@ package feathers.controls
 			invalidate(INVALIDATION_FLAG_VIDEO_SOURCE);
 		}
 
-		private var _videoCodedHeight:int;
-		public function get videoCodedHeight():int
-		{
-			return _videoCodedHeight;
-		}
-		public function set videoCodedHeight(value:int):void
-		{
-			if (_videoCodedHeight == value)
-			{
-				return;
-			}
-			_videoCodedHeight = value;
-			if (_videoSource == null)
-			{
-				return;
-			}
-			invalidate(INVALIDATION_FLAG_VIDEO_SOURCE);
-		}
-
 		protected var _renderTexture:RenderTexture;
 		protected var _textureScaleMultiplierX:Number = 1;
 		protected var _textureScaleMultiplierY:Number = 1;
@@ -191,13 +167,6 @@ package feathers.controls
 				return;
 			}
 
-			if (_videoDisplayHeight > 0 && _videoCodedHeight > 0 && _videoDisplayHeight != _videoCodedHeight)
-			{
-				var cropRect:Rectangle = Pool.getRectangle(0, 0, newSource.width, newSource.height - (_videoCodedHeight - _videoDisplayHeight));
-				newSource = Texture.fromTexture(newSource, cropRect);
-				Pool.putRectangle(cropRect);
-			}
-
 			if (_videoDisplayWidth > 0)
 			{
 				_textureScaleMultiplierX = _videoDisplayWidth / newSource.width;
@@ -229,8 +198,8 @@ package feathers.controls
 			var textureScaleX:Number = textureScale * _textureScaleMultiplierX;
 			var textureScaleY:Number = textureScale * _textureScaleMultiplierY;
 			if (scaleContent && maintainAspectRatio &&
-					scaleMode !== starling.utils.ScaleMode.NONE &&
-					scale9Grid === null)
+				scaleMode !== starling.utils.ScaleMode.NONE &&
+				scale9Grid === null)
 			{
 				if (!needsHeight)
 				{
@@ -396,7 +365,7 @@ package feathers.controls
 				image.height = imageHeight;
 			}
 			if ((!scaleContent || (maintainAspectRatio && scaleMode !== starling.utils.ScaleMode.SHOW_ALL)) &&
-					(actualWidth != imageWidth || actualHeight != imageHeight))
+				(actualWidth != imageWidth || actualHeight != imageHeight))
 			{
 				var mask:Quad = image.mask as Quad;
 				if (mask !== null)
@@ -449,8 +418,8 @@ package feathers.controls
 				projectionY = viewPort.y < 0 ? -viewPort.y / scaleY : 0.0;
 
 				out ||= new BitmapData(
-						painter.backBufferWidth * backBufferScale,
-						painter.backBufferHeight * backBufferScale);
+					painter.backBufferWidth * backBufferScale,
+					painter.backBufferHeight * backBufferScale);
 			}
 			else
 			{
@@ -459,8 +428,8 @@ package feathers.controls
 				projectionY = bounds.y;
 
 				out ||= new BitmapData(
-						Math.ceil(bounds.width * totalScaleX),
-						Math.ceil(bounds.height * totalScaleY));
+					Math.ceil(bounds.width * totalScaleX),
+					Math.ceil(bounds.height * totalScaleY));
 			}
 
 			color = Color.multiply(color, alpha); // premultiply alpha
@@ -479,9 +448,9 @@ package feathers.controls
 			var stepHeight:int = painter.backBufferHeight / scaleY;
 			var positionInBitmap:Point = Pool.getPoint(0, 0);
 			var boundsInBuffer:Rectangle = Pool.getRectangle(
-					0, 0,
-					Math.floor(painter.backBufferWidth * backBufferScale),
-					Math.floor(painter.backBufferHeight * backBufferScale));
+				0, 0,
+				Math.floor(painter.backBufferWidth * backBufferScale),
+				Math.floor(painter.backBufferHeight * backBufferScale));
 
 			while (positionInBitmap.y < out.height)
 			{
@@ -492,8 +461,8 @@ package feathers.controls
 				{
 					painter.clear(color, alpha);
 					painter.state.setProjectionMatrix(
-							stepX, stepY, stepWidth, stepHeight,
-							stageWidth, stageHeight, stage.cameraPosition);
+						stepX, stepY, stepWidth, stepHeight,
+						stageWidth, stageHeight, stage.cameraPosition);
 
 					if (mask)
 					{

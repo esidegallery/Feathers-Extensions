@@ -117,7 +117,6 @@ package feathers.extensions.maps
 			_videoDisplay.source = _videoPlayer.texture;
 			_videoDisplay.videoDisplayWidth = _options.videoDisplayWidth != -1 ? _options.videoDisplayWidth : NaN;
 			_videoDisplay.videoDisplayHeight = _options.videoDisplayHeight != -1 ? _options.videoDisplayHeight : NaN;
-			_videoDisplay.videoCodedHeight = _options.videoCodedHeight != -1 ? _options.videoCodedHeight : NaN;
 			_videoDisplay.validate();
 			dispatchEventWith(Event.READY);
 		}
