@@ -260,7 +260,6 @@ package feathers.extensions.maps
 
 			// Store the drag movement:
 			_dragMovement.copyFrom(touchMovement);
-			trace("dm", _dragMovement);
 			if (!_wasManipulated)
 			{
 				// Test drag movement passes threshold for manipulation:

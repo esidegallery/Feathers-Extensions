@@ -1,10 +1,12 @@
 package feathers.extensions.maps
 {
+	import feathers.controls.ImageLoader;
 	import feathers.controls.VideoPlayerExtended;
 	import feathers.controls.VideoTextureImageLoader;
 	import feathers.events.FeathersEventType;
 	import feathers.extensions.maps.Map;
 	import feathers.extensions.maps.MapVideoLayerOptions;
+	import feathers.media.VideoPlayer;
 
 	import flash.filesystem.File;
 	import flash.media.SoundTransform;
@@ -26,8 +28,8 @@ package feathers.extensions.maps
 
 		protected var _map:Map;
 		protected var _id:String;
-		protected var _videoPlayer:VideoPlayerExtended;
-		protected var _videoDisplay:VideoTextureImageLoader;
+		protected var _videoPlayer:VideoPlayer;
+		protected var _videoDisplay:ImageLoader;
 
 		protected var _paused:Boolean;
 		public function get paused():Boolean
@@ -77,14 +79,7 @@ package feathers.extensions.maps
 
 		protected function initialize():void
 		{
-			if (options.videoPlayerFactory != null)
-			{
-				_videoPlayer = new options.videoPlayerFactory as VideoPlayerExtended;
-			}
-			else
-			{
-				_videoPlayer = new VideoPlayerExtended;
-			}
+			_videoPlayer = new VideoPlayerExtended;
 			volume = options.volume;
 			if (_options.videoSource is File)
 			{
@@ -115,21 +110,43 @@ package feathers.extensions.maps
 				_videoPlayer.pause();
 			}
 			_videoDisplay.source = _videoPlayer.texture;
-			_videoDisplay.videoDisplayWidth = _options.videoDisplayWidth != -1 ? _options.videoDisplayWidth : NaN;
-			_videoDisplay.videoDisplayHeight = _options.videoDisplayHeight != -1 ? _options.videoDisplayHeight : NaN;
+			if (_videoDisplay is VideoTextureImageLoader)
+			{
+				(_videoDisplay as VideoTextureImageLoader).videoDisplayWidth = _options.videoDisplayWidth != -1 ? _options.videoDisplayWidth : NaN;
+				(_videoDisplay as VideoTextureImageLoader).videoDisplayHeight = _options.videoDisplayHeight != -1 ? _options.videoDisplayHeight : NaN;
+			}
 			_videoDisplay.validate();
 			dispatchEventWith(Event.READY);
 		}
 
 		protected function videoPlayer_completeHandler(event:Event):void
 		{
-			_videoDisplay.freezeFrame();
-			_videoPlayer.replay();
+			if (_videoDisplay is VideoTextureImageLoader)
+			{
+				(_videoDisplay as VideoTextureImageLoader).freezeFrame();
+			}
+			if (_videoPlayer is VideoPlayerExtended)
+			{
+				(_videoPlayer as VideoPlayerExtended).replay();
+			}
+			else
+			{
+				var source:String = _videoPlayer.videoSource;
+				_videoPlayer.videoSource = null;
+				_videoPlayer.videoSource = source;
+			}
 		}
 
 		protected function videoPlayer_clearHandler(event:Event):void
 		{
-			_videoDisplay.clear();
+			if (_videoDisplay is VideoTextureImageLoader)
+			{
+				(_videoDisplay as VideoTextureImageLoader).clear();
+			}
+			else
+			{
+				_videoDisplay.source = null;
+			}
 		}
 	}
 }

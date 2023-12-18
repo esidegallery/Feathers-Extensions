@@ -9,6 +9,7 @@ package feathers.extensions.maps
 	import feathers.utils.touch.TapToEventExtended;
 
 	import flash.events.MouseEvent;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 
@@ -17,6 +18,7 @@ package feathers.extensions.maps
 	import starling.display.Quad;
 	import starling.events.Event;
 	import starling.events.Touch;
+	import starling.utils.MatrixUtil;
 	import starling.utils.Pool;
 	import starling.utils.RectangleUtil;
 	import starling.utils.ScaleMode;
@@ -186,6 +188,12 @@ package feathers.extensions.maps
 		 * If <code>maximumScale</code> is not NaN, the larger of the two will be applied.
 		 */
 		public var maximumScaleMode:String;
+
+		/** Padding to add to the touchsheet's content, at view scale. */
+		public var paddingH:Number;
+
+		/** Padding to add to the touchsheet's content, at view scale. */
+		public var paddingV:Number;
 
 		public function get currentScale():Number
 		{
@@ -411,24 +419,27 @@ package feathers.extensions.maps
 				finalPivot.x *= toScale;
 				finalPivot.y *= toScale;
 
-				if (actualWidth > finalMovementBounds.width) // Zoomed out beyond movement bounds:
+				var paddedWidth:Number = actualWidth - (paddingH || 0) * 2;
+				var paddedHeight:Number = actualHeight - (paddingV || 0) * 2;
+
+				if (paddedWidth > finalMovementBounds.width) // Zoomed out beyond movement bounds:
 				{
-					minX = finalPivot.x + (actualWidth - finalMovementBounds.width) / 2;
+					minX = finalPivot.x + (paddedWidth - finalMovementBounds.width) / 2;
 					maxX = minX;
 				}
 				else // Zoomed within movement bounds:
 				{
-					minX = finalPivot.x - finalMovementBounds.right + actualWidth;
+					minX = finalPivot.x - finalMovementBounds.right + paddedWidth;
 					maxX = finalPivot.x - finalMovementBounds.left;
 				}
-				if (actualHeight > finalMovementBounds.height) // Zoomed out beyond movement bounds:
+				if (paddedHeight > finalMovementBounds.height) // Zoomed out beyond movement bounds:
 				{
-					minY = finalPivot.y + (actualHeight - finalMovementBounds.height) / 2;
+					minY = finalPivot.y + (paddedHeight - finalMovementBounds.height) / 2;
 					maxY = minY;
 				}
 				else // Zoomed within movement bounds:
 				{
-					minY = finalPivot.y - finalMovementBounds.bottom + actualHeight;
+					minY = finalPivot.y - finalMovementBounds.bottom + paddedHeight;
 					maxY = finalPivot.y - finalMovementBounds.top;
 				}
 
@@ -588,24 +599,6 @@ package feathers.extensions.maps
 			return out;
 		}
 
-		public function getScaleForScaleMode(scaleMode:String):Number
-		{
-			if (touchSheet == null || touchSheet.movementBounds == null || (scaleMode != ScaleMode.SHOW_ALL && scaleMode != ScaleMode.NO_BORDER))
-			{
-				return NaN;
-			}
-			var touchSheetAspect:Number = touchSheet.movementBounds.width / touchSheet.movementBounds.height;
-			var containerAspect:Number = actualWidth / actualHeight;
-			if (scaleMode == ScaleMode.SHOW_ALL)
-			{
-				return touchSheetAspect > containerAspect ? actualWidth / touchSheet.movementBounds.width : actualHeight / touchSheet.movementBounds.height;
-			}
-			else
-			{
-				return touchSheetAspect > containerAspect ? actualHeight / touchSheet.movementBounds.height : actualWidth / touchSheet.movementBounds.width;
-			}
-		}
-
 		protected function createTouchSheet(content:DisplayObject):void
 		{
 			touchSheet = new TouchSheetExtended(content);
@@ -692,7 +685,54 @@ package feathers.extensions.maps
 			{
 				return;
 			}
-			getBounds(touchSheet, touchSheet.viewPort);
+
+			touchSheet.viewPort ||= new Rectangle;
+
+			var padH:Number = paddingH || 0;
+			var padV:Number = paddingV || 0;
+			var minX:Number = Number.MAX_VALUE, maxX:Number = -Number.MAX_VALUE;
+			var minY:Number = Number.MAX_VALUE, maxY:Number = -Number.MAX_VALUE;
+			var matrix:Matrix = Pool.getMatrix();
+			var point:Point = Pool.getPoint();
+
+			getTransformationMatrix(touchSheet, matrix);
+
+			MatrixUtil.transformCoords(matrix, padH, padV, point);
+			minX = minX < point.x ? minX : point.x;
+			maxX = maxX > point.x ? maxX : point.x;
+			minY = minY < point.y ? minY : point.y;
+			maxY = maxY > point.y ? maxY : point.y;
+
+			MatrixUtil.transformCoords(matrix, padH, actualHeight - padV, point);
+			minX = minX < point.x ? minX : point.x;
+			maxX = maxX > point.x ? maxX : point.x;
+			minY = minY < point.y ? minY : point.y;
+			maxY = maxY > point.y ? maxY : point.y;
+
+			MatrixUtil.transformCoords(matrix, actualWidth - padH, padV, point);
+			minX = minX < point.x ? minX : point.x;
+			maxX = maxX > point.x ? maxX : point.x;
+			minY = minY < point.y ? minY : point.y;
+			maxY = maxY > point.y ? maxY : point.y;
+
+			MatrixUtil.transformCoords(matrix, actualWidth - padH, actualHeight - padV, point);
+			minX = minX < point.x ? minX : point.x;
+			maxX = maxX > point.x ? maxX : point.x;
+			minY = minY < point.y ? minY : point.y;
+			maxY = maxY > point.y ? maxY : point.y;
+
+			Pool.putMatrix(matrix);
+			Pool.putPoint(point);
+
+			touchSheet.viewPort.x = minX;
+			touchSheet.viewPort.y = minY;
+			touchSheet.viewPort.width = maxX - minX;
+			touchSheet.viewPort.height = maxY - minY;
+
+			// getBounds(touchSheet, touchSheet.viewPort);
+			// var padH:Number = -paddingH / touchSheet.scale || 0;
+			// var padV:Number = -paddingV || 0;
+			// touchSheet.viewPort.inflate(padH, padV);
 		}
 
 		protected function updateTouchSheetLimits():void
@@ -711,7 +751,10 @@ package feathers.extensions.maps
 				touchSheet.movementBounds.setTo(0, 0, touchSheet.content.width, touchSheet.content.height);
 			}
 
-			var scaleModeScale:Number = getScaleForScaleMode(minimumScaleMode);
+			var paddedWidth:Number = actualWidth - (paddingH || 0) * 2;
+			var paddedHeight:Number = actualHeight - (paddingV || 0) * 2;
+
+			var scaleModeScale:Number = MapUtils.getScaleForScaleMode(minimumScaleMode, touchSheet.movementBounds.width, touchSheet.movementBounds.height, paddedWidth, paddedHeight);
 			if (MathUtils.isNotNaNOrInfinity(minimumScale))
 			{
 				touchSheet.minimumScale = MathUtils.isNotNaNOrInfinity(scaleModeScale) ? Math.min(minimumScale, scaleModeScale) : minimumScale;
@@ -721,7 +764,7 @@ package feathers.extensions.maps
 				touchSheet.minimumScale = MathUtils.isNotNaNOrInfinity(scaleModeScale) ? scaleModeScale : 0;
 			}
 
-			scaleModeScale = getScaleForScaleMode(maximumScaleMode);
+			scaleModeScale = MapUtils.getScaleForScaleMode(maximumScaleMode, touchSheet.movementBounds.width, touchSheet.movementBounds.height, paddedWidth, paddedHeight);
 			if (MathUtils.isNotNaNOrInfinity(maximumScale))
 			{
 				touchSheet.maximumScale = MathUtils.isNotNaNOrInfinity(scaleModeScale) ? Math.max(maximumScale, scaleModeScale) : maximumScale;
@@ -899,6 +942,7 @@ class TouchSheetExtended extends TouchSheet
 		{
 			return;
 		}
+
 		if (viewPort.width > movementBounds.width)
 		{
 			movementGravity.x = ((viewPort.left - movementBounds.left) + (viewPort.width - movementBounds.width) / 2) * scale;

@@ -372,8 +372,11 @@ package feathers.extensions.maps
 			// It is either to be set externally, or it will be free of any movement constraints.
 			touchSheet.movementBounds = movementBounds;
 
-			var minScale:Number = !isNaN(minimumScale) ? minimumScale : getScaleForScaleMode(minimumScaleMode);
-			var maxScale:Number = !isNaN(maximumScale) ? maximumScale : getScaleForScaleMode(maximumScaleMode);
+			var paddedWidth:Number = actualWidth - (paddingH || 0) * 2;
+			var paddedHeight:Number = actualHeight - (paddingV || 0) * 2;
+
+			var minScale:Number = !isNaN(minimumScale) ? minimumScale : MapUtils.getScaleForScaleMode(minimumScaleMode, touchSheet.movementBounds.width, touchSheet.movementBounds.height, paddedWidth, paddedHeight);
+			var maxScale:Number = !isNaN(maximumScale) ? maximumScale : MapUtils.getScaleForScaleMode(maximumScaleMode, touchSheet.movementBounds.width, touchSheet.movementBounds.height, paddedWidth, paddedHeight);
 
 			touchSheet.minimumScale = MathUtils.isNotNaNOrInfinity(minScale) ? minScale : 0;
 			touchSheet.maximumScale = MathUtils.isNotNaNOrInfinity(maxScale) ? Math.max(touchSheet.minimumScale, maxScale) : Number.MAX_VALUE;

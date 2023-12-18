@@ -5,9 +5,6 @@ package feathers.controls
 
 	import feathers.media.VideoPlayer;
 
-	import flash.net.NetConnection;
-	import flash.net.NetStream;
-
 	public class VideoPlayerExtended extends VideoPlayer implements IHasUID
 	{
 		private var _uid:String;
@@ -33,20 +30,6 @@ package feathers.controls
 			stop();
 			videoTexture_onRestore();
 			play();
-		}
-
-		public function VideoPlayerExtended()
-		{
-			_netConnectionFactory = function():NetConnection
-			{
-				var connection:NetConnection = new NetConnection();
-				connection.connect(null);
-				return connection;
-			};
-			_netStreamFactory = function(netConnection:NetConnection):NetStream
-			{
-				return new NetStream(netConnection);
-			}
 		}
 	}
 }

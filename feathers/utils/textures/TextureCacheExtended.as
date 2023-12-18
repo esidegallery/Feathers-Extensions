@@ -29,6 +29,7 @@ package feathers.utils.textures
 		{
 			this.preventDispose = preventDispose;
 			this._uid = uid;
+
 			super(maxUnretainedTextures);
 		}
 		
@@ -84,6 +85,7 @@ package feathers.utils.textures
 			{
 				return;
 			}
+			
 			super.dispose();
 			_isDisposed = true;
 		}
