@@ -4,7 +4,6 @@ package feathers.skins
 	import feathers.core.IStateContext;
 	import feathers.core.IStateObserver;
 	import feathers.motion.StateTweener;
-	import feathers.utils.drawToBitmapData;
 
 	import flash.display.BitmapData;
 	import flash.errors.IllegalOperationError;
@@ -611,7 +610,7 @@ package feathers.skins
 
 		override public function drawToBitmapData(out:BitmapData = null, color:uint = 0, alpha:Number = 0.0):BitmapData
 		{
-			return feathers.utils.drawToBitmapData(this, out, color, alpha);
+			return starling.utils.drawToBitmapData(this, out, color, alpha);
 		}
 
 		override public function dispose():void

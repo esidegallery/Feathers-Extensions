@@ -2,7 +2,6 @@ package feathers.controls
 {
 	import feathers.layout.HorizontalAlign;
 	import feathers.layout.VerticalAlign;
-	import feathers.utils.drawToBitmapData;
 
 	import flash.display.BitmapData;
 	import flash.display3D.textures.VideoTexture;
@@ -349,7 +348,7 @@ package feathers.controls
 
 		override public function drawToBitmapData(out:BitmapData = null, color:uint = 0, alpha:Number = 0.0):BitmapData
 		{
-			return feathers.utils.drawToBitmapData(this, out, color, alpha);
+			return starling.utils.drawToBitmapData(this, out, color, alpha);
 		}
 
 		protected function disposeRenderTexture():void
