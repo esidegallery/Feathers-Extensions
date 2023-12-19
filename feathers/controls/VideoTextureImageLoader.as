@@ -12,6 +12,7 @@ package feathers.controls
 	import starling.textures.RenderTexture;
 	import starling.textures.Texture;
 	import starling.utils.RectangleUtil;
+	import starling.utils.Color;
 
 	/**
 	 * ImageLoader designed for displaying VideoPlayer textures.
@@ -50,7 +51,7 @@ package feathers.controls
 			}
 
 			_videoSource = value as Texture;
-			refreshCurrentTexture();
+			refreshImageSource();
 		}
 
 		private var _videoDisplayWidth:int;
@@ -119,6 +120,16 @@ package feathers.controls
 			_renderTexture = new RenderTexture(image.width, image.height);
 			_renderTexture.draw(image);
 			image.dispose();
+
+			refreshImageSource();
+		}
+
+		public function blank(color:uint = Color.BLACK):void
+		{
+			disposeRenderTexture();
+			
+			_renderTexture = new RenderTexture(32, 32);
+			_renderTexture.clear(color, 1);
 
 			refreshImageSource();
 		}
@@ -364,6 +375,7 @@ package feathers.controls
 		override public function dispose():void
 		{
 			disposeRenderTexture();
+			
 			super.dispose();
 		}
 	}
