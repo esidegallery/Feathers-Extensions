@@ -7,7 +7,6 @@ package feathers.controls
 
 	import feathers.layout.HorizontalAlign;
 	import feathers.layout.VerticalAlign;
-	import feathers.utils.drawToBitmapData;
 	import feathers.utils.textures.TextureCache;
 	import feathers.utils.textures.TextureCacheExtended;
 
@@ -419,7 +418,7 @@ package feathers.controls
 
 		override public function drawToBitmapData(out:BitmapData = null, color:uint = 0, alpha:Number = 0.0):BitmapData
 		{
-			return feathers.utils.drawToBitmapData(this, out, color, alpha);
+			return starling.utils.drawToBitmapData(this, out, color, alpha);
 		}
 
 		override protected function loader_completeHandler(event:flash.events.Event):void
