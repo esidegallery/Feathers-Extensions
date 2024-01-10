@@ -108,7 +108,7 @@ package feathers.extensions.maps
 
 				layers[id] = layer;
 			}
-
+			update();
 			return layer;
 		}
 
@@ -166,6 +166,7 @@ package feathers.extensions.maps
 				layer.removeFromParent(true);
 				delete layers[id];
 			}
+			update();
 			return layer;
 		}
 
@@ -410,6 +411,7 @@ package feathers.extensions.maps
 		override protected function touchSheet_tweenUpdateHandler():void
 		{
 			// Update instantly to avoid a lag on statically sized markers:
+			// Note: See TouchSheetExtended.draw() in TouchSheetContainer for why this is and perhaps a better way of managing.
 			update();
 
 			super.touchSheet_tweenUpdateHandler();

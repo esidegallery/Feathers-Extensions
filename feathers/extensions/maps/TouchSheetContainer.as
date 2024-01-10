@@ -728,11 +728,6 @@ package feathers.extensions.maps
 			touchSheet.viewPort.y = minY;
 			touchSheet.viewPort.width = maxX - minX;
 			touchSheet.viewPort.height = maxY - minY;
-
-			// getBounds(touchSheet, touchSheet.viewPort);
-			// var padH:Number = -paddingH / touchSheet.scale || 0;
-			// var padV:Number = -paddingV || 0;
-			// touchSheet.viewPort.inflate(padH, padV);
 		}
 
 		protected function updateTouchSheetLimits():void
@@ -1017,11 +1012,19 @@ class TouchSheetExtended extends TouchSheet
 	{
 		super.draw();
 
+		// Note: tween updates happen after draw(), so perhaps a smarter way of detecting & dispatching viewport changes is necessary.
 		var changed:Boolean = !RectangleUtil.compare(previousViewPort, viewPort);
 		previousViewPort.copyFrom(viewPort);
 		if (changed)
 		{
 			viewPortChanged.dispatch();
 		}
+	}
+
+	override protected function enterFrameHandler():void
+	{
+		invalidate(INVALIDATION_FLAG_DATA);
+
+		super.enterFrameHandler();
 	}
 }
