@@ -621,9 +621,6 @@ package feathers.extensions.maps
 				initDoubleTap();
 			}
 			super.addChildAt(touchSheet, 0);
-			updateTouchSheetViewport();
-			showInitialView();
-			snapToBounds();
 		}
 
 		protected function disposeTouchSheet():void
@@ -671,6 +668,12 @@ package feathers.extensions.maps
 			}
 
 			super.draw();
+
+			if (contentInvalid)
+			{
+				showInitialView();
+				snapToBounds();
+			}
 
 			if (mask != null)
 			{

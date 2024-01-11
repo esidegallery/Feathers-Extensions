@@ -305,6 +305,7 @@ package feathers.controls
 		override public function dispose():void
 		{
 			disposeTextures();
+
 			super.dispose();
 		}
 	}

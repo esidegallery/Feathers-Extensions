@@ -145,6 +145,12 @@ package feathers.extensions.maps
 		protected var touchID_b:int = -1;
 		protected var touchCoords_a:Point = new Point;
 		protected var touchCoords_b:Point = new Point;
+
+		/**
+		 * If <code>isTouching = true</code>, and this flag isn't set by the time
+		 * <code>enterFrameHandler</code> is triggered, then a stationary touch needs to be committed.
+		 */
+		protected var touchHandled:Boolean;
 		protected var tweenID:int = -1;
 
 		/** Scale of TouchSheet at start of touch interaction. */
@@ -558,6 +564,11 @@ package feathers.extensions.maps
 				updateGravity();
 				applyGravity();
 			}
+			else if (!touchHandled)
+			{
+				commitTouch();
+			}
+			touchHandled = false; // Ready for next frame.
 		}
 
 		protected function touchHandler(event:TouchEvent):void
@@ -567,6 +578,7 @@ package feathers.extensions.maps
 				return;
 			}
 
+			touchHandled = true;
 			var prevAID:int = touchID_a;
 			var prevBID:int = touchID_b;
 
