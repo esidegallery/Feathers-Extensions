@@ -6,7 +6,7 @@ package feathers.extensions.maps
 	{
 		public static function getMaxZoom(mapWidth:Number, mapHeight:Number, tileSize:int):int
 		{
-			var zoom:int = 1;
+			var zoom:int = 0;
 			var currentSize:int = Math.max(mapWidth, mapHeight);
 			while (currentSize > tileSize)
 			{
@@ -19,7 +19,7 @@ package feathers.extensions.maps
 		public static function getMinZoom(mapWidth:Number, mapHeight:Number, tileSize:int, minimumViewSize:Number):int
 		{
 			var zoom:int = getMaxZoom(mapWidth, mapHeight, tileSize);
-			var currentSize:int = Math.max(mapWidth, mapHeight);
+			var currentSize:int = Math.max(mapWidth, mapHeight) * 0.5; // Start with half size as we already have the starting value.
 			while (currentSize > minimumViewSize)
 			{
 				currentSize *= 0.5;

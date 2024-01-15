@@ -49,6 +49,11 @@ package feathers.extensions.maps
 			_suspendUpdates = value;
 		}
 
+		public static function getRelativeZoom(zoom:int, maximumZoom:int):int
+		{
+			return maximumZoom - zoom + 1;
+		}
+
 		public function MapLayer(id:String, options:MapLayerOptions, buffer:MapTilesBuffer)
 		{
 			super();
@@ -82,7 +87,7 @@ package feathers.extensions.maps
 		 */
 		protected function checkTiles(area:Rectangle, zoom:int, scale:int):void
 		{
-			var relativeZoom:int = maximumZoom - zoom;
+			var relativeZoom:int = getRelativeZoom(zoom, maximumZoom);
 			if (relativeZoom < minZoomVisibility || relativeZoom > maxZoomVisibility)
 			{
 				return;
@@ -149,12 +154,10 @@ package feathers.extensions.maps
 			}
 		}
 
-		/**
-		 * Removes tiles no-longer required.
-		 */
+		/** Removes tiles no-longer required. */
 		protected function checkNotUsedTiles(area:Rectangle, zoom:int):void
 		{
-			var relativeZoom:int = maximumZoom - zoom;
+			var relativeZoom:int = getRelativeZoom(zoom, maximumZoom);
 			for each (var tile:MapTile in tilesDictionary)
 			{
 				var tileBounds:Rectangle = tile.getBounds(tile.parent, Pool.getRectangle());
@@ -176,7 +179,7 @@ package feathers.extensions.maps
 			}
 			else
 			{
-				var url:String = urlTemplate.replace("{z}", maximumZoom - zoom).replace("{x}", x).replace("{y}", y);
+				var url:String = urlTemplate.replace("{z}", getRelativeZoom(zoom, maximumZoom)).replace("{x}", x).replace("{y}", y);
 				tile = mapTilesBuffer.getTile(x, y, zoom);
 				addChild(tile);
 

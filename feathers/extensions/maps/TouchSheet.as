@@ -567,6 +567,8 @@ package feathers.extensions.maps
 			else if (!touchHandled)
 			{
 				commitTouch();
+				updateGravity();
+				applyGravity();
 			}
 			touchHandled = false; // Ready for next frame.
 		}
