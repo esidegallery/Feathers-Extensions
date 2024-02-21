@@ -14,20 +14,20 @@ package feathers.controls
 
 		public static const DEFAULT_CHILD_STYLE_NAME_COUNTDOWN_LABEL:String = "autotriggerbutton-countdown-label";
 
-		private var _autoCloseDelay:int = 10;
+		private var _autoTrigerDelay:int = 10;
 
 		/** In whole seconds. */
-		public function get autoCloseDelay():int
+		public function get autoTriggerDelay():int
 		{
-			return _autoCloseDelay;
+			return _autoTrigerDelay;
 		}
-		public function set autoCloseDelay(value:int):void
+		public function set autoTriggerDelay(value:int):void
 		{
-			if (_autoCloseDelay == value)
+			if (_autoTrigerDelay == value)
 			{
 				return;
 			}
-			_autoCloseDelay = value;
+			_autoTrigerDelay = value;
 			invalidate(INVALIDATION_FLAG_TIMER);
 		}
 
@@ -90,14 +90,14 @@ package feathers.controls
 		{
 			if (countdownTimer == null)
 			{
-				countdownTimer = new Timer(1000, _autoCloseDelay);
+				countdownTimer = new Timer(1000, _autoTrigerDelay);
 				countdownTimer.addEventListener(Timer.EVENT_TIMER, refreshCountdownDisplay);
 				countdownTimer.addEventListener(Timer.EVENT_TIMER_COMPLETE, timer_timerCompleteHandler);
 			}
 			else
 			{
 				countdownTimer.reset();
-				countdownTimer.repeatCount = _autoCloseDelay;
+				countdownTimer.repeatCount = _autoTrigerDelay;
 			}
 			refreshCountdownDisplay();
 			countdownTimer.start();
