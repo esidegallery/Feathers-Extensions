@@ -182,7 +182,7 @@ package feathers.controls
 			sliderCallout.addEventListener(Event.REMOVED_FROM_STAGE, sliderCallout_removedFromStageHandler);
 		}
 
-		private function commitSliderValue():void
+		protected function commitSliderValue():void
 		{
 			text = String(value); // We need to do this to avoid a weird rounding error.
 		}
