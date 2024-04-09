@@ -29,9 +29,6 @@ package feathers.controls
 
 		private static const INVALIDATION_FLAG_PARAMETERS:String = "parameters";
 
-		private var sliderCallout:Callout;
-		private var slider:Slider;
-
 		public static var globalStyleProvider:IStyleProvider;
 		override protected function get defaultStyleProvider():IStyleProvider
 		{
@@ -137,6 +134,35 @@ package feathers.controls
 			invalidate(INVALIDATION_FLAG_DATA);
 		}
 
+		private var _liveDragging:Boolean = true;
+		public function get liveDragging():Boolean
+		{
+			return _liveDragging;
+		}
+		public function set liveDragging(value:Boolean):void
+		{
+			if (_liveDragging == value)
+			{
+				return;
+			}
+			_liveDragging = value;
+			if (!_liveDragging && pendingDispatchChangeOnEndInteraction)
+			{
+				dispatchChange();
+			}
+		}
+
+		private var _isDragging:Boolean;
+		/** Whether the slider is being dragged. */
+		public function get isDragging():Boolean
+		{
+			return _isDragging;
+		}
+
+		private var sliderCallout:Callout;
+		private var slider:Slider;
+		private var pendingDispatchChangeOnEndInteraction:Boolean;
+
 		public function NumericalTextInputWithSlider()
 		{
 			super();
@@ -149,6 +175,7 @@ package feathers.controls
 			slider.styleNameList.add(DEFAULT_CHILD_STYLE_NAME_SLIDER);
 			slider.isFocusEnabled = false;
 			slider.addEventListener(Event.CHANGE, slider_changeHandler);
+			slider.addEventListener(FeathersEventType.BEGIN_INTERACTION, slider_beginInteractionHandler);
 			slider.addEventListener(FeathersEventType.END_INTERACTION, slider_endInteractionHandler);
 		}
 
@@ -200,7 +227,7 @@ package feathers.controls
 				slider.removeEventListener(Event.CHANGE, slider_changeHandler);
 				setSliderValue(newValue);
 				slider.addEventListener(Event.CHANGE, slider_changeHandler);
-				dispatchEventWith(Event.CHANGE, false, value);
+				dispatchChange();
 			}
 		}
 
@@ -224,6 +251,12 @@ package feathers.controls
 			{
 				selectRange(0, _text.length);
 			}
+		}
+
+		protected function dispatchChange():void
+		{
+			dispatchEventWith(Event.CHANGE, false, value);
+			pendingDispatchChangeOnEndInteraction = false;
 		}
 
 		protected function enterHandler():void
@@ -269,12 +302,29 @@ package feathers.controls
 		private function slider_changeHandler():void
 		{
 			commitSliderValue();
-			dispatchEventWith(Event.CHANGE, false, value);
+			if (!_liveDragging && _isDragging)
+			{
+				pendingDispatchChangeOnEndInteraction = true;
+			}
+			else
+			{
+				dispatchChange();
+			}
+		}
+
+		private function slider_beginInteractionHandler():void
+		{
+			_isDragging = true;
 		}
 
 		private function slider_endInteractionHandler():void
 		{
+			_isDragging = false;
 			focusManager.focus = this;
+			if (pendingDispatchChangeOnEndInteraction)
+			{
+				dispatchChange();
+			}
 		}
 
 		protected function stage_keyDownHandler(event:starling.events.KeyboardEvent):void
