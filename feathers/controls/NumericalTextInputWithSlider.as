@@ -171,7 +171,12 @@ package feathers.controls
 			addEventListener(FeathersEventType.ENTER, enterHandler);
 
 			slider = new Slider; // Instantiating slider now, so it can be used immediately.
-			slider.isFocusEnabled = false;
+			slider.thumbFactory = function():BasicButton
+			{
+				var thumb:Button = new Button;
+				thumb.isFocusEnabled = false;
+				return thumb;
+			};
 			slider.styleNameList.add(DEFAULT_CHILD_STYLE_NAME_SLIDER);
 			slider.isFocusEnabled = false;
 			slider.addEventListener(Event.CHANGE, slider_changeHandler);
