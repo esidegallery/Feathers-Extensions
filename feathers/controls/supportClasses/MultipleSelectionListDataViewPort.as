@@ -129,7 +129,11 @@ package feathers.controls.supportClasses
 					return;
 				}
 				touch = event.getTouch(DisplayObject(itemRenderer), null, _dragTouchPointID);
-				if (touch.phase == TouchPhase.MOVED)
+				if (touch == null || touch.phase == TouchPhase.ENDED)
+				{
+					_dragTouchPointID = -1;
+				}
+				else if (touch.phase == TouchPhase.MOVED)
 				{
 					var point:Point = touch.getLocation(this, Pool.getPoint());
 					var currentDragX:Number = point.x;
@@ -172,10 +176,6 @@ package feathers.controls.supportClasses
 						exclusiveTouch.claimTouch(_dragTouchPointID, DisplayObject(itemRenderer));
 						_dragTouchPointID = -1;
 					}
-				}
-				else if (touch.phase == TouchPhase.ENDED)
-				{
-					_dragTouchPointID = -1;
 				}
 			}
 			else
