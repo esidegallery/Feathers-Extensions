@@ -6,7 +6,7 @@ package feathers.utils
 	 * Iterates through the <code>dataSource</code> comparing the lengths of each item, returning the longest based on its <code>labelField</code>.<br/>
 	 * Probably not recommended for very long data sources.
 	 */
-	public function getTypicalItem(dataSource:Object, labelField:String = null, prompt:String = null):*
+	public function getTypicalItem(dataSource:Object, labelField:String = "label", prompt:String = null):*
 	{
 		if (dataSource == null || !dataSource.hasOwnProperty("length") || dataSource["length"] < 1)
 		{
