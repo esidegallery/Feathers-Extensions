@@ -14,18 +14,18 @@ package feathers.controls
 		 * If true, the list's item renderer label field property will be set
 		 * to the PickerList's labelField property.
 		 */
-		private var _autoSetListRendererLabelField:Boolean = true;
-		public function get autoSetListRendererLabelField():Boolean
+		private var _autoSetListRendererLabelProperties:Boolean = true;
+		public function get autoSetListRendererLabelProperties():Boolean
 		{
-			return _autoSetListRendererLabelField;
+			return _autoSetListRendererLabelProperties;
 		}
-		public function set autoSetListRendererLabelField(value:Boolean):void
+		public function set autoSetListRendererLabelProperties(value:Boolean):void
 		{
-			if (_autoSetListRendererLabelField == value)
+			if (_autoSetListRendererLabelProperties == value)
 			{
 				return;
 			}
-			_autoSetListRendererLabelField = value;
+			_autoSetListRendererLabelProperties = value;
 			invalidate(INVALIDATION_FLAG_DATA);
 		}
 
@@ -35,9 +35,10 @@ package feathers.controls
 
 			if (dataInvalid)
 			{
-				if (_autoSetListRendererLabelField)
+				if (_autoSetListRendererLabelProperties)
 				{
 					listProperties.@itemRendererProperties.labelField = _labelField;
+					listProperties.@itemRendererProperties.labelFunction = _labelFunction;
 				}
 			}
 
