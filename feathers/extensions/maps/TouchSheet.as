@@ -36,6 +36,10 @@ package feathers.extensions.maps
 		/** Slowest velocity before auto-movement is stopped. */
 		public static const MINIMUM_VELOCITY:Number = 0.1;
 
+		public static const DEFAULT_ELASTICITY:Number = 0.85;
+		public static const DEFAULT_INERTIA:Number = 0.88;
+		public static const DEFAULT_MINIMUM_DRAG_DISTANCE:Number = 0.2;
+
 		protected static const MINIMUM_SCALE_GRAVITY:Number = 0.001;
 
 		/** Previous velocities are saved for an accurate measurement at the end of a touch. */
@@ -92,7 +96,7 @@ package feathers.extensions.maps
 
 		public var rotationEnabled:Boolean = true;
 
-		protected var _inertia:Number = 0.88;
+		protected var _inertia:Number = DEFAULT_INERTIA;
 
 		/** A number between 0 and 1, where 0 stops dead and 1 keeps moving forever. */
 		public function get inertia():Number
@@ -104,7 +108,7 @@ package feathers.extensions.maps
 			_inertia = clamp(value, 0, 1) || 0;
 		}
 
-		protected var _elasticity:Number = 0.85;
+		protected var _elasticity:Number = DEFAULT_ELASTICITY;
 		public function get elasticity():Number
 		{
 			return _elasticity;
@@ -115,7 +119,7 @@ package feathers.extensions.maps
 		}
 
 		/** Distance dragged (in inches) in an interaction before counted as a manipulation. */
-		public var minimumDragDistance:Number = 0.2;
+		public var minimumDragDistance:Number = DEFAULT_MINIMUM_DRAG_DISTANCE;
 
 		protected var _isTouching:Boolean;
 		public function get isTouching():Boolean

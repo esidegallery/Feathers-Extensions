@@ -202,7 +202,7 @@ package feathers.extensions.maps
 
 		public var movementBounds:Rectangle;
 
-		private var _inertia:Number = 0.88;
+		private var _inertia:Number = TouchSheet.DEFAULT_INERTIA;
 		public function get inertia():Number
 		{
 			return _inertia;
@@ -216,7 +216,7 @@ package feathers.extensions.maps
 			}
 		}
 
-		private var _elasticity:Number = 0.85;
+		private var _elasticity:Number = TouchSheet.DEFAULT_ELASTICITY;
 		public function get elasticity():Number
 		{
 			return _elasticity;
@@ -230,7 +230,7 @@ package feathers.extensions.maps
 			}
 		}
 
-		private var _minimumDragDistance:Number = 0.2;
+		private var _minimumDragDistance:Number = TouchSheet.DEFAULT_MINIMUM_DRAG_DISTANCE;
 
 		/** Distance dragged (in inches) in an interaction before counted as a manipulation. */
 		public function get minimumDragDistance():Number
