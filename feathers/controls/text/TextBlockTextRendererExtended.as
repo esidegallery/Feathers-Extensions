@@ -340,11 +340,11 @@ package feathers.controls.text
 			return result;
 		}
 
-		override protected function measureNativeFilters(bitmapData:BitmapData, result:Rectangle = null):Rectangle
-		{
-			var out:Rectangle = super.measureNativeFilters(bitmapData, result);
-			trace("measureNativeFilters", out);
-			return out;
-		}
+		// override protected function measureNativeFilters(bitmapData:BitmapData, result:Rectangle = null):Rectangle
+		// {
+		// 	var out:Rectangle = super.measureNativeFilters(bitmapData, result);
+		// 	trace("measureNativeFilters", out);
+		// 	return out;
+		// }
 	}
 }
