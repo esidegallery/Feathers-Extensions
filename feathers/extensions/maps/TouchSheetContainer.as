@@ -193,17 +193,7 @@ package feathers.extensions.maps
 		public var minimumScaleMode:String = ScaleMode.SHOW_ALL;
 
 		/** If not NaN, the larger of this and <code>maximumScaleMode</code> will be applied. */
-		private var _maximumScale:Number = NaN;
-
-		public function get maximumScale():Number
-		{
-			return _maximumScale;
-		}
-
-		public function set maximumScale(value:Number):void
-		{
-			_maximumScale = value;
-		}
+		public var maximumScale:Number = NaN;
 
 		/**
 		 * If set, the content can be zoomed in to the equivalent of this <code>ScaleMode</code>.<br/>
