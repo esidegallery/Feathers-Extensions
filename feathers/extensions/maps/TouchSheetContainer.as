@@ -1,7 +1,9 @@
 package feathers.extensions.maps
 {
 	import com.esidegallery.events.EventType;
+	import com.esidegallery.utils.IHasUID;
 	import com.esidegallery.utils.MathUtils;
+	import com.esidegallery.utils.UIDUtils;
 
 	import feathers.core.FeathersControl;
 	import feathers.events.FeathersEventType;
@@ -23,9 +25,19 @@ package feathers.extensions.maps
 	import starling.utils.RectangleUtil;
 	import starling.utils.ScaleMode;
 
-	public class TouchSheetContainer extends FeathersControl
+	public class TouchSheetContainer extends FeathersControl implements IHasUID
 	{
 		protected static const INVALIDATION_FLAG_CONTENT:String = "content";
+
+		private var _uid:String;
+		public function get uid():String
+		{
+			return _uid ||= UIDUtils.generateUID(this);
+		}
+		public function set uid(value:String):void
+		{
+			_uid = value;
+		}
 
 		private var _movementEnabled:Boolean = true;
 		public function get movementEnabled():Boolean
@@ -181,7 +193,17 @@ package feathers.extensions.maps
 		public var minimumScaleMode:String = ScaleMode.SHOW_ALL;
 
 		/** If not NaN, the larger of this and <code>maximumScaleMode</code> will be applied. */
-		public var maximumScale:Number = NaN;
+		private var _maximumScale:Number = NaN;
+
+		public function get maximumScale():Number
+		{
+			return _maximumScale;
+		}
+
+		public function set maximumScale(value:Number):void
+		{
+			_maximumScale = value;
+		}
 
 		/**
 		 * If set, the content can be zoomed in to the equivalent of this <code>ScaleMode</code>.<br/>
