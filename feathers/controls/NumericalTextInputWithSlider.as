@@ -311,7 +311,7 @@ package feathers.controls
 			{
 				pendingDispatchChangeOnEndInteraction = true;
 			}
-			else
+			else if (isCreated)
 			{
 				dispatchChange();
 			}
