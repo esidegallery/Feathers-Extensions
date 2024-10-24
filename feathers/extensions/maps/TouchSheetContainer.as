@@ -538,7 +538,7 @@ package feathers.extensions.maps
 			out ||= new Rectangle;
 			if (touchSheet == null)
 			{
-				out.setTo(0, 0, 0, 0);
+				out.setEmpty();
 			}
 			else
 			{
@@ -601,7 +601,7 @@ package feathers.extensions.maps
 
 			if (touchSheet == null)
 			{
-				out.setTo(0, 0, 0, 0);
+				out.setEmpty();
 			}
 			else
 			{
