@@ -436,23 +436,24 @@ package feathers.extensions.maps
 
 				if (paddedWidth > finalMovementBounds.width) // Zoomed out beyond movement bounds:
 				{
-					minX = finalPivot.x + (paddedWidth - finalMovementBounds.width) / 2;
+					minX = (finalMovementBounds.left + finalPivot.x) + (actualWidth - finalMovementBounds.width) / 2;
 					maxX = minX;
 				}
 				else // Zoomed within movement bounds:
 				{
-					minX = finalPivot.x - finalMovementBounds.right + paddedWidth;
-					maxX = finalPivot.x - finalMovementBounds.left;
+					minX = actualWidth - paddingH - (finalMovementBounds.right - finalPivot.x);
+					maxX = finalPivot.x - finalMovementBounds.left + paddingH;
 				}
+
 				if (paddedHeight > finalMovementBounds.height) // Zoomed out beyond movement bounds:
 				{
-					minY = finalPivot.y + (paddedHeight - finalMovementBounds.height) / 2;
+					minY = (finalMovementBounds.top + finalPivot.y) + (actualHeight - finalMovementBounds.height) / 2;
 					maxY = minY;
 				}
 				else // Zoomed within movement bounds:
 				{
-					minY = finalPivot.y - finalMovementBounds.bottom + paddedHeight;
-					maxY = finalPivot.y - finalMovementBounds.top;
+					minY = actualHeight - paddingV - (finalMovementBounds.bottom - finalPivot.y);
+					maxY = finalPivot.y - finalMovementBounds.top + paddingV;
 				}
 
 				// Convert view center from touchsheet coords to local coords:
