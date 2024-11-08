@@ -431,8 +431,11 @@ package feathers.extensions.maps
 				finalPivot.x *= toScale;
 				finalPivot.y *= toScale;
 
-				var paddedWidth:Number = actualWidth - (paddingH || 0) * 2;
-				var paddedHeight:Number = actualHeight - (paddingV || 0) * 2;
+				var padH:Number = paddingH || 0;
+				var padV:Number = paddingV || 0;
+
+				var paddedWidth:Number = actualWidth - padH * 2;
+				var paddedHeight:Number = actualHeight - padV * 2;
 
 				if (paddedWidth > finalMovementBounds.width) // Zoomed out beyond movement bounds:
 				{
@@ -441,8 +444,8 @@ package feathers.extensions.maps
 				}
 				else // Zoomed within movement bounds:
 				{
-					minX = actualWidth - paddingH - (finalMovementBounds.right - finalPivot.x);
-					maxX = finalPivot.x - finalMovementBounds.left + paddingH;
+					minX = actualWidth - padH - (finalMovementBounds.right - finalPivot.x);
+					maxX = finalPivot.x - finalMovementBounds.left + padH;
 				}
 
 				if (paddedHeight > finalMovementBounds.height) // Zoomed out beyond movement bounds:
@@ -452,8 +455,8 @@ package feathers.extensions.maps
 				}
 				else // Zoomed within movement bounds:
 				{
-					minY = actualHeight - paddingV - (finalMovementBounds.bottom - finalPivot.y);
-					maxY = finalPivot.y - finalMovementBounds.top + paddingV;
+					minY = actualHeight - padV - (finalMovementBounds.bottom - finalPivot.y);
+					maxY = finalPivot.y - finalMovementBounds.top + padV;
 				}
 
 				// Convert view center from touchsheet coords to local coords:
