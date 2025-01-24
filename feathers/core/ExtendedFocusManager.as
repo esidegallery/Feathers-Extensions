@@ -2,7 +2,7 @@ package feathers.core
 {
 	import starling.display.DisplayObjectContainer;
 
-	/** Adds functionality so that invisible IFocusDisplayObjects are not counted as valid focus objects. */
+	/** Modifies functionality so that invisible IFocusDisplayObjects are not counted as valid focus objects. */
 	public class ExtendedFocusManager extends DefaultFocusManager
 	{
 		public function ExtendedFocusManager(root:DisplayObjectContainer)
