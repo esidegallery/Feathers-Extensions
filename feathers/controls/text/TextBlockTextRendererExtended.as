@@ -9,8 +9,8 @@ package feathers.controls.text
 	import starling.core.Starling;
 	import starling.utils.Align;
 	import starling.utils.Pool;
-	
-	/** 
+
+	/**
 	 * <p>Adds the following functionality:</p>
 	 * <li><code>maxLines</code></li>
 	 * <li><code>isTruncated</code></li>
@@ -20,13 +20,14 @@ package feathers.controls.text
 	{
 		private static const HELPER_TEXT_LINES:Vector.<TextLine> = new <TextLine>[];
 		private static const HELPER_MATRIX:Matrix = new Matrix;
-		
+
 		public function get isTruncated():Boolean
 		{
 			return _lastMeasurementWasTruncated;
 		}
 
 		protected var _customToolTip:String;
+
 		/**
 		 * Will be overridden when <code>autoToolTipWhenTruncated = true</code>
 		 * and text is truncated.
@@ -42,6 +43,7 @@ package feathers.controls.text
 		}
 
 		private var _autoToolTipWhenTruncated:Boolean;
+
 		/**
 		 * Automatically sets the tooltip to the full text when it it truncated, overriding any
 		 * value set externally via <code>toolTip</code>.
@@ -75,74 +77,19 @@ package feathers.controls.text
 			invalidate(INVALIDATION_FLAG_DATA);
 		}
 
-		private var _minSnapshotPaddingTop:Number;
-		public function get minSnapshotPaddingTop():Number
-		{
-			return _minSnapshotPaddingTop;
-		}
-		public function set minSnapshotPaddingTop(value:Number):void
-		{
-			if (_minSnapshotPaddingTop == value)
-			{
-				return;
-			}
-			_minSnapshotPaddingTop = value;
-		}
-
-		private var _minSnapshotPaddingRight:Number;
-		public function get minSnapshotPaddingRight():Number
-		{
-			return _minSnapshotPaddingRight;
-		}
-		public function set minSnapshotPaddingRight(value:Number):void
-		{
-			if (_minSnapshotPaddingRight == value)
-			{
-				return;
-			}
-			_minSnapshotPaddingRight = value;
-		}
-
-		private var _minSnapshotPaddingBottom:Number;
-		public function get minSnapshotPaddingBottom():Number
-		{
-			return _minSnapshotPaddingBottom;
-		}
-		public function set minSnapshotPaddingBottom(value:Number):void
-		{
-			if (_minSnapshotPaddingBottom == value)
-			{
-				return;
-			}
-			_minSnapshotPaddingBottom = value;
-		}
-
-		private var _minSnapshotPaddingLeft:Number;
-		public function get minSnapshotPaddingLeft():Number
-		{
-			return _minSnapshotPaddingLeft;
-		}
-		public function set minSnapshotPaddingLeft(value:Number):void
-		{
-			if (_minSnapshotPaddingLeft == value)
-			{
-				return;
-			}
-			_minSnapshotPaddingLeft = value;
-		}
-
 		public function TextBlockTextRendererExtended()
 		{
 			super();
+
 			_truncationText = "…";
 		}
 
 		override protected function refreshTextLines(textLines:Vector.<TextLine>,
-			textLineParent:DisplayObjectContainer, width:Number, height:Number,
-			result:MeasureTextResult = null):MeasureTextResult
+				textLineParent:DisplayObjectContainer, width:Number, height:Number,
+				result:MeasureTextResult = null):MeasureTextResult
 		{
-			//clamp the width and height values to a valid range so that it
-			//doesn't break the measurement
+			// clamp the width and height values to a valid range so that it
+			// doesn't break the measurement
 			if (width < 0)
 			{
 				width = 0;
@@ -157,8 +104,8 @@ package feathers.controls.text
 			}
 
 			var lineCount:int = textLines.length;
-			//copy the invalid text lines over to the helper vector so that we
-			//can reuse them
+			// copy the invalid text lines over to the helper vector so that we
+			// can reuse them
 			HELPER_TEXT_LINES.length = 0;
 			for (var i:int = 0; i < lineCount; i++)
 			{
@@ -208,7 +155,7 @@ package feathers.controls.text
 					}
 					if (!line)
 					{
-						//end of text
+						// end of text
 						break;
 					}
 					var lineLength:int = line.rawTextLength;
@@ -219,20 +166,20 @@ package feathers.controls.text
 						isTruncated = true;
 						if (this._truncationOffset == 0)
 						{
-							//this will quickly skip all of the characters after
-							//the maximum width of the line, instead of going
-							//one by one.
+							// this will quickly skip all of the characters after
+							// the maximum width of the line, instead of going
+							// one by one.
 							var endIndex:int = line.getAtomIndexAtPoint(width, 0);
-							if(endIndex >= 0)
+							if (endIndex >= 0)
 							{
 								this._truncationOffset = line.rawTextLength - endIndex;
 							}
 						}
 						this._truncationOffset++;
 						var truncatedTextLength:int = lineLength - this._truncationOffset;
-						//we want to start at this line so that the previous
-						//lines don't become invalid.
-						var truncatedText:String =  this._text.substr(lineStartIndex, truncatedTextLength) + this._truncationText;
+						// we want to start at this line so that the previous
+						// lines don't become invalid.
+						var truncatedText:String = this._text.substr(lineStartIndex, truncatedTextLength) + this._truncationText;
 						var lineBreakIndex:int = this._text.indexOf(LINE_FEED, lineStartIndex);
 						if (lineBreakIndex < 0)
 						{
@@ -269,8 +216,8 @@ package feathers.controls.text
 			}
 			if (textLines !== this._measurementTextLines)
 			{
-				//no need to align the measurement text lines because they won't
-				//be rendered
+				// no need to align the measurement text lines because they won't
+				// be rendered
 				this.alignTextLines(textLines, width, this._currentHorizontalAlign);
 			}
 			if (this._currentHorizontalAlign === Align.RIGHT)
@@ -303,7 +250,7 @@ package feathers.controls.text
 			if (textLines !== this._measurementTextLines)
 			{
 				if (result.width >= 1 && result.height >= 1 &&
-					this._nativeFilters !== null && this._nativeFilters.length > 0)
+						this._nativeFilters !== null && this._nativeFilters.length > 0)
 				{
 					var starling:Starling = this.stage !== null ? this.stage.starling : Starling.current;
 					var scaleFactor:Number = starling.contentScaleFactor;
@@ -339,12 +286,5 @@ package feathers.controls.text
 			}
 			return result;
 		}
-
-		// override protected function measureNativeFilters(bitmapData:BitmapData, result:Rectangle = null):Rectangle
-		// {
-		// 	var out:Rectangle = super.measureNativeFilters(bitmapData, result);
-		// 	trace("measureNativeFilters", out);
-		// 	return out;
-		// }
 	}
 }
