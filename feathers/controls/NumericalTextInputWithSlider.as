@@ -24,6 +24,9 @@ package feathers.controls
 
 		/** Intended for 4-digit inputs. */
 		public static const ALTERNATIVE_STYLE_NAME_WIDE:String = "wide";
+		
+		/** Intended for 5-digit inputs. */
+		public static const ALTERNATIVE_STYLE_NAME_X_WIDE:String = "x-wide";
 
 		public static const DEFAULT_CHILD_STYLE_NAME_SLIDER:String = "numericalTextInputWithSlider_slider";
 
