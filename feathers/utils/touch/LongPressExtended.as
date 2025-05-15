@@ -13,135 +13,147 @@ package feathers.utils.touch
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
 	import starling.utils.Pool;
-	
-	/** When dispatching the <code>LONG_PRESS</code> event, <code>LongPressExtended</code> sets <code>Event.data</code> to the touch ID (<code>int</code>). */ 
+
+	/** 
+	 * <ul>
+	 * <li><code>LONG_PRESS</code><code>Event.data</code> is set to the touch ID (<code>int</code>).</li>
+	 * <li>New <code>bubbleEvents</code> property.
+	 * <li>New <code>touchBeganEventType</code> and <code>touchEndedEventType</code> properties.
+	 * <li>Fixes not using cutomHitTest when <code>longPressDuration</code> has elapsed.</li>
+	 * </ul>
+	 */
 	public class LongPressExtended extends LongPress
 	{
 		public var touchBeganEventType:String;
 		public var touchEndedEventType:String;
 		public var bubbleEvents:Boolean;
-		
-		public function LongPressExtended(target:DisplayObject=null)
+
+		public function LongPressExtended(target:DisplayObject = null)
 		{
 			super(target);
 		}
-		
+
 		override protected function target_touchHandler(event:TouchEvent):void
 		{
-			if(!this._isEnabled)
+			if (!_isEnabled)
 			{
-				this._touchPointID = -1;
+				_touchPointID = -1;
 				return;
 			}
-			
-			if(this._touchPointID >= 0)
+
+			if (_touchPointID >= 0)
 			{
-				//a touch has begun, so we'll ignore all other touches.
-				var touch:Touch = event.getTouch(this._target, null, this._touchPointID);
-				if(!touch)
+				// a touch has begun, so we'll ignore all other touches.
+				var touch:Touch = event.getTouch(_target, null, _touchPointID);
+				if (!touch)
 				{
-					//this should not happen.
+					// this should not happen.
 					return;
 				}
-				
-				if(touch.phase == TouchPhase.MOVED)
+
+				if (touch.phase == TouchPhase.MOVED)
 				{
-					this._touchLastGlobalPosition.x = touch.globalX;
-					this._touchLastGlobalPosition.y = touch.globalY;
+					_touchLastGlobalPosition.x = touch.globalX;
+					_touchLastGlobalPosition.y = touch.globalY;
 				}
-				else if(touch.phase == TouchPhase.ENDED)
+				else if (touch.phase == TouchPhase.ENDED)
 				{
-					this._target.removeEventListener(Event.ENTER_FRAME, target_enterFrameHandler);
-					
-					//re-enable the other events
-					if(this._tapToTrigger)
+					_target.removeEventListener(Event.ENTER_FRAME, target_enterFrameHandler);
+
+					// re-enable the other events
+					if (_tapToTrigger)
 					{
-						this._tapToTrigger.isEnabled = true;
+						_tapToTrigger.isEnabled = true;
 					}
-					if(this._tapToSelect)
+					if (_tapToSelect)
 					{
-						this._tapToSelect.isEnabled = true;
+						_tapToSelect.isEnabled = true;
 					}
-					
-					if (this.touchEndedEventType)
+
+					if (touchEndedEventType)
 					{
-						this._target.dispatchEventWith(this.touchEndedEventType, this.bubbleEvents, this._touchPointID);
+						_target.dispatchEventWith(touchEndedEventType, bubbleEvents, _touchPointID);
 					}
-					
-					//the touch has ended, so now we can start watching for a
-					//new one.
-					this._touchPointID = -1;
+
+					// the touch has ended, so now we can start watching for a new one.
+					_touchPointID = -1;
 				}
 				return;
 			}
 			else
 			{
-				//we aren't tracking another touch, so let's look for a new one.
-				touch = event.getTouch(DisplayObject(this._target), TouchPhase.BEGAN);
-				if(!touch)
+				// we aren't tracking another touch, so let's look for a new one.
+				touch = event.getTouch(_target, TouchPhase.BEGAN);
+				if (!touch)
 				{
-					//we only care about the began phase. ignore all other
-					//phases when we don't have a saved touch ID.
+					// we only care about the began phase. ignore all other
+					// phases when we don't have a saved touch ID.
 					return;
 				}
-				if(this._customHitTest !== null)
+				if (_customHitTest !== null)
 				{
 					var point:Point = Pool.getPoint();
-					touch.getLocation(DisplayObject(this._target), point);
-					var isInBounds:Boolean = this._customHitTest(point);
+					touch.getLocation(_target, point);
+					var isInBounds:Boolean = _customHitTest(point);
 					Pool.putPoint(point);
-					if(!isInBounds)
+					if (!isInBounds)
 					{
 						return;
 					}
 				}
-				
-				//save the touch ID so that we can track this touch's phases.
-				this._touchPointID = touch.id;
-				
-				if (this.touchBeganEventType)
+
+				// save the touch ID so that we can track this touch's phases.
+				_touchPointID = touch.id;
+
+				if (touchBeganEventType)
 				{
-					this._target.dispatchEventWith(this.touchBeganEventType, this.bubbleEvents, this._touchPointID);
+					_target.dispatchEventWith(touchBeganEventType, bubbleEvents, _touchPointID);
 				}
-				
-				//save the position so that we can do a final hit test
-				this._touchLastGlobalPosition.x = touch.globalX;
-				this._touchLastGlobalPosition.y = touch.globalY;
-				
-				this._touchBeginTime = getTimer();
-				this._target.addEventListener(Event.ENTER_FRAME, target_enterFrameHandler);
+
+				// save the position so that we can do a final hit test
+				_touchLastGlobalPosition.x = touch.globalX;
+				_touchLastGlobalPosition.y = touch.globalY;
+
+				_touchBeginTime = getTimer();
+				_target.addEventListener(Event.ENTER_FRAME, target_enterFrameHandler);
 			}
 		}
-		
+
 		override protected function target_enterFrameHandler(event:Event):void
 		{
-			var accumulatedTime:Number = (getTimer() - this._touchBeginTime) / 1000;
-			if(accumulatedTime >= this._longPressDuration)
+			var accumulatedTime:Number = (getTimer() - _touchBeginTime) / 1000;
+			if (accumulatedTime >= _longPressDuration)
 			{
-				this._target.removeEventListener(Event.ENTER_FRAME, target_enterFrameHandler);
-				
-				var stage:Stage = this._target.stage;
-				if(this._target is DisplayObjectContainer)
+				_target.removeEventListener(Event.ENTER_FRAME, target_enterFrameHandler);
+
+				var stage:Stage = _target.stage;
+				if (_customHitTest !== null)
 				{
-					var isInBounds:Boolean = DisplayObjectContainer(this._target).contains(stage.hitTest(this._touchLastGlobalPosition));
+					var point:Point = _target.globalToLocal(_touchLastGlobalPosition, Pool.getPoint());
+					var isInBounds:Boolean = _customHitTest(point);
+					Pool.putPoint(point);
+				}
+				else if (_target is DisplayObjectContainer)
+				{
+					isInBounds = DisplayObjectContainer(_target).contains(stage.hitTest(_touchLastGlobalPosition));
 				}
 				else
 				{
-					isInBounds = this._target === stage.hitTest(this._touchLastGlobalPosition);
+					isInBounds = _target === stage.hitTest(_touchLastGlobalPosition);
 				}
-				if(isInBounds)
+				if (isInBounds)
 				{
-					//disable the other events
-					if(this._tapToTrigger)
+					// disable the other events
+					if (_tapToTrigger)
 					{
-						this._tapToTrigger.isEnabled = false;
+						_tapToTrigger.isEnabled = false;
 					}
-					if(this._tapToSelect)
+					if (_tapToSelect)
 					{
-						this._tapToSelect.isEnabled = false;
+						_tapToSelect.isEnabled = false;
 					}
-					
-					this._target.dispatchEventWith(FeathersEventType.LONG_PRESS, this.bubbleEvents, this._touchPointID);
+
+					_target.dispatchEventWith(FeathersEventType.LONG_PRESS, bubbleEvents, _touchPointID);
 				}
 			}
 		}
