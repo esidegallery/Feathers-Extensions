@@ -59,7 +59,10 @@ package feathers.extensions.maps
 			visible = true;
 			if (_animateShow && alpha < 1 && tweenID == -1)
 			{
-				tweenID = Starling.juggler.tween(this, 0.1, {
+				tweenID = Starling.juggler.tween(
+						this,
+						0.1,
+						{
 							alpha: 1,
 							onComplete: tween_completeHandler
 						});
