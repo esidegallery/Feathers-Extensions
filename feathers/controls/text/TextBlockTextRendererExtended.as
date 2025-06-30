@@ -4,11 +4,22 @@ package feathers.controls.text
 	import flash.display.DisplayObjectContainer;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	import flash.text.FontType;
+	import flash.text.engine.CFFHinting;
+	import flash.text.engine.ElementFormat;
+	import flash.text.engine.FontDescription;
+	import flash.text.engine.FontLookup;
+	import flash.text.engine.FontPosture;
+	import flash.text.engine.FontWeight;
+	import flash.text.engine.Kerning;
+	import flash.text.engine.RenderingMode;
 	import flash.text.engine.TextLine;
 
 	import starling.core.Starling;
+	import starling.text.TextFormat;
 	import starling.utils.Align;
 	import starling.utils.Pool;
+	import starling.utils.SystemUtil;
 
 	/**
 	 * <p>Adds the following functionality:</p>
@@ -75,6 +86,26 @@ package feathers.controls.text
 			}
 			_maxLines = value;
 			invalidate(INVALIDATION_FLAG_DATA);
+		}
+
+		/**
+		 * CFF hinting is recommended for smaller text, and can look add at the baseline at larger sizes.
+		 * This sets the text size at and above which CFF hinting will be disabled. 
+		 * This value will also take Starling content scale factor into account.
+		 */
+		private var _disableCFFHintingThreshold:Number = 26;
+		public function get disableCFFHintingThreshold():Number
+		{
+			return _disableCFFHintingThreshold;
+		}
+		public function set disableCFFHintingThreshold(value:Number):void
+		{
+			if (_disableCFFHintingThreshold == value)
+			{
+				return;
+			}
+			_disableCFFHintingThreshold = value;
+			invalidate(INVALIDATION_FLAG_STYLES);
 		}
 
 		public function TextBlockTextRendererExtended()
@@ -285,6 +316,70 @@ package feathers.controls.text
 				super.toolTip = _customToolTip;
 			}
 			return result;
+		}
+
+		override protected function getElementFormatFromFontStyles():ElementFormat
+		{
+			if (this.isInvalid(INVALIDATION_FLAG_STYLES) || this.isInvalid(INVALIDATION_FLAG_STATE))
+			{
+				var textFormat:TextFormat;
+				if (this._fontStyles !== null)
+				{
+					textFormat = this._fontStyles.getTextFormatForTarget(this);
+				}
+				if (textFormat !== null)
+				{
+					var fontWeight:String = FontWeight.NORMAL;
+					if (textFormat.bold)
+					{
+						fontWeight = FontWeight.BOLD;
+					}
+					var fontPosture:String = FontPosture.NORMAL;
+					if (textFormat.italic)
+					{
+						fontPosture = FontPosture.ITALIC;
+					}
+					var fontLookup:String = FontLookup.DEVICE;
+					if (SystemUtil.isEmbeddedFont(textFormat.font, textFormat.bold, textFormat.italic, FontType.EMBEDDED_CFF))
+					{
+						fontLookup = FontLookup.EMBEDDED_CFF;
+					}
+					var fontDescription:FontDescription = new FontDescription(
+							textFormat.font,
+							fontWeight,
+							fontPosture,
+							fontLookup,
+							RenderingMode.CFF,
+							textFormat.size * Starling.contentScaleFactor >= disableCFFHintingThreshold ? CFFHinting.NONE : CFFHinting.HORIZONTAL_STEM);
+					this._fontStylesElementFormat = new ElementFormat(fontDescription, textFormat.size, textFormat.color);
+					if (textFormat.kerning)
+					{
+						this._fontStylesElementFormat.kerning = Kerning.ON;
+					}
+					else
+					{
+						this._fontStylesElementFormat.kerning = Kerning.OFF;
+					}
+					var letterSpacing:Number = textFormat.letterSpacing / 2;
+					// adobe documentation recommends splitting it between
+					// left and right
+					// http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/text/engine/ElementFormat.html#trackingRight
+					this._fontStylesElementFormat.trackingRight = letterSpacing;
+					this._fontStylesElementFormat.trackingLeft = letterSpacing;
+					this._currentLeading = textFormat.leading;
+					this._currentVerticalAlign = textFormat.verticalAlign;
+					this._currentHorizontalAlign = textFormat.horizontalAlign;
+				}
+				else if (this._fontStylesElementFormat === null)
+				{
+					// fallback to a default so that something is displayed
+					this._fontStylesElementFormat = new ElementFormat();
+					this._currentLeading = 0;
+					this._currentVerticalAlign = Align.TOP;
+					this._currentHorizontalAlign = Align.LEFT;
+				}
+			}
+			return this._fontStylesElementFormat;
 		}
 	}
 }
