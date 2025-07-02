@@ -7,7 +7,7 @@ package feathers.utils
 
 	public function showControl(control:DisplayObject, show:Boolean = true):void
 	{
-		if (control == null || control.visible == show)
+		if (control == null)
 		{
 			return;
 		}
