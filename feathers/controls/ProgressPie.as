@@ -340,7 +340,7 @@ package feathers.controls
 				canvas.beginFill(Color.WHITE);
 				canvas.drawCircle(outerRad, outerRad, outerRad);
 				canvas.endFill();
-				var scaleFactor:Number = stage != null ? stage.starling.contentScaleFactor : Starling.current.contentScaleFactor;
+				var scaleFactor:Number = Starling.contentScaleFactor;
 				donutTexture = new RenderTexture(outerRad * 2, outerRad * 2, true, scaleFactor);
 				donutTexture.drawBundled(function():void
 					{
