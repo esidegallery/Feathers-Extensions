@@ -89,8 +89,8 @@ package feathers.controls.text
 		}
 
 		/**
-		 * CFF hinting is recommended for smaller text, and can look add at the baseline at larger sizes.
-		 * This sets the text size at and above which CFF hinting will be disabled. 
+		 * CFF hinting is recommended for smaller text, and can look odd at the baseline at larger sizes.
+		 * This sets the text size at and above which CFF hinting will be disabled.
 		 * This value will also take Starling content scale factor into account.
 		 */
 		private var _disableCFFHintingThreshold:Number = 26;
