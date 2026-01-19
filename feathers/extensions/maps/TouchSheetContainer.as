@@ -313,28 +313,25 @@ package feathers.extensions.maps
 			if (initialViewRectangle != null)
 			{
 				tweenToViewRectangle(initialViewRectangle, duration, transition);
-				return;
 			}
-			if (initialScaleMode == ScaleMode.SHOW_ALL)
+			else if (initialScaleMode == ScaleMode.SHOW_ALL)
+			{
+				scaleTo(touchSheet.minimumScale, NaN, NaN, duration, transition);
+			}
+			else if (initialScaleMode == ScaleMode.NO_BORDER)
 			{
 				var viewport:Rectangle = getViewPort(Pool.getRectangle());
-				// We fit the viewport to the opposite scale mode to get the right effect:
-				RectangleUtil.fit(viewport, movementBounds, ScaleMode.NO_BORDER, false, viewport);
-				tweenToViewRectangle(viewport, duration, transition);
-				Pool.putRectangle(viewport);
-				return;
-			}
-			if (initialScaleMode == ScaleMode.NO_BORDER)
-			{
-				viewport = getViewPort(Pool.getRectangle());
 				RectangleUtil.fit(viewport, movementBounds, ScaleMode.SHOW_ALL, false, viewport);
 				tweenToViewRectangle(viewport, duration, transition);
 				Pool.putRectangle(viewport);
-				return;
 			}
-			if (!isNaN(initialScale))
+			else if (!isNaN(initialScale))
 			{
 				scaleTo(initialScale, NaN, NaN, duration, transition);
+			}
+			else
+			{
+				scaleTo(touchSheet.minimumScale, NaN, NaN, duration, transition);
 			}
 		}
 
