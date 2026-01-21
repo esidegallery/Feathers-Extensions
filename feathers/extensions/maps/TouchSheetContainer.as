@@ -20,6 +20,7 @@ package feathers.extensions.maps
 	import starling.display.Quad;
 	import starling.events.Event;
 	import starling.events.Touch;
+	import starling.utils.Align;
 	import starling.utils.MatrixUtil;
 	import starling.utils.Pool;
 	import starling.utils.RectangleUtil;
@@ -520,6 +521,49 @@ package feathers.extensions.maps
 				newScale = touchSheet.viewPort.height / rectangle.height * touchSheet.scale;
 			}
 			tweenTo(rectangle.left + rectangle.width / 2, rectangle.top + rectangle.height / 2, newScale, duration, transition);
+		}
+
+		public function alignTouchSheetPivot(horizontalAlign:String = "center", verticalAlign:String = "center"):void
+		{
+			if (touchSheet == null)
+			{
+				return;
+			}
+
+			updateTouchSheetViewport();
+
+			if (touchSheet.viewPort == null)
+			{
+				return;
+			}
+
+			if (horizontalAlign == Align.LEFT)
+			{
+				var pX:Number = touchSheet.viewPort.x;
+			}
+			else if (horizontalAlign == Align.RIGHT)
+			{
+				pX = touchSheet.viewPort.x + touchSheet.viewPort.width;
+			}
+			else // Align.CENTER
+			{
+				pX = touchSheet.viewPort.x + touchSheet.viewPort.width / 2.0;
+			}
+
+			if (verticalAlign == Align.TOP)
+			{
+				var pY:Number = touchSheet.viewPort.y;
+			}
+			else if (verticalAlign == Align.BOTTOM)
+			{
+				pY = touchSheet.viewPort.y + touchSheet.viewPort.height;
+			}
+			else // Align.CENTER
+			{
+				pY = touchSheet.viewPort.y + touchSheet.viewPort.height / 2.0;
+			}
+
+			touchSheet.setPivot(pX, pY);
 		}
 
 		public function killVelocity():void
