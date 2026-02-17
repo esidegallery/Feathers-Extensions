@@ -380,7 +380,7 @@ package feathers.extensions.maps
 			var maxScale:Number = !isNaN(maximumScale) ? maximumScale : MapUtils.getScaleForScaleMode(maximumScaleMode, touchSheet.movementBounds.width, touchSheet.movementBounds.height, paddedWidth, paddedHeight);
 
 			touchSheet.minimumScale = MathUtils.isNotNaNOrInfinity(minScale) ? minScale : 0;
-			touchSheet.maximumScale = MathUtils.isNotNaNOrInfinity(maxScale) ? Math.max(touchSheet.minimumScale, maxScale) : Number.MAX_VALUE;
+			touchSheet.maximumScale = MathUtils.isNotNaNOrInfinity(maxScale) ? Math.max(touchSheet.minimumScale, maxScale) : 1;
 		}
 
 		private function markerDisplayObject_triggeredHandler(event:Event):void
