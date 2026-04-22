@@ -79,27 +79,32 @@ package feathers.extensions.maps
 
 		protected function initialize():void
 		{
-			_videoPlayer = new VideoPlayerExtended;
-			volume = options.volume;
+			var player:VideoPlayerExtended = new VideoPlayerExtended;
 			if (_options.videoSource is File)
 			{
-				_videoPlayer.videoSource = (_options.videoSource as File).url;
+				player.videoSource = (_options.videoSource as File).url;
 			}
 			else if (_options.videoSource is URLRequest)
 			{
-				_videoPlayer.videoSource = (_options.videoSource as URLRequest).url;
+				player.videoSource = (_options.videoSource as URLRequest).url;
 			}
 			else
 			{
-				_videoPlayer.videoSource = String(_options.videoSource);
+				player.videoSource = String(_options.videoSource);
 			}
-			_videoPlayer.addEventListener(Event.READY, videoPlayer_readyHandler);
-			_videoPlayer.addEventListener(Event.COMPLETE, videoPlayer_completeHandler);
-			_videoPlayer.addEventListener(FeathersEventType.CLEAR, videoPlayer_clearHandler);
+			player.addEventListener(Event.READY, videoPlayer_readyHandler);
+			player.addEventListener(Event.COMPLETE, videoPlayer_completeHandler);
+			player.addEventListener(FeathersEventType.CLEAR, videoPlayer_clearHandler);
+
+			_videoPlayer = player;
 			addChild(_videoPlayer);
 
-			_videoDisplay = new VideoTextureImageLoader;
-			_videoDisplay.scaleContent = false;
+			volume = options.volume;
+
+			var display:VideoTextureImageLoader = new VideoTextureImageLoader;
+			display.scaleContent = false;
+
+			_videoDisplay = display;
 			addChild(_videoDisplay);
 		}
 
