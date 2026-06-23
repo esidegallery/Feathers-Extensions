@@ -73,7 +73,7 @@ package feathers.utils.touch
 				if (touch.phase == TouchPhase.ENDED)
 				{
 					var stage:Stage = _target.stage;
-					if (stage !== null && ExclusiveTouch.forStage(stage).getClaim(touch.id) === null)
+					if (stage !== null && (!checkExclusiveTouch || ExclusiveTouch.forStage(stage).getClaim(touch.id) === null))
 					{
 						var point:Point = Pool.getPoint();
 						touch.getLocation(stage, point);

@@ -380,7 +380,7 @@ package feathers.extensions.maps
 			previousCoords.setTo(x, y);
 			velocity.setTo(sumX / totalWeight || 0, sumY / totalWeight || 0);
 
-			dispatchEventWith(FeathersEventType.END_INTERACTION, _wasManipulated);
+			dispatchEventWith(FeathersEventType.END_INTERACTION, false, _wasManipulated);
 		}
 
 		/**
